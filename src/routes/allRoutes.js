@@ -18,6 +18,9 @@ import EcommerceOrders from "../pages/Ecommerce/EcommerceOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
 import EcommercePosOrders from "../pages/Ecommerce/EcommercePosOrders/index"
 
+// Purchase Pages
+import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
+
 
 // Authentication related pages
 import Login from "../pages/Authentication/Login"
@@ -39,6 +42,10 @@ const userRoutes = [
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
   { path: "/ecommerce-pos-orders", component: <EcommercePosOrders/> },
+
+
+  // Purchase Routes
+  { path: "/create-purchase", component: <PurchaseCreate/> },
 
 
   //Utility

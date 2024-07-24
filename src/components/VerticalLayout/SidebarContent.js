@@ -173,7 +173,7 @@ const SidebarContent = props => {
                     {props.t("Pos Orders")}
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link to="#">{props.t("Products")}</Link>
                 </li>
                 <li>
@@ -194,6 +194,21 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="#">{props.t("Add Product")}</Link>
+                </li> */}
+              </ul>
+            </li>
+
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-envelope"></i>
+                <span>{props.t("Purchase")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/create-purchase">{props.t("Create Purchase")}</Link>
+                </li>
+                <li>
+                  <Link to="/purchase-list">{props.t("Purchase List")} </Link>
                 </li>
               </ul>
             </li>
