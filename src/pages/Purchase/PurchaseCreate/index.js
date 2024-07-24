@@ -16,7 +16,7 @@ const CreatePurchase = () => {
             <p className="w-full bg-gray-600 text-white p-2 font-bold text-2xl">
               Add Purchase Details
             </p>
-            <form className="grid grid-cols-3 mt-4 mx-4">
+            <form className="grid lg:grid-cols-3 md:grid-cols-2 mt-4 mx-4 gap-2">
               <select className="select select-bordered w-full max-w-xs">
                 <option disabled selected>
                   Select
@@ -27,7 +27,7 @@ const CreatePurchase = () => {
 
               <input type="file" className="file-input file-input-bordered file-input-info w-full max-w-xs" />
               <textarea className="textarea textarea-bordered" rows={1} placeholder="Note"></textarea>
-              <div className="col-span-3 text-center mt-4">
+              <div className="lg:col-span-3 md:col-span-2 text-center mt-4">
                 <button className="btn btn-sm btn-success text-white">Add Purchase</button>
               </div>
             </form>

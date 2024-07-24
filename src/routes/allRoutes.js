@@ -20,6 +20,7 @@ import EcommercePosOrders from "../pages/Ecommerce/EcommercePosOrders/index"
 
 // Purchase Pages
 import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
+import PurchaseList from "../pages/Purchase/PurchaseList/index"
 
 
 // Authentication related pages
@@ -46,6 +47,7 @@ const userRoutes = [
 
   // Purchase Routes
   { path: "/create-purchase", component: <PurchaseCreate/> },
+  { path: "/purchase-list", component: <PurchaseList/> },
 
 
   //Utility

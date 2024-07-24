@@ -125,12 +125,7 @@ const Header = props => {
               }}
               type="button"
             >
-              <DropdownToggle
-                className="header-item noti-icon waves-effect"
-                id="page-header-search-dropdown"
-                tag="button"
-              > <i className="uil-search" />
-              </DropdownToggle>
+             
               <DropdownMenu className="dropdown-menu-lg dropdown-menu-end p-0">
                 <Form className="p-3">
                   <div className="form-group m-0">
