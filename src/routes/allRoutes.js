@@ -22,6 +22,10 @@ import EcommercePosOrders from "../pages/Ecommerce/EcommercePosOrders/index"
 import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
 import PurchaseList from "../pages/Purchase/PurchaseList/index"
 
+// supply pages
+import AddSupply from "../pages/Supply/AddSupply/index"
+import SupplyList from "../pages/Supply/SupplyList/index"
+
 
 // Authentication related pages
 import Login from "../pages/Authentication/Login"
@@ -48,6 +52,11 @@ const userRoutes = [
   // Purchase Routes
   { path: "/create-purchase", component: <PurchaseCreate/> },
   { path: "/purchase-list", component: <PurchaseList/> },
+
+  // supply Routes
+  { path: "/add-supply", component: <AddSupply/> },
+  { path: "/supply-list", component: <SupplyList/> },
+
 
 
   //Utility
