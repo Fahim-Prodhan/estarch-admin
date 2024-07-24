@@ -217,13 +217,14 @@ const Orders = () => {
                       <td>
                         <p className="font-bold text-success">E-commerce</p>
                         <p>invoice: 454</p>
-                        <p className="w-32">02-07-24, 10:00 AM</p>
+                        <p className="w-36">02-07-24, 10:00 AM</p>
                         <p className="font-bold mt-2">Atikur Rahman</p>
                         <p className="text-sm opacity-50"> Mirpur, Dahka </p>
                         <p className="text-sm opacity-50"> 0170000000 </p>
                         <p className="text-sm opacity-80 text-error w-28">
                           Customer Notes will show
                         </p>
+                        <p className="mt-2 font-bold text-accent">Last Note</p>
                       </td>
                       <td >
                         <p className="w-44 md:w-full"> Total Bill: <span className="text-success"> 1850 TK</span></p>
