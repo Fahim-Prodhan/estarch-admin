@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "date": "24 May,2024",
+    "expenseType": "Fahim",
+    "paymentType": "Cash",
+    "amount": "2000 Tk",
+    "details": "Details Will Show Here"
+  },
+  {
+    "id": 2,
+    "date": "15 May,2024",
+    "expenseType": "Jewel",
+    "paymentType": "Cash",
+    "amount": "5000 Tk",
+    "details": "Details Will Show Here"
+  },
+  {
+    "id": 3,
+    "date": "4 May,2024",
+    "expenseType": "Riyadh",
+    "paymentType": "Cash",
+    "amount": "6000 Tk",
+    "details": "Details Will Show Here"
+  }
+]

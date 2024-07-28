@@ -1,150 +1,91 @@
-import React, { useState } from "react"
-import { Container } from "reactstrap"
-import DatePicker from "react-datepicker"
-
-import "react-datepicker/dist/react-datepicker.css"
-
-//Import Breadcrumb
-import Breadcrumbs from "../../../components/Common/Breadcrumb"
-import { FaEdit } from "react-icons/fa"
-import { MdDeleteSweep } from "react-icons/md"
+import React, { useState, useEffect } from "react";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { MDBDataTable } from "mdbreact";
+import Breadcrumbs from "../../../components/Common/Breadcrumb";
+import { FaEdit } from "react-icons/fa";
+import { MdDeleteSweep } from "react-icons/md";
+import "../../../assets/scss/datatables.scss"; // Ensure you have the appropriate styles
 
 const ExpenseList = () => {
-  document.title = "Estarch | Create Expense"
+  const [data, setData] = useState({ columns: [], rows: [] });
 
-  const [startDate, setStartDate] = useState(new Date())
+  useEffect(() => {
+    // Simulate fetching data from an API or static JSON file
+    fetch("/expenseData.json")
+      .then(response => response.json())
+      .then(data => {
+
+    const formattedData = {
+      columns: [
+        { label: "Date", field: "date", sort: "asc", width: 150 },
+        { label: "Expense Type", field: "expenseType", sort: "asc", width: 150 },
+        { label: "Payment Type", field: "paymentType", sort: "asc", width: 150 },
+        { label: "Amount", field: "amount", sort: "asc", width: 100 },
+        { label: "Details", field: "details", sort: "asc", width: 200 },
+        {
+          label: "Action",
+          field: "action",
+          sort: "asc",
+          width: 100,
+          default: ""
+        }
+      ],
+      rows: data.map(item => ({
+        date: item.date,
+        expenseType: (
+          <p className="p-1 bg-blue-500 text-white rounded-md text-center w-20">
+            {item.expenseType}
+          </p>
+        ),
+        paymentType: item.paymentType,
+        amount: item.amount,
+        details: item.details,
+        action: (
+          <div className="flex gap-2">
+            <button className="text-2xl text-success">
+              <FaEdit />
+            </button>
+            <button className="text-2xl text-error" onClick={() => handleDelete(item.id)}>
+              <MdDeleteSweep />
+            </button>
+          </div>
+        )
+      }))
+    };
+ 
+    setData(formattedData);
+
+  })
+  }, []);
+
+  const handleDelete = (rowId) => {
+    console.log(`Deleting row with id: ${rowId}`);
+    // Add your deletion logic here
+  };
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <Breadcrumbs title="Estarch" breadcrumbItem="Create Expense" />
-          <div className="shadow-lg pb-4">
+          <div className="">
             <p className="w-full bg-gray-600 text-white p-2 font-bold text-2xl mt-4">
               Expense List
             </p>
-
-            <div className="flex my-4 items-center gap-4 flex-wrap ml-4">
-            <select className="select select-bordered w-full max-w-xs">
-                  <option disabled selected>
-                    Expense Type
-                  </option>
-                  <option>Han Solo</option>
-                  <option>Greedo</option>
-                </select>
-                <p className="text-xl  font-bold text-error">3 items: 1200 Tk</p>
-            </div>
-
-            {/* table */}
-
-            <div className="overflow-x-auto ">
-              <table className="table table-zebra ">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Date</th>
-                    <th>Expense Type</th>
-                    <th>Payment Type</th>
-                    <th>Amount</th>
-                    <th>Details</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody className="pl-4">
-                  {/* row 1 */}
-                  <tr>
-                    <th>1</th>
-                    <td>
-                      <p>24 May,2024</p>
-                    </td>
-
-                    <td>
-                        <p className="p-1 bg-blue-500 text-white rounded-md text-center w-20">Fahim</p>
-                    </td>
-
-                    <td>Cash</td>
-
-                    <td>2000 Tk</td>
-
-                    <td>Details Will Show Here</td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* row 1 */}
-                  <tr>
-                    <th>2</th>
-                    <td>
-                      <p>15 May,2024</p>
-                    </td>
-
-                    <td>
-                        <p className="p-1 bg-blue-500 text-white rounded-md text-center w-20">Jewel</p>
-                    </td>
-
-                    <td>Cash</td>
-
-                    <td>5000 Tk</td>
-
-                    <td>Details Will Show Here</td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* row 1 */}
-                  <tr>
-                    <th>3</th>
-                    <td>
-                      <p>4 May,2024</p>
-                    </td>
-
-                    <td>
-                        <p className="p-1 bg-blue-500 text-white rounded-md text-center w-20">Riyadh</p>
-                    </td>
-
-                    <td>Cash</td>
-
-                    <td>6000 Tk</td>
-
-                    <td>Details Will Show Here</td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                
-                </tbody>
-              </table>
-            </div>
+            <Row>
+              <Col className="col-12">
+                <Card>
+                  <CardBody>
+                    <MDBDataTable responsive bordered data={data} />
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
           </div>
         </Container>
       </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ExpenseList
+export default ExpenseList;
