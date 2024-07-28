@@ -1,0 +1,39 @@
+[
+    {
+      "id": 1,
+      "serialId": "sri2540rzi",
+      "product": {
+        "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "name": "Product",
+        "quantity": 245
+      },
+      "supplier": {
+        "name": "XYX",
+        "phone": "013030000",
+        "company": "ABC"
+      },
+      "totalBill": "5700 Tk",
+      "status": "Receive",
+      "created": "24 May,2024 12:21 PM",
+      "note": "None"
+    },
+    {
+      "id": 2,
+      "serialId": "sri2541rzi",
+      "product": {
+        "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "name": "Product",
+        "quantity": 245
+      },
+      "supplier": {
+        "name": "XYX",
+        "phone": "013030000",
+        "company": "ABC"
+      },
+      "totalBill": "5800 Tk",
+      "status": "Receive",
+      "created": "24 May,2024 12:21 PM",
+      "note": "None"
+    }
+  ]
+  
