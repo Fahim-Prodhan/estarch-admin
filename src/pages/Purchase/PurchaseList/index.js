@@ -8,7 +8,7 @@ import { FaRegEye } from "react-icons/fa";
 //Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
 
-const Refund = () => {
+const PurchaseList = () => {
   document.title = "Estarch | Purchase List"
 
   return (
@@ -134,4 +134,4 @@ const Refund = () => {
   )
 }
 
-export default Refund
+export default PurchaseList

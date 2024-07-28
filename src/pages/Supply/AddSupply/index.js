@@ -4,7 +4,7 @@ import { Container } from "reactstrap"
 //Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
 
-const Refund = () => {
+const AddSupply = () => {
   document.title = "Estarch | Add Supply"
 
   return (
@@ -64,4 +64,4 @@ const Refund = () => {
   )
 }
 
-export default Refund
+export default AddSupply

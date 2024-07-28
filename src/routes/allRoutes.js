@@ -26,6 +26,16 @@ import PurchaseList from "../pages/Purchase/PurchaseList/index"
 import AddSupply from "../pages/Supply/AddSupply/index"
 import SupplyList from "../pages/Supply/SupplyList/index"
 
+// Expense Pages
+import ExpenseHead from "../pages/Expense/ExpenseHead/index"
+import CreateExpense from "../pages/Expense/CreateExpense/index"
+import ExpenseList from "../pages/Expense/ExpenseList/index"
+
+// Category Pages
+import CreateCategory from "../pages/Category/CreateCategory/index"
+import CategoryList from "../pages/Category/CategoryList/index"
+
+
 
 // Authentication related pages
 import Login from "../pages/Authentication/Login"
@@ -56,7 +66,17 @@ const userRoutes = [
   // supply Routes
   { path: "/add-supply", component: <AddSupply/> },
   { path: "/supply-list", component: <SupplyList/> },
-
+  
+  // Expense Routes
+  { path: "/expense-head", component: <ExpenseHead/> },
+  { path: "/create-expense", component: <CreateExpense/> },
+  { path: "/expense-list", component: <ExpenseList/> },
+  
+  
+  // Category Routes
+  { path: "/create-category", component: <CreateCategory/> },
+  { path: "/category-list", component: <CategoryList/> },
+  
 
 
   //Utility
