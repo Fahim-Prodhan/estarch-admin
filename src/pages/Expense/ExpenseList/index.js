@@ -18,26 +18,11 @@ const ExpenseList = () => {
           columns: [
             { label: "Date", field: "date", sort: "asc", width: 150 },
             {
-              label: "Expense Type",
-              field: "expenseType",
-              sort: "asc",
-              width: 150,
-            },
-            {
-              label: "Payment Type",
-              field: "paymentType",
-              sort: "asc",
-              width: 150,
-            },
+              label: "Expense Type",field: "expenseType",sort: "asc",width: 150,},
+            {label: "Payment Type",field: "paymentType",sort: "asc",width: 150,},
             { label: "Amount", field: "amount", sort: "asc", width: 100 },
             { label: "Details", field: "details", sort: "asc", width: 200 },
-            {
-              label: "Action",
-              field: "action",
-              sort: "asc",
-              width: 100,
-              default: "",
-            },
+            {label: "Action", field: "action",sort: "asc", width: 100,default: "", },
           ],
           rows: data.map(item => ({
             date: item.date,
@@ -84,7 +69,7 @@ const ExpenseList = () => {
               Expense List
             </p>
             <Row>
-              <Col >
+              <Col>
                 <Card>
                   <CardBody>
                     <CardBody>

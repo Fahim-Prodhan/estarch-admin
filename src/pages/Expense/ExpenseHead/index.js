@@ -1,21 +1,83 @@
-import React from "react"
-import { Container } from "reactstrap"
+import React, { useEffect, useState } from "react"
+import { Card, CardBody, Col, Container, Row } from "reactstrap"
 
 //Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
 import { FaEdit, FaRegEye } from "react-icons/fa"
 import { RiDeleteBin6Fill } from "react-icons/ri"
 import { MdDeleteSweep } from "react-icons/md"
+import { MDBDataTable } from "mdbreact"
 
 const ExpenseHead = () => {
   document.title = "Estarch | Expense Head"
+
+  const [data, setData] = useState({ columns: [], rows: [] })
+
+  const handleDelete = rowId => {
+    console.log(`Deleting row with id: ${rowId}`)
+    // Add your deletion logic here
+  }
+
+
+  useEffect(() => {
+    fetch("/expenseHeadData.json")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        const formattedData = {
+          columns: [
+            { label: "Serial", field: "serial", sort: "asc", width: 150 },
+            { label: "Image", field: "image", sort: "asc", width: 150 },
+            {
+              label: "Name",
+              field: "name",
+              sort: "asc",
+              width: 150,
+            },
+            {
+              label: "Action",
+              field: "action",
+              sort: "asc",
+              width: 100,
+              default: "",
+            },
+          ],
+          rows: data.map((item,index) => ({
+            serial:<p>{index+1}</p>,
+            image: (
+              <div className="avatar">
+                <div className="w-24 rounded-full">
+                  <img src={item.image} alt={item.name} />
+                </div>
+              </div>
+            ),
+            name: <p>{item.name}</p>,
+            action: (
+              <div className="flex gap-2">
+                <button className="text-2xl text-success">
+                  <FaEdit />
+                </button>
+                <button
+                  className="text-2xl text-error"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <MdDeleteSweep />
+                </button>
+              </div>
+            ),
+          })),
+        }
+
+        setData(formattedData)
+      })
+  }, [])
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <Breadcrumbs title="Estarch" breadcrumbItem="Expense Head" />
-          <div className="shadow-lg pb-4">
+          <div className="">
             <p className="w-full bg-gray-600 text-white p-2 font-bold text-2xl">
               Add Expense Head
             </p>
@@ -32,124 +94,18 @@ const ExpenseHead = () => {
             <p className="mt-12 w-full bg-gray-600 text-white p-2 font-bold text-2xl">
               List Of Expense Head
             </p>
+            <Row>
+              <Col>
+                <Card>
+                  <CardBody>
+                    <CardBody>
+                      <MDBDataTable responsive bordered data={data} />
+                    </CardBody>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
 
-            {/* table */}
-
-            <div className="overflow-x-auto ">
-              <table className="table table-zebra ">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody className="pl-4">
-                  {/* row 1 */}
-                  <tr>
-                    <th>1</th>
-                    <td>
-                      <div className="avatar">
-                        <div className="w-24 rounded-full">
-                          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p>Fahim</p>
-                    </td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* row 2 */}
-                  <tr>
-                    <th>2</th>
-                    <td>
-                      <div className="avatar">
-                        <div className="w-24 rounded-full">
-                          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p>Riyadh</p>
-                    </td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* row 3 */}
-                  <tr>
-                    <th>3</th>
-                    <td>
-                      <div className="avatar">
-                        <div className="w-24 rounded-full">
-                          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p>Shifat</p>
-                    </td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* row 4 */}
-                  <tr>
-                    <th>4</th>
-                    <td>
-                      <div className="avatar">
-                        <div className="w-24 rounded-full">
-                          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p>Jewel</p>
-                    </td>
-
-                    <td className="space-x-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button className="text-2xl text-success">
-                          <FaEdit />
-                        </button>
-                        <button className="text-2xl text-error">
-                          <MdDeleteSweep />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
         </Container>
       </div>
