@@ -3,10 +3,88 @@ import { Container } from "reactstrap"
 import { MdDeleteSweep } from "react-icons/md"
 import { FaEdit } from "react-icons/fa"
 
+
+
 //Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
+import { MDBDataTable } from "mdbreact"
+
+
+
 
 const Refund = () => {
+
+    const handleDelete = (rowId) => {
+        console.log(`Deleting row with id: ${rowId}`);
+        // Add your deletion logic here
+      };
+    
+      const data = {
+        columns: [
+          {
+            label: 'Name',
+            field: 'name',
+            sort: 'asc',
+            width: 150
+          },
+          {
+            label: 'Position',
+            field: 'position',
+            sort: 'asc',
+            width: 270
+          },
+          {
+            label: 'Office',
+            field: 'office',
+            sort: 'asc',
+            width: 200
+          },
+          {
+            label: 'Age',
+            field: 'age',
+            sort: 'asc',
+            width: 100
+          },
+          {
+            label: 'Start date',
+            field: 'date',
+            sort: 'asc',
+            width: 150
+          },
+          {
+            label: 'Salary',
+            field: 'salary',
+            sort: 'asc',
+            width: 100
+          },
+          {
+            label: 'Action',
+            field: 'action',
+            width: 100
+          }
+        ],
+        rows: [
+          {
+            name: 'Tiger Nixon',
+            position: 'System Architect',
+            office: 'Edinburgh',
+            age: '61',
+            date: '2011/04/25',
+            salary: '$320',
+            action: <button className="bg-red-500" onClick={() => handleDelete(1)}>Delete</button> // Replace with unique ID or identifier
+          },
+          {
+            name: 'Tiger Nixon',
+            position: 'System Architect',
+            office: 'Edinburgh',
+            age: '61',
+            date: '2011/04/25',
+            salary: '$320',
+            action: <button className="bg-red-500" onClick={() => handleDelete(1)}>Delete</button> // Replace with unique ID or identifier
+          },
+        ]
+      }; 
+
   document.title = "Estarch | Supply List"
 
   return (
@@ -91,17 +169,19 @@ const Refund = () => {
                       </td>
                       <td>01700000</td>
                       <td>Mirpur</td>
-                      <td>
-                        <div className="flex flex-wrap gap-2">
-                          <p className="bg-blue-500 text-center text-white p-1 rounded-md w-">
+                      <td className="w-40">
+                        <div className="flex flex-wrap gap-2 pr-0 mr-0 pl-0 ml-0">
+                          <p className="bg-blue-500 text-center text-white p-1 rounded-md">
                             Active
                           </p>
                           <input
                             type="checkbox"
-                            className="toggle toggle-info"
+                            className="toggle toggle-info "
                             defaultChecked
                           />
+                          
                         </div>
+                        
                       </td>
                       <td className="">
                         <div className="flex flex-wrap gap-2">
@@ -118,6 +198,7 @@ const Refund = () => {
                 </table>
               </div>
             </div>
+            <MDBDataTable striped bordered hover data={data} />
           </div>
         </Container>
       </div>

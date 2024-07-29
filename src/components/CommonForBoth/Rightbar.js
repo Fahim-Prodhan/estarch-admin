@@ -21,12 +21,7 @@ import { Link } from "react-router-dom";
 
 import "./rightbar.scss";
 
-//Import images
-import layout1 from "../../assets/images/layouts/layout-1.jpg";
-import layout2 from "../../assets/images/layouts/layout-2.jpg";
-import layout3 from "../../assets/images/layouts/layout-3.jpg";
 
-//constants
 import {
   layoutTypes,
   layoutModeTypes,
@@ -327,55 +322,6 @@ const RightSidebar = (props) => {
                 </label>
               </div>
             </FormGroup>
-            <hr className="mt-1" />
-            <h6 className="text-center">Choose Layouts</h6>
-
-            <div className="mb-2">
-              <Link
-                to="//minible-v-light.react.themesbrand.com"
-                target="_blank"
-              >
-                <img
-                  src={layout1}
-                  className="img-fluid img-thumbnail"
-                  alt=""
-                />
-              </Link>
-            </div>
-
-            <div className="mb-2">
-              <Link
-                to="//minible-v-dark.react.themesbrand.com"
-                target="_blank"
-              >
-                <img
-                  src={layout2}
-                  className="img-fluid img-thumbnail"
-                  alt=""
-                />
-              </Link>
-            </div>
-
-            <div className="mb-2">
-              <Link
-                to="//minible-v-rtl.react.themesbrand.com"
-                target="_blank"
-              >
-                <img
-                  src={layout3}
-                  className="img-fluid img-thumbnail"
-                  alt=""
-                />
-              </Link>
-            </div>
-
-            <Link
-              to="//1.envato.market/minible-react"
-              className="btn btn-primary btn-block mt-3"
-              target="_blank"
-            >
-              <i className="mdi mdi-cart mr-1" /> Purchase Now
-            </Link>
           </div>
         </SimpleBar>
       </div>
