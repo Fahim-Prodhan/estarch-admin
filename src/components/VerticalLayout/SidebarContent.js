@@ -315,6 +315,21 @@ const SidebarContent = props => {
               </ul>
             </li>
 
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-envelope"></i>
+                <span>{props.t("Attribute")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/main-attribute">{props.t("Main Attribute")}</Link>
+                </li>
+                <li>
+                  <Link to="/attribute-values">{props.t("Attribute Values")} </Link>
+                </li>
+              </ul>
+            </li>
+
             <li className="menu-title">Pages</li>
             <li>
               <Link to="/#" className="has-arrow waves-effect">

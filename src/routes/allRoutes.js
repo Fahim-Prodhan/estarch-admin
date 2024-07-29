@@ -35,6 +35,10 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 import CreateCategory from "../pages/Category/CreateCategory/index"
 import CategoryList from "../pages/Category/CategoryList/index"
 
+// Attribute Pages
+import MainAttribute from "../pages/Attribute/MainAttribute/index"
+import AttributeValue from "../pages/Attribute/AttributeValue/index"
+
 
 
 // Authentication related pages
@@ -76,6 +80,11 @@ const userRoutes = [
   // Category Routes
   { path: "/create-category", component: <CreateCategory/> },
   { path: "/category-list", component: <CategoryList/> },
+  
+  // Attribute Routes
+  { path: "/main-attribute", component: <MainAttribute/> },
+  { path: "/attribute-values", component: <AttributeValue/> },
+
   
 
 
