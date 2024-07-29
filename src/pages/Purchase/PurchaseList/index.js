@@ -1,5 +1,5 @@
-import React from "react"
-import { Container } from "reactstrap"
+import React, { useEffect, useState } from "react"
+import { Card, CardBody, Col, Container, Row } from "reactstrap"
 import pro_img from '../../../assets/images/product/img-1.png'
 import pro_img1 from '../../../assets/images/product/img-2.png'
 import { RiDeleteBin6Fill } from "react-icons/ri";
@@ -7,8 +7,68 @@ import { FaRegEye } from "react-icons/fa";
 
 //Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
+import { MDBDataTable } from "mdbreact";
 
-const Refund = () => {
+const PurchaseList = () => {
+  const [data, setData] = useState({ columns: [], rows: [] })
+
+  useEffect(() => {
+    // Simulate fetching data from an API or static JSON file
+    fetch("/purchaseData.json")
+      .then(response => response.json())
+      .then(data => {
+        const formattedData = {
+          columns: [
+            { label: "Serial ID", field: "serialId", sort: "asc", width: 150 },
+            { label: "Product", field: "product", sort: "asc", width: 200 },
+            { label: "Supplier", field: "supplier", sort: "asc", width: 200 },
+            { label: "Total Bill", field: "totalBill", sort: "asc", width: 100 },
+            { label: "Status", field: "status", sort: "asc", width: 100 },
+            { label: "Created", field: "created", sort: "asc", width: 150 },
+            { label: "Note", field: "note", sort: "asc", width: 100 },
+            { label: "Action", field: "action", sort: "asc", width: 100 },
+          ],
+          rows: data.map(item => ({
+            serialId: (
+              <div>
+                <p>{item.serialId}</p>
+                <p className="text-xs opacity-55">{item.created}</p>
+              </div>
+            ),
+            product: (
+              <div className="flex gap-2 items-center flex-wrap">
+                <img className="w-20" src={item.product.image} alt={item.product.name} />
+                <div>
+                  <p className="font-bold">{item.product.name}</p>
+                  X
+                  <p>{item.product.quantity}</p>
+                </div>
+              </div>
+            ),
+            supplier: (
+              <div>
+                <p className="font-bold text-warning">{item.supplier.name}</p>
+                <p>{item.supplier.phone}</p>
+                <p className="text-error">{item.supplier.company}</p>
+              </div>
+            ),
+            totalBill: item.totalBill,
+            status: <button className="text-white bg-success p-1 rounded-md">{item.status}</button>,
+            created: "admin",
+            note: item.note,
+            action: (
+              <div className="space-x-2">
+                <button className="text-blue-500 text-xl"><FaRegEye /></button>
+                <button className="text-error text-xl"><RiDeleteBin6Fill /></button>
+              </div>
+            ),
+          })),
+        }
+        setData(formattedData)
+      })
+  }, [])
+
+
   document.title = "Estarch | Purchase List"
 
   return (
@@ -16,7 +76,7 @@ const Refund = () => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumbs title="Estarch" breadcrumbItem="Purchase List" />
-          <div className="shadow-lg ">
+          <div className="">
             <p className="w-full bg-gray-600 text-white p-2 font-bold text-2xl">
               Purchase List
             </p>
@@ -54,79 +114,15 @@ const Refund = () => {
 
             {/* table */}
 
-            <div className="overflow-x-auto">
-              <table className="table table-zebra ">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Serial ID</th>
-                    <th>Product</th>
-                    <th>Supplier</th>
-                    <th>Total Bill</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Note</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* row 1 */}
-                  <tr>
-                    <th>1</th>
-                    <td>
-                      <p>sri2540rzi</p>
-                      <p className="text-xs opacity-55">24 May,2024 12:21 PM</p>
-                    </td>
-                    <td className="flex gap-1 items-center flex-wrap">
-                      <img className="w-20" src={pro_img} alt="" />
-                      <p className="font-bold">X</p>
-                      <p>245</p>
-                    </td>
-                    <td>
-                      <p className="font-bold text-warning">XYX</p>
-                      <p className="">013030000</p>
-                      <p className="text-error">ABC</p>
-                    </td>
-                    <td>5700 Tk</td>
-                    <td><button className="text-white bg-success p-1 rounded-md">Receive</button></td>
-                    <td>admin</td>
-                    <td>None</td>
-                    <td className="space-x-2">
-                      <button className="text-blue-500 text-xl"><FaRegEye /></button>
-                      <button className="text-error text-xl"><RiDeleteBin6Fill /></button>
-                    </td>
-                  </tr>
-                  {/* row 2 */}
-                  <tr>
-                    <th>2</th>
-                    <td>
-                      <p>sri2540rzi</p>
-                      <p className="text-xs opacity-55">24 May,2024 12:21 PM</p>
-                    </td>
-                    <td className="flex flex-wrap gap-1 items-center">
-                      <img className="w-20" src={pro_img1} alt="" />
-                      <p className="font-bold">X</p>
-                      <p>245</p>
-                    </td>
-                    <td>
-                      <p className="font-bold text-warning">XYX</p>
-                      <p className="">013030000</p>
-                      <p className="text-error">ABC</p>
-                    </td>
-                    <td>5700 Tk</td>
-                    <td><button className="text-white bg-success p-1 rounded-md">Receive</button></td>
-                    <td>admin</td>
-                    <td>None</td>
-                    <td className="space-x-2">
-                      <button className="text-blue-500 text-xl"><FaRegEye /></button>
-                      <button className="text-error text-xl"><RiDeleteBin6Fill /></button>
-                    </td>
-                  </tr>
-                 
-                </tbody>
-              </table>
-            </div>
+            <Row>
+              <Col className="col-12">
+                <Card>
+                  <CardBody>
+                    <MDBDataTable responsive bordered data={data} />
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
           </div>
         </Container>
       </div>
@@ -134,4 +130,4 @@ const Refund = () => {
   )
 }
 
-export default Refund
+export default PurchaseList

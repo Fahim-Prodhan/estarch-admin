@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "image": "./product/img-1.png",
+      "category": "Knit Denim",
+      "parent": "Jeans",
+      "feature": true
+    },
+    {
+      "id": 2,
+      "image": "./product/img-2.png",
+      "category": "Woven Denim",
+      "parent": "Jeans",
+      "feature": false
+    }
+  ]
+  

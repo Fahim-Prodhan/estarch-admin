@@ -1,0 +1,20 @@
+[
+    {
+      "id": 1,
+      "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+      "name": "XYX",
+      "phone": "017000000",
+      "address": "Mirpur",
+      "status": "Active"
+    },
+    {
+      "id": 2,
+      "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+      "name": "ABC",
+      "phone": "018000000",
+      "address": "Banani",
+      "status": "Inactive"
+    }
+
+  ]
+  

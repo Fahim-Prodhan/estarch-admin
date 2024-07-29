@@ -1,0 +1,17 @@
+[
+    {
+        "id":1,
+        "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "name":"Fahim"
+    },
+    {
+        "id":2,
+        "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "name":"Riyadh"
+    },
+    {
+        "id":3,
+        "image": "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "name":"Shifat"
+    }
+]
