@@ -55,6 +55,7 @@ import Login1 from "../pages/AuthenticationInner/Login"
 import Register1 from "../pages/AuthenticationInner/Register"
 import Recoverpw from "../pages/AuthenticationInner/Recoverpw"
 import LockScreen from "../pages/AuthenticationInner/auth-lock-screen"
+import AddProduct from "../pages/Ecommerce/AddProduct"
 
 
 const userRoutes = [
@@ -64,6 +65,7 @@ const userRoutes = [
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
   { path: "/ecommerce-pos-orders", component: <EcommercePosOrders/> },
+  { path: "/ecommerce-add-product", component: <AddProduct/> },
 
 
   // Purchase Routes
