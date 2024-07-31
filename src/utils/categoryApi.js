@@ -1,26 +1,24 @@
-// src/utils/categoryApi.js
 const API_BASE_URL = 'http://localhost:5000/api/categories';
-
 
 export const fetchCategories = async () => {
     const response = await fetch(`${API_BASE_URL}/categories`);
     return response.json();
 };
 
-export const createCategory = async (name) => {
+export const createCategory = async ({ name, image }) => {
     const response = await fetch(`${API_BASE_URL}/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, image }),
     });
     return response.json();
 };
 
-export const updateCategory = async (id, name) => {
+export const updateCategory = async (id, { name, image }) => {
     const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, image }),
     });
     return response.json();
 };
@@ -37,7 +35,7 @@ export const fetchSubCategories = async () => {
     return response.json();
 };
 
-export const createSubCategory = async (name, categoryId) => {
+export const createSubCategory = async ({ name, categoryId }) => {
     const response = await fetch(`${API_BASE_URL}/subcategories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,7 +44,7 @@ export const createSubCategory = async (name, categoryId) => {
     return response.json();
 };
 
-export const updateSubCategory = async (id, name, categoryId) => {
+export const updateSubCategory = async (id, { name, categoryId }) => {
     const response = await fetch(`${API_BASE_URL}/subcategories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +63,7 @@ export const deleteSubCategory = async (id) => {
 export const fetchBrands = async () => {
     try {
         const response = await fetch(`${API_BASE_URL}/brands`);
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error('Error fetching brands:', error);
         return [];
