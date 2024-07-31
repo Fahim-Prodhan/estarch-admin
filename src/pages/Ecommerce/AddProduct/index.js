@@ -24,7 +24,6 @@ function AddProduct() {
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedCategoryName, setSelectedCategoryName] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
@@ -250,7 +249,7 @@ function AddProduct() {
         selectedSizes,
         sizeDetails,
         selectedSubCategory,
-        selectedCategoryName,
+        selectedCategory,
         selectedBrand,
         selectedType
 
@@ -331,7 +330,7 @@ function AddProduct() {
                       onChange={(e) => setSelectedCategory(e.target.value)} className="select select-bordered w-[600px]">
                       <option>Select a category</option>
                       {categories.map((cat) => (
-                        <option onClick={()=>setSelectedCategoryName(cat.name)} key={cat.id} value={cat._id}>{cat.name}</option>
+                        <option  key={cat.id} value={cat._id}>{cat.name}</option>
                       ))}
                     </select>
                   </div>
@@ -349,7 +348,7 @@ function AddProduct() {
                     <select onChange={(e)=>setSelectedBrand(e.target.value)} id="brand" className="select select-bordered w-[600px]">
                       <option>Select a brand</option>
                       {brands.map((brand) => (
-                        <option key={brand.id} value={brand.id}>{brand.name}</option>
+                        <option key={brand.id} value={brand.name}>{brand.name}</option>
                       ))}
                     </select>
                   </div>
