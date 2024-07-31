@@ -13,7 +13,7 @@ import Authmiddleware from "./routes/middleware/Authmiddleware";
 // layouts Format
 import VerticalLayout from "./components/VerticalLayout/";
 import NonAuthLayout from "./components/NonAuthLayout";
-
+import EcommercePosOrders from "../src/pages/Ecommerce/EcommercePosOrders/index"
 // Import scss
 import "./assets/scss/theme.scss";
 
@@ -86,7 +86,7 @@ const App = props => {
               exact
             />
           ))}
-        
+        <Route path='/ecommerce-pos-orders' element={<EcommercePosOrders/> }/>
       </Routes>
     </React.Fragment>
   );

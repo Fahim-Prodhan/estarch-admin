@@ -16,7 +16,6 @@ import Pages500 from "../pages/Utility/pages-500"
 // E-commerce Pages
 import EcommerceOrders from "../pages/Ecommerce/EcommerceOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
-import EcommercePosOrders from "../pages/Ecommerce/EcommercePosOrders/index"
 
 // Purchase Pages
 import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
@@ -53,6 +52,9 @@ import Register1 from "../pages/AuthenticationInner/Register"
 import Recoverpw from "../pages/AuthenticationInner/Recoverpw"
 import LockScreen from "../pages/AuthenticationInner/auth-lock-screen"
 import AddProduct from "../pages/Ecommerce/AddProduct"
+import AddCategory from "../pages/Ecommerce/AddCategory"
+import AddSubCategory from "../pages/Ecommerce/AddSubCategory"
+import AddBrand from "../pages/Ecommerce/AddBrand"
 
 
 const userRoutes = [
@@ -61,8 +63,10 @@ const userRoutes = [
   // E-commerce Routes
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
-  { path: "/ecommerce-pos-orders", component: <EcommercePosOrders/> },
   { path: "/ecommerce-add-product", component: <AddProduct/> },
+  { path: "/ecommerce-add-category", component: <AddCategory/> },
+  { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
+  { path: "/ecommerce-add-brand", component: <AddBrand/> },
 
 
   // Purchase Routes
