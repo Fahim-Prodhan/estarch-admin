@@ -319,7 +319,9 @@ const SidebarContent = props => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/create-category">{props.t("Create Category")}</Link>
+                  <Link to="/create-category">
+                    {props.t("Create Category")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/category-list">{props.t("Category List")} </Link>
@@ -337,9 +339,17 @@ const SidebarContent = props => {
                   <Link to="/main-attribute">{props.t("Main Attribute")}</Link>
                 </li>
                 <li>
-                  <Link to="/attribute-values">{props.t("Attribute Values")} </Link>
+                  <Link to="/attribute-values">
+                    {props.t("Attribute Values")}{" "}
+                  </Link>
                 </li>
               </ul>
+            </li>
+
+            <li>
+              <li>
+                <Link to="/brand">{props.t("Brand")}</Link>
+              </li>
             </li>
 
             <li className="menu-title">Pages</li>

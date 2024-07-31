@@ -38,6 +38,9 @@ import CategoryList from "../pages/Category/CategoryList/index"
 import MainAttribute from "../pages/Attribute/MainAttribute/index"
 import AttributeValue from "../pages/Attribute/AttributeValue/index"
 
+// brand Page
+import Brand from "../pages/Brand/index"
+
 
 
 // Authentication related pages
@@ -90,6 +93,9 @@ const userRoutes = [
   // Attribute Routes
   { path: "/main-attribute", component: <MainAttribute/> },
   { path: "/attribute-values", component: <AttributeValue/> },
+  
+  // brand routes
+  { path: "/brand", component: <Brand/> },
 
   
 
