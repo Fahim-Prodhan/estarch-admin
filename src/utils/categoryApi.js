@@ -35,7 +35,8 @@ export const fetchSubCategories = async () => {
     return response.json();
 };
 
-export const createSubCategory = async ({ name, categoryId }) => {
+export const createSubCategory = async ( name, categoryId ) => {
+    console.log(categoryId);
     const response = await fetch(`${API_BASE_URL}/subcategories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,7 +45,7 @@ export const createSubCategory = async ({ name, categoryId }) => {
     return response.json();
 };
 
-export const updateSubCategory = async (id, { name, categoryId }) => {
+export const updateSubCategory = async (id,  name, categoryId ) => {
     const response = await fetch(`${API_BASE_URL}/subcategories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

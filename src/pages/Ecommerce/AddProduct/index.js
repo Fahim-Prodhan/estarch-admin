@@ -24,6 +24,8 @@ function AddProduct() {
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategoryName, setSelectedCategoryName] = useState('');
+
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
@@ -61,7 +63,7 @@ function AddProduct() {
         try {
           const response = await fetch(`http://localhost:5000/api/categories/subcategories/${selectedCategory}`);
           const data = await response.json();
-          console.log(data);
+          // console.log(data);
           setSubCategories(data);
         } catch (error) {
           console.error('Error fetching subcategories:', error);
@@ -249,11 +251,14 @@ function AddProduct() {
         selectedSizes,
         sizeDetails,
         selectedSubCategory,
+        selectedCategoryName,
         selectedCategory,
         selectedBrand,
         selectedType
 
       };
+
+      console.log(productData);
 
       const response = await fetch('http://localhost:5000/api/products/products', {
         method: 'POST',
@@ -273,6 +278,13 @@ function AddProduct() {
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+
+  const handleChangeCategory = (e) => {
+    const selected = categories.find(cat => cat._id === e.target.value);
+    setSelectedCategory(selected._id);
+    setSelectedCategoryName(selected.name);
   };
 
 
@@ -317,7 +329,7 @@ function AddProduct() {
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
-                    <select onChange={(e)=>setSelectedType(e.target.value)} id="Type" className="select select-bordered w-[600px]">
+                    <select onChange={(e) => setSelectedType(e.target.value)} id="Type" className="select select-bordered w-[600px]">
                       <option>Select a Type</option>
                       <option value='men'>Men</option>
                       <option value='women'>Women</option>
@@ -325,18 +337,21 @@ function AddProduct() {
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Category</label>
-                    <select id="category"
+                    <select
+                      id="category"
                       value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)} className="select select-bordered w-[600px]">
-                      <option>Select a category</option>
+                      onChange={handleChangeCategory}
+                      className="select select-bordered w-[600px]"
+                    >
+                      <option value="">Select a category</option>
                       {categories.map((cat) => (
-                        <option  key={cat.id} value={cat._id}>{cat.name}</option>
+                        <option key={cat.id} value={cat._id}>{cat.name}</option>
                       ))}
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="sticker">Sub Category</label>
-                    <select onChange={(e)=> setSelectedSubCategory(e.target.value)} id="Sub Category" className="select select-bordered w-[600px]">
+                    <select onChange={(e) => setSelectedSubCategory(e.target.value)} id="Sub Category" className="select select-bordered w-[600px]">
                       <option>Select a Sub Category</option>
                       {subCategories.map((subCat) => (
                         <option key={subCat._id} value={subCat.name}>{subCat.name}</option>
@@ -345,7 +360,7 @@ function AddProduct() {
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="brand">Brand</label>
-                    <select onChange={(e)=>setSelectedBrand(e.target.value)} id="brand" className="select select-bordered w-[600px]">
+                    <select onChange={(e) => setSelectedBrand(e.target.value)} id="brand" className="select select-bordered w-[600px]">
                       <option>Select a brand</option>
                       {brands.map((brand) => (
                         <option key={brand.id} value={brand.name}>{brand.name}</option>
