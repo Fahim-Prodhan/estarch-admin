@@ -43,6 +43,7 @@ const AddSubCategory = () => {
     };
 
     const handleSaveSubCategory = async () => {
+        // console.log(newSubCategory);
         try {
             if (editingSubCategory) {
                 await updateSubCategory(editingSubCategory._id, newSubCategory, selectedCategory);
