@@ -58,6 +58,7 @@ import AddProduct from "../pages/Ecommerce/AddProduct"
 import AddCategory from "../pages/Ecommerce/AddCategory"
 import AddSubCategory from "../pages/Ecommerce/AddSubCategory"
 import AddBrand from "../pages/Ecommerce/AddBrand"
+import AddType from "../pages/Ecommerce/AddType"
 
 
 const userRoutes = [
@@ -70,6 +71,7 @@ const userRoutes = [
   { path: "/ecommerce-add-category", component: <AddCategory/> },
   { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
   { path: "/ecommerce-add-brand", component: <AddBrand/> },
+  { path: "/ecommerce-add-type", component: <AddType/> },
 
 
   // Purchase Routes

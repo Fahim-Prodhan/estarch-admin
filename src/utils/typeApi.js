@@ -1,0 +1,31 @@
+const API_BASE_URL = 'http://localhost:5000/api';
+
+export const fetchTypes = async () => {
+    const response = await fetch(`${API_BASE_URL}/types`);
+    return response.json();
+};
+
+export const createType = async (name) => {
+    const response = await fetch(`${API_BASE_URL}/types`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+    });
+    return response.json();
+};
+
+export const updateType = async (id, name) => {
+    const response = await fetch(`${API_BASE_URL}/types/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+    });
+    return response.json();
+};
+
+export const deleteType = async (id) => {
+    const response = await fetch(`${API_BASE_URL}/types/${id}`, {
+        method: 'DELETE',
+    });
+    return response.json();
+};
