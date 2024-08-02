@@ -5,20 +5,22 @@ export const fetchCategories = async () => {
     return response.json();
 };
 
-export const createCategory = async ({ name, image }) => {
+export const createCategory = async ( name, type, image ) => {
+    console.log( name, type, image);
+    
     const response = await fetch(`${API_BASE_URL}/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, image }),
+        body: JSON.stringify({ name, type, image }),
     });
     return response.json();
 };
 
-export const updateCategory = async (id, { name, image }) => {
+export const updateCategory = async (id, name, type, image ) => {
     const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, image }),
+        body: JSON.stringify({ name, type, image }),
     });
     return response.json();
 };

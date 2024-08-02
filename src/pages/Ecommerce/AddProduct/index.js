@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import JoditEditor from 'jodit-react';
+import { fetchTypes } from "../../../utils/typeApi.js";
+
 function AddProduct() {
   document.title = " Estarch | Add Product"
   const [showSize, setShowSize] = useState(false);
@@ -30,19 +32,16 @@ function AddProduct() {
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [sizeDetails, setSizeDetails] = useState([]);
-
+  const [types, setTypes] = useState([]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/categories/categories');
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
+    const getTypes = async () => {
+      const data = await fetchTypes();
+      setTypes(data);
     };
-
+    getTypes();
+  }, []);
+  useEffect(() => {
     const fetchBrands = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/categories/brands');
@@ -52,10 +51,28 @@ function AddProduct() {
         console.error('Error fetching brands:', error);
       }
     };
-
-    fetchCategories();
     fetchBrands();
   }, []);
+
+  useEffect(() => {
+    if (selectedType) {
+      const fetchCategories = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/categories/categories/${selectedType}`);
+          const data = await response.json();
+          console.log(data);
+          
+          setCategories(data)
+        } catch (error) {
+          console.error('Error fetching subcategories:', error);
+        }
+      };
+
+      fetchCategories();
+    } else {
+      setCategories([]);
+    }
+  }, [selectedType]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -332,8 +349,11 @@ function AddProduct() {
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
                     <select onChange={(e) => setSelectedType(e.target.value)} id="Type" className="select select-bordered w-[600px]">
                       <option>Select a Type</option>
-                      <option value='men'>Men</option>
-                      <option value='women'>Women</option>
+                      {types?.map((type) => (
+                        <option key={type._id} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
@@ -354,7 +374,7 @@ function AddProduct() {
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="sticker">Sub Category</label>
                     <select onChange={(e) => setSelectedSubCategory(e.target.value)} id="Sub Category" className="select select-bordered w-[600px]">
                       <option>Select a Sub Category</option>
-                      {subCategories.map((subCat) => (
+                      {subCategories?.map((subCat) => (
                         <option key={subCat._id} value={subCat.name}>{subCat.name}</option>
                       ))}
                     </select>
