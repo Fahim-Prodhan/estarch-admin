@@ -25,7 +25,7 @@ function AddProduct() {
   const [brands, setBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
-
+  const [productName, setProductName] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
@@ -236,6 +236,7 @@ function AddProduct() {
   const handleSave = async () => {
     try {
       const productData = {
+        productName,
         showSize,
         freeDelevary,
         featureProduct,
@@ -325,7 +326,7 @@ function AddProduct() {
                   <h1 className='bg-sky-950 text-white font-semibold text-2xl py-5 '><span className='mx-5'>Product Information</span></h1>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="productName">Product Name<span className="text-red-500">*</span></label>
-                    <input type="text" id="productName" className="input input-bordered w-[600px]" required />
+                    <input onChange={(e)=>setProductName(e.target.value)} type="text" name='productName' id="productName" className="input input-bordered w-[600px]" required />
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
