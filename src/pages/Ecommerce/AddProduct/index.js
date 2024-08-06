@@ -276,7 +276,7 @@ function AddProduct() {
 
       };
 
-      console.log(productData);
+//  console.log(productData);
 
       const response = await fetch('http://localhost:5000/api/products/products', {
         method: 'POST',
