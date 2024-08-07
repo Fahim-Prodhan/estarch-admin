@@ -45,7 +45,7 @@ function AddProduct() {
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories/brands');
+        const response = await fetch(`${baseUrl}/api/categories/brands`);
         const data = await response.json();
         setBrands(data);
       } catch (error) {
@@ -59,7 +59,7 @@ function AddProduct() {
     if (selectedType) {
       const fetchCategories = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/categories/categories/${selectedType}`);
+          const response = await fetch(`${baseUrl}/api/categories/categories/${selectedType}`);
           const data = await response.json();
           console.log(data);
           
@@ -79,7 +79,7 @@ function AddProduct() {
     if (selectedCategory) {
       const fetchSubCategories = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/categories/subcategories/${selectedCategory}`);
+          const response = await fetch(`${baseUrl}/api/categories/subcategories/${selectedCategory}`);
           const data = await response.json();
           // console.log(data);
           setSubCategories(data);
@@ -217,7 +217,7 @@ function AddProduct() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:5000/upload', {
+      const response = await fetch(`${baseUrl}/upload`, {
         method: 'POST',
         body: formData,
       });
