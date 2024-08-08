@@ -85,7 +85,9 @@ const Orders = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [courierFilter, setCourierFilter] = useState('');
     const [dateFilter, setDateFilter] = useState('');
-
+    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [activeNoteInput, setActiveNoteInput] = useState(null);
+    const [notes, setNotes] = useState({});
     useEffect(() => {
         const initialOrders = fetchOrders();
         setOrders(initialOrders);
@@ -150,7 +152,29 @@ const Orders = () => {
     const getStatusCount = (status) => {
         return orders.filter(order => order.status === status).length;
     };
+    const toggleDropdown = (orderId) => {
+      setActiveDropdown(activeDropdown === orderId ? null : orderId);
+  };
 
+  const handleAddNoteClick = (orderId) => {
+      setActiveNoteInput(orderId);
+      setActiveDropdown(null);
+  };
+
+  const handleNoteChange = (orderId, note) => {
+      setNotes({ ...notes, [orderId]: note });
+  };
+
+  const handleNoteSave = (orderId) => {
+      const updatedOrders = orders.map(order => {
+          if (order.id === orderId) {
+              return { ...order, note: notes[orderId] || order.note };
+          }
+          return order;
+      });
+      setOrders(updatedOrders);
+      setActiveNoteInput(null);
+  };
     return (
         <React.Fragment>
             <div className="mt-20 mb-20">
@@ -354,8 +378,35 @@ const Orders = () => {
                                             <td>{order.visitor}</td>
                                             <td>{order.note}</td>
                                             <td>
-                                                {/* <button className="btn btn-sm btn-success">Update</button> */}
-                                                <FaEllipsisV size={20} />    
+                                            
+                                                <button onClick={() => toggleDropdown(order.id)}>
+                                                    <FaEllipsisV />
+                                                </button>
+                                          
+                                            {activeDropdown === order.id && (
+                                                <div className="dropdown-content">
+                                                    <ul>
+                                                        <li onClick={() => handleAddNoteClick(order.id)}>Add Note</li>
+                                                        <li>Assign Employee</li>
+                                                        <li>Other Option</li>
+                                                    </ul>
+                                                </div>
+                                            )}
+                                            {activeNoteInput === order.id && (
+                                                <div>
+                                                    <textarea
+                                                        value={notes[order.id] || ''}
+                                                        onChange={(e) => handleNoteChange(order.id, e.target.value)}
+                                                        className="textarea textarea-bordered mt-2"
+                                                    />
+                                                    <button
+                                                        onClick={() => handleNoteSave(order.id)}
+                                                        className="btn btn-sm btn-success mt-2"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            )}
                                         </td>
                                         </tr>
                                     ))}
