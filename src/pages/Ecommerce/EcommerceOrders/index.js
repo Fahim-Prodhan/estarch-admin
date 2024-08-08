@@ -1,80 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FaEllipsisV } from 'react-icons/fa';
 import { IoIosAddCircle } from 'react-icons/io';
 import { Container } from 'reactstrap';
-
-// Assuming this is the initial data for orders
-const fetchOrders = () => {
-    return [
-        {
-            id: 1,
-            serialId: 'E-commerce',
-            invoice: '454',
-            date: '2024-07-02T10:00:00',
-            name: 'Atikur Rahman',
-            address: 'Mirpur, Dhaka',
-            phone: '0170000000',
-            notes: 'Customer Notes',
-            totalBill: 1850,
-            deliveryCharge: 130,
-            discount: 100,
-            grandTotal: 1930,
-            advanced: 800,
-            condition: 'Pending',
-            product: 'PRODUCT',
-            status: 'pending',
-            courier: 'courier',
-            visitor: 'Visitor',
-            note: 'note',
-            lastNote: 'Last Note',
-        },
-        {
-            id: 2,
-            serialId: 'E-commerce',
-            invoice: '454',
-            date: '2024-07-02T10:00:00',
-            name: 'Atikur Rahman',
-            address: 'Mirpur, Dhaka',
-            phone: '0170000000',
-            notes: 'Customer Notes',
-            totalBill: 1850,
-            deliveryCharge: 130,
-            discount: 100,
-            grandTotal: 1930,
-            advanced: 800,
-            condition: 'Pending',
-            product: 'PRODUCT',
-            status: 'pending',
-            courier: 'courier',
-            visitor: 'Visitor',
-            note: 'note',
-            lastNote: 'Last Note',
-        },
-        {
-            id: 3,
-            serialId: 'E-commerce',
-            invoice: '454',
-            date: '2024-07-02T10:00:00',
-            name: 'Atikur Rahman',
-            address: 'Mirpur, Dhaka',
-            phone: '0170000000',
-            notes: 'Customer Notes',
-            totalBill: 1850,
-            deliveryCharge: 130,
-            discount: 100,
-            grandTotal: 1930,
-            advanced: 800,
-            condition: 'Pending',
-            product: 'PRODUCT',
-            status: 'pending',
-            courier: 'courier',
-            visitor: 'Visitor',
-            note: 'note',
-            lastNote: 'Last Note',
-        },
-        // Add more orders as needed...
-    ];
-};
 
 // Status hierarchy (only forward movement is allowed)
 const statusHierarchy = ['new', 'pending', 'confirm', 'processing', 'courier', 'delivered', 'cancel'];
@@ -88,38 +16,90 @@ const Orders = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [activeNoteInput, setActiveNoteInput] = useState(null);
     const [notes, setNotes] = useState({});
+
     useEffect(() => {
-        const initialOrders = fetchOrders();
-        setOrders(initialOrders);
-        setFilteredOrders(initialOrders);
+        const loadOrders = async () => {
+            const initialOrders = await fetchOrders();
+            setOrders(initialOrders);
+            setFilteredOrders(initialOrders);
+        };
+        loadOrders();
     }, []);
 
-    const handleStatusChange = (orderId, newStatus) => {
+    const fetchOrders = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/orders');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            return [];
+        }
+    };
+
+    const handleStatusChange = async (orderId, newStatus) => {
         const updatedOrders = orders.map(order => {
-            if (order.id === orderId) {
+            if (order._id === orderId) {
                 const currentStatusIndex = statusHierarchy.indexOf(order.status);
                 const newStatusIndex = statusHierarchy.indexOf(newStatus);
 
-                // Only allow status progression, not regression
                 if (newStatusIndex > currentStatusIndex) {
                     return { ...order, status: newStatus };
                 }
             }
             return order;
         });
-        setOrders(updatedOrders);
-        filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
+
+        try {
+            await axios.patch(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus });
+            setOrders(updatedOrders);
+            filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
     };
 
-    const handleCourierChange = (orderId, newCourier) => {
+    const handleCourierChange = async (orderId, newCourier) => {
         const updatedOrders = orders.map(order => {
-            if (order.id === orderId) {
+            if (order._id === orderId) {
                 return { ...order, courier: newCourier };
             }
             return order;
         });
-        setOrders(updatedOrders);
-        filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
+
+        try {
+            await axios.patch(`http://localhost:5000/api/orders/${orderId}/courier`, { courier: newCourier });
+            setOrders(updatedOrders);
+            filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
+        } catch (error) {
+            console.error('Error updating courier:', error);
+        }
+    };
+
+    const handleAddCartItems = async (orderId, newCartItems) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/orders/${orderId}/cart-items`, { cartItems: newCartItems });
+            // Update local state or refetch orders here
+        } catch (error) {
+            console.error('Error adding cart items:', error);
+        }
+    };
+
+    const createOrder = async (orderData) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/orders', orderData);
+            setOrders([...orders, response.data]);
+        } catch (error) {
+            console.error('Error creating order:', error);
+        }
+    };
+
+    const handleDeleteOrder = async (orderId) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
+            setOrders(orders.filter(order => order._id !== orderId));
+        } catch (error) {
+            console.error('Error deleting order:', error);
+        }
     };
 
     const handleFilterByStatus = (status) => {
@@ -148,33 +128,40 @@ const Orders = () => {
         setFilteredOrders(filtered);
     };
 
-    // Calculate counts dynamically based on the current filtered orders
     const getStatusCount = (status) => {
         return orders.filter(order => order.status === status).length;
     };
+
     const toggleDropdown = (orderId) => {
-      setActiveDropdown(activeDropdown === orderId ? null : orderId);
-  };
+        setActiveDropdown(activeDropdown === orderId ? null : orderId);
+    };
 
-  const handleAddNoteClick = (orderId) => {
-      setActiveNoteInput(orderId);
-      setActiveDropdown(null);
-  };
+    const handleAddNoteClick = (orderId) => {
+        setActiveNoteInput(orderId);
+        setActiveDropdown(null);
+    };
 
-  const handleNoteChange = (orderId, note) => {
-      setNotes({ ...notes, [orderId]: note });
-  };
+    const handleNoteChange = (orderId, note) => {
+        setNotes({ ...notes, [orderId]: note });
+    };
 
-  const handleNoteSave = (orderId) => {
-      const updatedOrders = orders.map(order => {
-          if (order.id === orderId) {
-              return { ...order, note: notes[orderId] || order.note };
-          }
-          return order;
-      });
-      setOrders(updatedOrders);
-      setActiveNoteInput(null);
-  };
+    const handleNoteSave = async (orderId) => {
+        const updatedOrders = orders.map(order => {
+            if (order._id === orderId) {
+                return { ...order, note: notes[orderId] || order.note };
+            }
+            return order;
+        });
+
+        try {
+            await axios.patch(`http://localhost:5000/api/orders/${orderId}/note`, { note: notes[orderId] });
+            setOrders(updatedOrders);
+            setActiveNoteInput(null);
+        } catch (error) {
+            console.error('Error saving note:', error);
+        }
+    };
+
     return (
         <React.Fragment>
             <div className="mt-20 mb-20">
@@ -286,9 +273,9 @@ const Orders = () => {
                                 type="text"
                                 placeholder="Search by Invoice No"
                                 className="input input-bordered w-full max-w-xs"
-                />
-                 <div className="flex gap-6 md:mr-4">
-                                <button className="btn btn-sm bg-error text-white border-none">
+                            />
+                            <div className="flex gap-6 md:mr-4">
+                                <button className="btn btn-sm bg-error text-white border-none" onClick={() => createOrder(/* Order Data Here */)}>
                                     <span>
                                         <IoIosAddCircle className="text-xl" />
                                     </span>
@@ -321,7 +308,7 @@ const Orders = () => {
                                 </thead>
                                 <tbody>
                                     {filteredOrders.map((order) => (
-                                        <tr key={order.id}>
+                                        <tr key={order._id}>
                                             <td>
                                                 <label>
                                                     <input type="checkbox" className="checkbox" />
@@ -354,7 +341,7 @@ const Orders = () => {
                                                 <select
                                                     className="select select-bordered w-full"
                                                     value={order.status}
-                                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
                                                 >
                                                     <option value="pending">Pending</option>
                                                     <option value="confirm">Confirm</option>
@@ -368,7 +355,7 @@ const Orders = () => {
                                                 <select
                                                     className="select select-bordered w-full"
                                                     value={order.courier}
-                                                    onChange={(e) => handleCourierChange(order.id, e.target.value)}
+                                                    onChange={(e) => handleCourierChange(order._id, e.target.value)}
                                                 >
                                                     <option value="courier">Courier</option>
                                                     <option value="user1">User1</option>
@@ -378,36 +365,34 @@ const Orders = () => {
                                             <td>{order.visitor}</td>
                                             <td>{order.note}</td>
                                             <td>
-                                            
-                                                <button onClick={() => toggleDropdown(order.id)}>
+                                                <button onClick={() => toggleDropdown(order._id)}>
                                                     <FaEllipsisV />
                                                 </button>
-                                          
-                                            {activeDropdown === order.id && (
-                                                <div className="dropdown-content">
-                                                    <ul>
-                                                        <li onClick={() => handleAddNoteClick(order.id)}>Add Note</li>
-                                                        <li>Assign Employee</li>
-                                                        <li>Other Option</li>
-                                                    </ul>
-                                                </div>
-                                            )}
-                                            {activeNoteInput === order.id && (
-                                                <div>
-                                                    <textarea
-                                                        value={notes[order.id] || ''}
-                                                        onChange={(e) => handleNoteChange(order.id, e.target.value)}
-                                                        className="textarea textarea-bordered mt-2"
-                                                    />
-                                                    <button
-                                                        onClick={() => handleNoteSave(order.id)}
-                                                        className="btn btn-sm btn-success mt-2"
-                                                    >
-                                                        Save
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </td>
+                                                {activeDropdown === order._id && (
+                                                    <div className="dropdown-content">
+                                                        <ul>
+                                                            <li onClick={() => handleAddNoteClick(order._id)}>Add Note</li>
+                                                            <li>Assign Employee</li>
+                                                            <li>Other Option</li>
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                                {activeNoteInput === order._id && (
+                                                    <div>
+                                                        <textarea
+                                                            value={notes[order._id] || ''}
+                                                            onChange={(e) => handleNoteChange(order._id, e.target.value)}
+                                                            className="textarea textarea-bordered mt-2"
+                                                        />
+                                                        <button
+                                                            onClick={() => handleNoteSave(order._id)}
+                                                            className="btn btn-sm btn-success mt-2"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
