@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { IoPlayBackCircleSharp } from "react-icons/io5";
 import Modal from "./modal";
-import { BsArrowsFullscreen } from "react-icons/bs";
 import { MdArrowDropDown } from "react-icons/md";
 import { Link } from "react-router-dom";
+import FullScreenButton from "../../../components/Common/FullScreenButton";
 const PosOrders = () => {
   document.title = "Estarch | Pos Orders"
   const [quantity, setQuantity] = useState(1);
@@ -13,32 +13,7 @@ const PosOrders = () => {
     setQuantity(quantity + increment);
   };
 
-  function toggleFullscreen() {
-    if (
-      !document.fullscreenElement &&
-      /* alternative standard method */ !document.mozFullScreenElement &&
-      !document.webkitFullscreenElement
-    ) {
-      // current working methods
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen(
-          Element.ALLOW_KEYBOARD_INPUT
-        );
-      }
-    } else {
-      if (document.cancelFullScreen) {
-        document.cancelFullScreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
-      }
-    }
-  }
+
   return (
     <React.Fragment>
       <div className="mt-2">
@@ -82,8 +57,90 @@ const PosOrders = () => {
 
               </div>
               <div className="grid grid-cols-4 gap-2">
-
-
+              <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
+                        <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
+                        <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
+                        <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
+                        <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
+                        <div className="card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2">
+                            <div className="p-2 h-[150px]">
+                                <figure >
+                                    <img className="h-[140px] w-[130px]"
+                                        src='https://i.ibb.co/zrBfNFr/S14-V12-NVYMN-1.jpg'
+                                        alt="" />
+                                </figure>
+                            </div>
+                            <div className=" bg-slate-200 h-[70px] text-sm text-center p-2">
+                                SKU:0001
+                                Negative Stock c...
+                                (40)
+                            </div>
+                        </div>
               </div>
             </div>
             <div className="w-7/12 bg-white">
@@ -319,20 +376,11 @@ const PosOrders = () => {
               <div className="bg-[#605ca8] w-7/12 flex justify-evenly">
                 <div className="flex items-center h-full justify-evenly gap-10">
                   <Link to='/'><IoPlayBackCircleSharp className="text-4xl  text-white" /></Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      toggleFullscreen();
-                    }}
-                    className="header-item noti-icon waves-effect text-white"
-                    data-toggle="fullscreen"
-                  >
-                    <BsArrowsFullscreen className="text-4xl  text-white"/>
-                  </button>
+                  <FullScreenButton />
                 </div>
 
                 <p className="text-4xl font-bold py-4 text-white">
-                  Total : -900.00 TK
+                  Total : 00.00 TK
                 </p>
               </div>
               <div className="bg-[#188ae2] w-2/12" onClick={() => document.getElementById('my_modal_3').showModal()}>

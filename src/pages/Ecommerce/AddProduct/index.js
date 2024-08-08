@@ -3,6 +3,8 @@ import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import JoditEditor from 'jodit-react';
 import { fetchTypes } from "../../../utils/typeApi.js";
+import { fetchSizeTypes } from "../../../utils/sizeTypeApi.js";
+import { fetchSizesBySizeTypeName } from '../../../utils/sizeApi.js';
 
 function AddProduct() {
   document.title = " Estarch | Add Product"
@@ -21,19 +23,46 @@ function AddProduct() {
   const [salePrice, setSalePrice] = useState('');
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const sizes = ["S", "M", "L", "XL", "XXL"];
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
-
+  const [productName, setProductName] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [sizeDetails, setSizeDetails] = useState([]);
   const [types, setTypes] = useState([]);
+  const [selectedSizeType, setSelectedSizeType] = useState('');
+  const [sizeTypes, setSizeTypes] = useState([]); // Add state for size types
+  const [sizes, setSizes] = useState([]);
 
+  useEffect(() => {
+    const getSizeTypes = async () => {
+      try {
+        const data = await fetchSizeTypes();
+        console.log(data);
+
+        setSizeTypes(data);
+      } catch (error) {
+        console.error('Error fetching size types:', error);
+      }
+    };
+
+    getSizeTypes(); // Fetch size types
+  }, []);
+
+  const handleSizeTypeChange = async (name) => {
+    try {
+      const sizes = await fetchSizesBySizeTypeName(name);
+      console.log(sizes);
+      
+      setSizes(sizes[0].sizes);
+    } catch (error) {
+      console.error('Error fetching sizes by size type name:', error);
+    }
+  };
   useEffect(() => {
     const getTypes = async () => {
       const data = await fetchTypes();
@@ -61,7 +90,7 @@ function AddProduct() {
           const response = await fetch(`http://localhost:5000/api/categories/categories/${selectedType}`);
           const data = await response.json();
           console.log(data);
-          
+
           setCategories(data)
         } catch (error) {
           console.error('Error fetching subcategories:', error);
@@ -253,6 +282,7 @@ function AddProduct() {
   const handleSave = async () => {
     try {
       const productData = {
+        productName,
         showSize,
         freeDelevary,
         featureProduct,
@@ -275,7 +305,7 @@ function AddProduct() {
 
       };
 
-      console.log(productData);
+      //  console.log(productData);
 
       const response = await fetch('http://localhost:5000/api/products/products', {
         method: 'POST',
@@ -342,7 +372,7 @@ function AddProduct() {
                   <h1 className='bg-sky-950 text-white font-semibold text-2xl py-5 '><span className='mx-5'>Product Information</span></h1>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="productName">Product Name<span className="text-red-500">*</span></label>
-                    <input type="text" id="productName" className="input input-bordered w-[600px]" required />
+                    <input onChange={(e) => setProductName(e.target.value)} type="text" name='productName' id="productName" className="input input-bordered w-[600px]" required />
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
@@ -515,11 +545,16 @@ function AddProduct() {
                     <div className="p-4">
                       <div className="flex flex-col mb-4">
                         <div className=' flex gap-5'>
-                          <select id="category" className="select select-bordered w-1/2">
-                            <option>Select a Type</option>
-                            <option>Type 1</option>
-                            <option>Type 2</option>
-                            <option>Type 3</option>
+                          <select
+                            className="select select-bordered w-1/2"
+                            onChange={(e) => handleSizeTypeChange(e.target.value)}
+                          >
+                            <option value="">Select Size Type</option>
+                            {sizeTypes.map((type) => (
+                              <option key={type._id} value={type.name}>
+                                {type.name}
+                              </option>
+                            ))}
                           </select>
                           <input
                             type="text"
