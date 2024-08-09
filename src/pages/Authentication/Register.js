@@ -1,93 +1,63 @@
-import PropTypes from "prop-types"
-import React, { useEffect } from "react";
-import { Row, Col, CardBody, Card, Alert, Container, Form, Input, FormFeedback, Label } from "reactstrap";
-
-// Formik Validation
-import * as Yup from "yup";
-import { useFormik } from "formik";
-
-// action
-import { registerUser, apiError } from "../../store/actions"
-
-// Redux
-import { useSelector, useDispatch } from "react-redux";
-import { createSelector } from "reselect";
-
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { Row, Col, CardBody, Card, Container, Input, Label } from "reactstrap";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
+import axios from 'axios';
+import logo from "../../assets/images/logo-dark.png";
+import logolight from "../../assets/images/logo-light.png";
+// Import Bootstrap CSS
 
+import baseUrl from "../../helpers/baseUrl";
 
-// import images
-import logo from "../../assets/images/logo-dark.png"
-import logolight from "../../assets/images/logo-light.png"
+const Register = (props) => {
+  document.title = "Estarch | Register";
 
-const Register = props => {
-
-  document.title=" Register | Minible - Responsive Bootstrap 5 Admin Dashboard"
-
-  const dispatch = useDispatch();
-
-  const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
-    enableReinitialize: true,
-
-    initialValues: {
-      email: '',
-      username: '',
-      password: '',
-    },
-    validationSchema: Yup.object({
-      email: Yup.string().required("Please Enter Your Email"),
-      username: Yup.string().required("Please Enter Your Username"),
-      password: Yup.string().required("Please Enter Your Password"),
-    }),
-    onSubmit: (values) => {
-      dispatch(registerUser(values));
-    }
+  // State to handle form data
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    mobile: '',
+    password: '',
   });
 
-  const selectAccountState = (state) => state.Account;
-    const AccountProperties = createSelector(
-      selectAccountState,
-        (account) => ({
-          user: account.user,
-          registrationError: account.registrationError,
-          // loading: account.loading,
-        })
-    );
+  // State to handle errors
+  const [error, setError] = useState('');
 
-    const {
-      user,
-      registrationError,
-      // loading
-  } = useSelector(AccountProperties);
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
 
-
-  // handleValidSubmit
-  // const handleValidSubmit = (event, values) => {
-  //   dispatch(registerUser(values));
-  // }
-
-  useEffect(() => {
-    dispatch(apiError(""));
-    document.body.className = "authentication-bg";
-    // remove classname when component will unmount
-    return function cleanup() {
-      document.body.className = "";
-    };
-  }, [dispatch]);
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(formData);
+    try {
+      const response = await axios.post(`${baseUrl}/api/auth/register-admin`, formData);
+      console.log('Form data submitted:', response.data);
+      // Handle successful registration (e.g., redirect to login page)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
+      console.error('Error during registration:', err);
+    }
+  };
 
   return (
     <React.Fragment>
-      <div className="account-pages my-5 pt-sm-5">
+      <div className="account-pages min-h-screen pt-sm-5 bg-blue-100">
         <Container>
           <Row>
             <Col lg={12}>
               <div className="text-center">
-                <Link to="/" className="mb-5 d-block auth-logo">
-                  <img src={logo} alt="" height="22" className="logo logo-dark" />
-                  <img src={logolight} alt="" height="22" className="logo logo-light" />
-                </Link>
+                <a href="/" className="mb-5 d-block auth-logo">
+                  <img src={logo} alt="" height="22" className="logo logo-dark w-72 mx-auto" />
+                  <img src={logolight} alt="" height="22" className="logo logo-light w-72 mx-auto" />
+                </a>
               </div>
             </Col>
           </Row>
@@ -97,85 +67,72 @@ const Register = props => {
                 <CardBody className="p-4">
                   <div className="text-center mt-2">
                     <h5 className="text-primary">Register Account</h5>
-                    <p className="text-muted">Get your free Minible account now.</p>
+                    <p className="text-muted">Register new admin account now.</p>
                   </div>
                   <div className="p-2 mt-4">
-                  <Form
-                      className="form-horizontal"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        validation.handleSubmit();
-                        return false;
-                      }}
-                    >
-                     {user && user ? (
-                        <Alert color="success">
-                          Register User Successfully
-                        </Alert>
-                      ) : null}
-
-                      {registrationError && registrationError ? (
-                        <Alert color="danger">{registrationError}</Alert>
-                      ) : null}
-
+                    <form className="form-horizontal" onSubmit={handleSubmit}>
+                      {/* Full Name Field */}
                       <div className="mb-3">
-                      <Label className="form-label">Email</Label>
+                        <Label className="form-label">Full Name</Label>
+                        <Input
+                          id="fullName"
+                          name="fullName"
+                          className="form-control"
+                          placeholder="Enter full name"
+                          type="text"
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      {/* Email Field */}
+                      <div className="mb-3">
+                        <Label className="form-label">Email</Label>
                         <Input
                           id="email"
                           name="email"
                           className="form-control"
                           placeholder="Enter email"
                           type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={
-                            validation.touched.email && validation.errors.email ? true : false
-                          }
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
                         />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
-                        ) : null}
                       </div>
 
+                      {/* Phone Number Field (replaced Username) */}
                       <div className="mb-3">
-                      <Label className="form-label">Username</Label>
+                        <Label className="form-label">Phone Number</Label>
                         <Input
-                          name="username"
+                          id="mobile"
+                          name="mobile"
+                          className="form-control"
+                          placeholder="Enter phone number"
                           type="text"
-                          placeholder="Enter username"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.username || ""}
-                          invalid={
-                            validation.touched.username && validation.errors.username ? true : false
-                          }
+                          value={formData.mobile}
+                          onChange={handleChange}
+                          required
                         />
-                        {validation.touched.username && validation.errors.username ? (
-                          <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
-                        ) : null}
                       </div>
+
+                      {/* Password Field */}
                       <div className="mb-3">
-                      <Label className="form-label">Password</Label>
+                        <Label className="form-label">Password</Label>
                         <Input
+                          id="password"
                           name="password"
+                          className="form-control"
+                          placeholder="Enter password"
                           type="password"
-                          placeholder="Enter Password"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.password || ""}
-                          invalid={
-                            validation.touched.password && validation.errors.password ? true : false
-                          }
+                          value={formData.password}
+                          onChange={handleChange}
+                          required
                         />
-                        {validation.touched.password && validation.errors.password ? (
-                          <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
-                        ) : null}
                       </div>
-                      <div className="form-check">
-                        <input type="checkbox" className="form-check-input" id="auth-terms-condition-check" />
-                        <label className="form-check-label" htmlFor="auth-terms-condition-check">I accept <Link to="#" className="text-reset">Terms and Conditions</Link></label>
-                      </div>
+
+                      {/* Display error message if there's an error */}
+                      {error && <div className="text-danger">{error}</div>}
 
                       <div className="mt-3 text-end">
                         <button
@@ -187,67 +144,35 @@ const Register = props => {
                       </div>
 
                       <div className="mt-4 text-center">
-                        <div className="signin-other-title">
-                          <h5 className="font-size-14 mb-3 title">Sign up using</h5>
-                        </div>
-
-                        <ul className="list-inline">
-                          <li className="list-inline-item">
-                            <Link
-                              to="#"
-                              className="social-list-item bg-primary text-white border-primary"
-                            >
-                              <i className="mdi mdi-facebook" />
-                            </Link>
-                          </li>{" "}
-                          <li className="list-inline-item">
-                            <Link
-                              to="#"
-                              className="social-list-item bg-info text-white border-info"
-                            >
-                              <i className="mdi mdi-twitter" />
-                            </Link>
-                          </li>{" "}
-                          <li className="list-inline-item">
-                            <Link
-                              to="#"
-                              className="social-list-item bg-danger text-white border-danger"
-                            >
-                              <i className="mdi mdi-google" />
-                            </Link>
-                          </li>
-                        </ul>
+                        <p className="text-muted mb-0">
+                          Already have an account?{" "}
+                          <Link to="/login" className="fw-medium text-primary">
+                            Login
+                          </Link>
+                        </p>
                       </div>
-
-                      <div className="mt-4 text-center">
-                        <p className="text-muted mb-0">Already have an account ? <Link to="/login" className="fw-medium text-primary"> Login</Link></p>
-                      </div>
-
-                    </Form>
-
+                    </form>
                   </div>
-                  </CardBody>
+                </CardBody>
               </Card>
               <div className="mt-5 text-center">
-                <p>© {new Date().getFullYear()} Minible. Crafted with <i
-                    className="mdi mdi-heart text-danger"></i> by Themesbrand
-                        </p>
+                <p>
+                  © {new Date().getFullYear()} Estarch.{" "}
+                  <i className="mdi mdi-heart text-danger"></i> developed by Web Waiver
+                </p>
               </div>
             </Col>
           </Row>
-          </Container>
+        </Container>
       </div>
     </React.Fragment>
-  )
-}
-export default withRouter(Register);
+  );
+};
 
 Register.propTypes = {
   registerUser: PropTypes.func,
-  // registerUserFailed: PropTypes.func,
   registrationError: PropTypes.any,
   user: PropTypes.any,
-}
+};
 
-
-
+export default withRouter(Register);

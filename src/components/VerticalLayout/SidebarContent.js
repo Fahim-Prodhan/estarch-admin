@@ -380,7 +380,7 @@ const SidebarContent = props => {
                   <Link to="/pages-login">{props.t("Login")}</Link>
                 </li>
                 <li>
-                  <Link to="/pages-register">{props.t("Register")}</Link>
+                  <Link to="/pages-register">{props.t("Register-Admin")}</Link>
                 </li>
                 <li>
                   <Link to="/page-recoverpw">
