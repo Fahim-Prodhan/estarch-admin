@@ -3,6 +3,9 @@ import axios from 'axios';
 import { FaEllipsisV } from 'react-icons/fa';
 import { IoIosAddCircle } from 'react-icons/io';
 import { Container } from 'reactstrap';
+import baseUrl from "../../../helpers/baseUrl";
+import ViewOrderProduct from './ViewOrderProduct';
+import productIcon from '../../../assets/images/product-icon.png'
 
 // Status hierarchy (only forward movement is allowed)
 const statusHierarchy = ['new', 'pending', 'confirm', 'processing', 'courier', 'delivered', 'cancel'];
@@ -16,6 +19,10 @@ const Orders = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [activeNoteInput, setActiveNoteInput] = useState(null);
     const [notes, setNotes] = useState({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+
 
     useEffect(() => {
         const loadOrders = async () => {
@@ -26,9 +33,15 @@ const Orders = () => {
         loadOrders();
     }, []);
 
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
+
+
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/orders');
+            const response = await axios.get(`${baseUrl}/api/orders`);
             return response.data;
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -50,7 +63,7 @@ const Orders = () => {
         });
 
         try {
-            await axios.patch(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus });
+            await axios.patch(`${baseUrl}/api/orders/${orderId}/status`, { status: newStatus });
             setOrders(updatedOrders);
             filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
         } catch (error) {
@@ -67,7 +80,7 @@ const Orders = () => {
         });
 
         try {
-            await axios.patch(`http://localhost:5000/api/orders/${orderId}/courier`, { courier: newCourier });
+            await axios.patch(`${baseUrl}/api/orders/${orderId}/courier`, { courier: newCourier });
             setOrders(updatedOrders);
             filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
         } catch (error) {
@@ -77,7 +90,7 @@ const Orders = () => {
 
     const handleAddCartItems = async (orderId, newCartItems) => {
         try {
-            await axios.patch(`http://localhost:5000/api/orders/${orderId}/cart-items`, { cartItems: newCartItems });
+            await axios.patch(`${baseUrl}/api/orders/${orderId}/cart-items`, { cartItems: newCartItems });
             // Update local state or refetch orders here
         } catch (error) {
             console.error('Error adding cart items:', error);
@@ -86,7 +99,7 @@ const Orders = () => {
 
     const createOrder = async (orderData) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/orders', orderData);
+            const response = await axios.post(`${baseUrl}/api/orders`, orderData);
             setOrders([...orders, response.data]);
         } catch (error) {
             console.error('Error creating order:', error);
@@ -95,7 +108,7 @@ const Orders = () => {
 
     const handleDeleteOrder = async (orderId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
+            await axios.delete(`${baseUrl}/api/orders/${orderId}`);
             setOrders(orders.filter(order => order._id !== orderId));
         } catch (error) {
             console.error('Error deleting order:', error);
@@ -154,7 +167,7 @@ const Orders = () => {
         });
 
         try {
-            await axios.patch(`http://localhost:5000/api/orders/${orderId}/note`, { note: notes[orderId] });
+            await axios.patch(`${baseUrl}/api/orders/${orderId}/note`, { note: notes[orderId] });
             setOrders(updatedOrders);
             setActiveNoteInput(null);
         } catch (error) {
@@ -173,7 +186,7 @@ const Orders = () => {
                             <p className="font-semibold text-[#4B70F5]">ALL</p>
                         </div>
 
-                        
+
 
                         <div className="shadow-md text-center py-2 bg-[#af47d223]" onClick={() => handleFilterByStatus('pending')}>
                             <p className="text-2xl font-bold text-[#AF47D2]">{getStatusCount('pending')}</p>
@@ -302,7 +315,6 @@ const Orders = () => {
                                         <th>Status</th>
                                         <th>Courier</th>
                                         <th>Create</th>
-                                        <th>Note</th>
                                         <th>Update</th>
                                     </tr>
                                 </thead>
@@ -322,21 +334,27 @@ const Orders = () => {
                                                     <p>{order.name}</p>
                                                     <p>{order.address}</p>
                                                     <p>{order.phone}</p>
-                                                    <p className="text-red-500">{order.notes}</p>
+                                                    <p className="text-red-500">{order.orderNotes}</p>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div>
-                                                    <p>Total Bill: {order.totalBill} TK</p>
-                                                    <p>Delivery Charge: {order.deliveryCharge} TK</p>
-                                                    <p>Discount: {order.discount} TK</p>
+                                                    <p className='text-right'>Total Bill: {order.totalAmount} TK</p>
+                                                    <p className='text-right'>Delivery Charge: {order.deliveryCharge} TK</p>
+                                                    <p className='text-right'>Discount: {order.discount} TK</p>
                                                     <hr />
-                                                    <p className="font-bold">Grand Total: {order.grandTotal} TK</p>
-                                                    <p className="font-bold text-green-500">Advanced: {order.advanced} TK</p>
-                                                    <p>Available: {order.grandTotal - order.advanced} TK</p>
+                                                    <p className="font-bold text-right">Grand Total: {order.grandTotal} TK</p>
+                                                    <p className="font-bold text-green-500 text-right">Advanced: {order.advanced} TK</p>
+                                                    <p className='text-right'>Available: {order.grandTotal - order.advanced} TK</p>
                                                 </div>
                                             </td>
-                                            <td>{order.product}</td>
+                                            <td className='text-center grid justify-center gap-2'>
+                                                <img className='w-16 mx-8' src={productIcon} alt="" />
+                                                <button onClick={() => {
+                                                    setSelectedOrder(order);
+                                                    toggleModal();
+                                                }} className="btn btn-sm btn-error text-white ">View Product</button>
+                                            </td>
                                             <td>
                                                 <select
                                                     className="select select-bordered w-full"
@@ -362,8 +380,12 @@ const Orders = () => {
                                                     <option value="user2">User2</option>
                                                 </select>
                                             </td>
-                                            <td>{order.visitor}</td>
-                                            <td>{order.note}</td>
+                                            <td>
+                                                <div>
+                                                    {order.note}
+                                                </div>
+                                                {order.visitor}
+                                            </td>
                                             <td>
                                                 <button onClick={() => toggleDropdown(order._id)}>
                                                     <FaEllipsisV />
@@ -400,6 +422,7 @@ const Orders = () => {
                         </div>
                     </div>
                 </Container>
+            <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
             </div>
         </React.Fragment>
     );
