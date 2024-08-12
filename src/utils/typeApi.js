@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+import baseUrl from "../helpers/baseUrl";
+
+const API_BASE_URL = `${baseUrl}/api`;
 
 export const fetchTypes = async () => {
     const response = await fetch(`${API_BASE_URL}/types`);

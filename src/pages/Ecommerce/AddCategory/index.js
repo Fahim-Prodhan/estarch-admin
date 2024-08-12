@@ -4,6 +4,7 @@ import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../../../utils/categoryApi.js";
 import { fetchTypes } from "../../../utils/typeApi.js";
 import Modal from '../../../components/Common/Modal.js';
+import baseUrl from '../../../helpers/baseUrl';
 
 const AddCategory = () => {
     const [categories, setCategories] = useState([]);
@@ -68,7 +69,7 @@ const AddCategory = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/upload', {
+            const response = await fetch(`${baseUrl}/upload`, {
                 method: 'POST',
                 body: formData,
             });

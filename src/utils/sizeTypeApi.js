@@ -1,6 +1,7 @@
 import axios from 'axios';
+import baseUrl from "../helpers/baseUrl";
 
-const API_URL = 'http://localhost:5000/api/sizeTypes';
+const API_URL = `${baseUrl}/api/sizeTypes`;
 
 export const fetchSizeTypes = async () => {
     try {

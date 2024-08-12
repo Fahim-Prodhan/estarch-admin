@@ -30,6 +30,11 @@ import ExpenseHead from "../pages/Expense/ExpenseHead/index"
 import CreateExpense from "../pages/Expense/CreateExpense/index"
 import ExpenseList from "../pages/Expense/ExpenseList/index"
 
+// Product Page
+import ProductList from '../pages/Product/ProductList/index'
+import AddProduct from "../pages/Product/AddProduct/index"
+
+
 // Category Pages
 import CreateCategory from "../pages/Category/CreateCategory/index"
 import CategoryList from "../pages/Category/CategoryList/index"
@@ -54,13 +59,14 @@ import Login1 from "../pages/AuthenticationInner/Login"
 import Register1 from "../pages/AuthenticationInner/Register"
 import Recoverpw from "../pages/AuthenticationInner/Recoverpw"
 import LockScreen from "../pages/AuthenticationInner/auth-lock-screen"
-import AddProduct from "../pages/Ecommerce/AddProduct"
 import AddCategory from "../pages/Ecommerce/AddCategory"
 import AddSubCategory from "../pages/Ecommerce/AddSubCategory"
 import AddBrand from "../pages/Ecommerce/AddBrand"
 import AddType from "../pages/Ecommerce/AddType"
 import AddSizeType from "../pages/Ecommerce/AddSizeType"
 import AddSize from "../pages/Ecommerce/AddSize"
+import InvoicesDetail from "../pages/Invoices/invoices-detail"
+import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
 
 
 const userRoutes = [
@@ -69,13 +75,13 @@ const userRoutes = [
   // E-commerce Routes
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
-  { path: "/ecommerce-add-product", component: <AddProduct/> },
   { path: "/ecommerce-add-category", component: <AddCategory/> },
   { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
   { path: "/ecommerce-add-brand", component: <AddBrand/> },
   { path: "/ecommerce-add-type", component: <AddType/> },
   { path: "/ecommerce-add-size-type", component: <AddSizeType/> },
   { path: "/ecommerce-add-size", component: <AddSize/> },
+  { path: "/ecommerce-chart-builder", component: <ChartBuilder/> },
 
 
   // Purchase Routes
@@ -91,6 +97,12 @@ const userRoutes = [
   { path: "/create-expense", component: <CreateExpense/> },
   { path: "/expense-list", component: <ExpenseList/> },
   
+  // Product Routes
+  { path: "/product-list", component: <ProductList/> },
+  { path: "/ecommerce-add-product", component: <AddProduct/> },
+
+
+  
   
   // Category Routes
   { path: "/create-category", component: <CreateCategory/> },
@@ -102,6 +114,7 @@ const userRoutes = [
   
   // brand routes
   { path: "/brand", component: <Brand/> },
+  { path: "/invoice/:id", component: <InvoicesDetail/> },
 
   
 
