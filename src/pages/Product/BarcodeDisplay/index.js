@@ -21,6 +21,7 @@ const BarcodeDisplay = () => {
   }
 
   const { product, barcodeCounts } = barcodeData;
+  console.log(product);
 
   return (
     <div className="barcode-display-page bg-white">
@@ -34,8 +35,8 @@ const BarcodeDisplay = () => {
                 <div key={i} className="barcode-wrapper">
                   <div className="logo-and-text">
                     <img className="logo" src={logo} alt="Logo" />
-                    <p className="product-info">
-                      <span className="font-bold">Est120</span> ({sizeDetail.size})
+                    <p className="product-info font-mono">
+                      <span className="font-bold">{product.SKU}</span> ({sizeDetail.size})
                     </p>
                   </div>
                   <img
@@ -43,7 +44,7 @@ const BarcodeDisplay = () => {
                     src={`https://barcode.tec-it.com/barcode.ashx?data=${sizeDetail.barcode}&code=Code128`}
                     alt={`Barcode for ${sizeDetail.size}`}
                   />
-                  <p className="font-semibold font-mono text-xl">Price: {sizeDetail.sellingPrice} ৳</p>
+                  <p className="font-bold font-mono text-xl text-black">Price: {sizeDetail.sellingPrice} ৳</p>
                 </div>
               ))}
             </React.Fragment>
