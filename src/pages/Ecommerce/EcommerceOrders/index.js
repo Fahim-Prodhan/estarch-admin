@@ -76,24 +76,42 @@ const Orders = () => {
 
     const handleStatusChange = async (orderId, newStatus) => {
         try {
-            const response = await axios.patch(`${baseUrl}/api/orders/status/${orderId}`, { status: newStatus });
-            console.log('API Response:', response);
-            if (response.status === 200) {
-                setOrders(prevOrders =>
-                    prevOrders.map(order =>
-                        order._id === orderId ? { ...order, status: newStatus } : order
-                    )
-                );
-                filterOrders(orders, statusFilter, courierFilter, dateFilter);
-            } else {
-                console.error('Error: API responded with status', response.status);
+          // Get the token from localStorage
+          const token = localStorage.getItem('token');
+      
+          if (!token) {
+            throw new Error('User not authenticated');
+          }
+      
+          // Send a PATCH request to the server to update the status
+          const response = await axios.patch(
+            `/api/order/status${orderId}`,
+            { status: newStatus },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-    
+          );
+      
+          // Update UI with the new order data
+          const updatedOrder = response.data;
+      
+          // Find and update the order in the state (assuming you have state management here)
+          setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+              order._id === updatedOrder._id ? updatedOrder : order
+            )
+          );
+      
+          // Optionally, show a success message
+          alert('Order status updated successfully');
         } catch (error) {
-            console.error('Error updating status:', error);
+          // Handle errors (unauthenticated, server issues, etc.)
+          console.error(error);
+          alert(error.response?.data?.error || error.message);
         }
-    };
-    
+      };
 
 
     const handleCourierChange = async (orderId, newCourier) => {
@@ -346,28 +364,28 @@ const Orders = () => {
                                                 }} className="btn btn-sm btn-error text-white ">View Product</button>
                                             </td>
                                             <td>
-                                                <select
-                                                    className="select select-bordered"
-                                                    value={order.status}  // Fix this line to use order.status
-                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Fix this line to call handleStatusChange
-                                                >
-                                                    <option value="new">New</option>
-                                                    <option value="pending">Pending</option>
-                                                    <option value="confirm">Confirm</option>
-                                                    <option value="processing">Processing</option>
-                                                    <option value="pendingPayment">Pending Payment</option>
-                                                    <option value="hold">Hold</option>
-                                                    <option value="sentToCourier">Sent to Courier</option>
-                                                    <option value="courierProcessing">Courier Processing</option>
-                                                    <option value="return">Return</option>
-                                                    <option value="returnExchange">Return Exchange</option>
-                                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
-                                                    <option value="exchange">Exchange</option>
-                                                    <option value="delivered">Delivered</option>
-                                                    <option value="cancel">Cancel</option>
-                                                </select>
+  <select
+    className="select select-bordered"
+    value={order.status[order.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
+    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Call the function on change
+  >
+    <option value="new">New</option>
+    <option value="pending">Pending</option>
+    <option value="pendingPayment">Pending Payment</option>
+    <option value="confirm">Confirm</option>
+    <option value="hold">Hold</option>
+    <option value="processing">Processing</option>
+    <option value="sentToCourier">Sent to Courier</option>
+    <option value="courierProcessing">Courier Processing</option>
+    <option value="return">Return</option>
+    <option value="returnExchange">Return Exchange</option>
+    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+    <option value="exchange">Exchange</option>
+    <option value="delivered">Delivered</option>
+    <option value="cancel">Cancel</option>
+  </select>
+</td>
 
-                                            </td>
                                             <td>
                                                 <select
                                                     className="select select-bordered w-full"
