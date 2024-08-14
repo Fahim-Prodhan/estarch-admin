@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaEllipsisV } from 'react-icons/fa';
+import { FaEdit, FaRegEye } from 'react-icons/fa';
 import { IoIosAddCircle } from 'react-icons/io';
-import { Container } from 'reactstrap';
+import { Button, Container } from 'reactstrap';
 import baseUrl from "../../../helpers/baseUrl";
 import ViewOrderProduct from './ViewOrderProduct';
 import productIcon from '../../../assets/images/product-icon.png'
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import NoteModal from './NoteModal';
+import TrackingModal from './TrackingModal';
 
-// Status hierarchy (only forward movement is allowed)
-const statusHierarchy = ['new', 'pending', 'confirm', 'processing', 'courier', 'delivered', 'cancel'];
+const statusHierarchy = [
+    'new', 'pending', 'pendingPayment', 'confirm', 'hold',
+    'processing', 'sentToCourier', 'courierProcessing', 'delivered',
+    'return', 'returnExchange', 'returnWithDeliveryCharge', 'exchange', 'cancel'
+];
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -17,12 +23,36 @@ const Orders = () => {
     const [courierFilter, setCourierFilter] = useState('');
     const [dateFilter, setDateFilter] = useState('');
     const [activeDropdown, setActiveDropdown] = useState(null);
-    const [activeNoteInput, setActiveNoteInput] = useState(null);
-    const [notes, setNotes] = useState({});
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+
+    const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+    const [trackingOrderId, setTrackingOrderId] = useState(null);
+
+    const handleTrackingOpenModal = (orderId) => {
+        setTrackingOrderId(orderId);
+        setTrackingModalOpen(true);
+    };
 
 
+    const toggleNoteModal = (orderId) => {
+        if (isNoteModalOpen) {
+            setIsNoteModalOpen(false);
+            setSelectedOrderId(null);
+        } else {
+            setIsNoteModalOpen(true);
+            setSelectedOrderId(orderId);
+        }
+    };
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
+    const toggleDropdown = (orderId) => {
+        setActiveDropdown(activeDropdown === orderId ? null : orderId);
+    };
 
     useEffect(() => {
         const loadOrders = async () => {
@@ -32,11 +62,6 @@ const Orders = () => {
         };
         loadOrders();
     }, []);
-
-    const toggleModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
-
 
 
     const fetchOrders = async () => {
@@ -50,26 +75,26 @@ const Orders = () => {
     };
 
     const handleStatusChange = async (orderId, newStatus) => {
-        const updatedOrders = orders.map(order => {
-            if (order._id === orderId) {
-                const currentStatusIndex = statusHierarchy.indexOf(order.status);
-                const newStatusIndex = statusHierarchy.indexOf(newStatus);
-
-                if (newStatusIndex > currentStatusIndex) {
-                    return { ...order, status: newStatus };
-                }
-            }
-            return order;
-        });
-
         try {
-            await axios.patch(`${baseUrl}/api/orders/${orderId}/status`, { status: newStatus });
-            setOrders(updatedOrders);
-            filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
+            const response = await axios.patch(`${baseUrl}/api/orders/status/${orderId}`, { status: newStatus });
+            console.log('API Response:', response);
+            if (response.status === 200) {
+                setOrders(prevOrders =>
+                    prevOrders.map(order =>
+                        order._id === orderId ? { ...order, status: newStatus } : order
+                    )
+                );
+                filterOrders(orders, statusFilter, courierFilter, dateFilter);
+            } else {
+                console.error('Error: API responded with status', response.status);
+            }
+    
         } catch (error) {
             console.error('Error updating status:', error);
         }
     };
+    
+
 
     const handleCourierChange = async (orderId, newCourier) => {
         const updatedOrders = orders.map(order => {
@@ -88,15 +113,6 @@ const Orders = () => {
         }
     };
 
-    const handleAddCartItems = async (orderId, newCartItems) => {
-        try {
-            await axios.patch(`${baseUrl}/api/orders/${orderId}/cart-items`, { cartItems: newCartItems });
-            // Update local state or refetch orders here
-        } catch (error) {
-            console.error('Error adding cart items:', error);
-        }
-    };
-
     const createOrder = async (orderData) => {
         try {
             const response = await axios.post(`${baseUrl}/api/orders`, orderData);
@@ -105,35 +121,22 @@ const Orders = () => {
             console.error('Error creating order:', error);
         }
     };
-
-    const handleDeleteOrder = async (orderId) => {
-        try {
-            await axios.delete(`${baseUrl}/api/orders/${orderId}`);
-            setOrders(orders.filter(order => order._id !== orderId));
-        } catch (error) {
-            console.error('Error deleting order:', error);
-        }
-    };
-
     const handleFilterByStatus = (status) => {
         setStatusFilter(status);
         filterOrders(orders, status, courierFilter, dateFilter);
     };
-
     const handleFilterByCourier = (courier) => {
         setCourierFilter(courier);
         filterOrders(orders, statusFilter, courier, dateFilter);
     };
-
     const handleFilterByDate = (date) => {
         setDateFilter(date);
         filterOrders(orders, statusFilter, courierFilter, date);
     };
-
     const filterOrders = (orders, status, courier, date) => {
         const filtered = orders.filter(order => {
             return (
-                (status ? order.status === status : true) &&
+                (status && status !== 'all' ? order.status === status : true) &&
                 (courier ? order.courier === courier : true) &&
                 (date ? order.date.startsWith(date) : true)
             );
@@ -141,38 +144,13 @@ const Orders = () => {
         setFilteredOrders(filtered);
     };
 
+    useEffect(() => {
+        filterOrders(orders, statusFilter, courierFilter, dateFilter);
+    }, [orders, statusFilter, courierFilter, dateFilter]);
+
+
     const getStatusCount = (status) => {
         return orders.filter(order => order.status === status).length;
-    };
-
-    const toggleDropdown = (orderId) => {
-        setActiveDropdown(activeDropdown === orderId ? null : orderId);
-    };
-
-    const handleAddNoteClick = (orderId) => {
-        setActiveNoteInput(orderId);
-        setActiveDropdown(null);
-    };
-
-    const handleNoteChange = (orderId, note) => {
-        setNotes({ ...notes, [orderId]: note });
-    };
-
-    const handleNoteSave = async (orderId) => {
-        const updatedOrders = orders.map(order => {
-            if (order._id === orderId) {
-                return { ...order, note: notes[orderId] || order.note };
-            }
-            return order;
-        });
-
-        try {
-            await axios.patch(`${baseUrl}/api/orders/${orderId}/note`, { note: notes[orderId] });
-            setOrders(updatedOrders);
-            setActiveNoteInput(null);
-        } catch (error) {
-            console.error('Error saving note:', error);
-        }
     };
 
     return (
@@ -186,16 +164,16 @@ const Orders = () => {
                             <p className="font-semibold text-[#4B70F5]">ALL</p>
                         </div>
 
-
-
                         <div className="shadow-md text-center py-2 bg-[#af47d223]" onClick={() => handleFilterByStatus('pending')}>
                             <p className="text-2xl font-bold text-[#AF47D2]">{getStatusCount('pending')}</p>
                             <p className="font-semibold text-[#AF47D2]">Pending</p>
                         </div>
+
                         <div className="shadow-md text-center py-2 bg-[#ff7e3e1d]" onClick={() => handleFilterByStatus('new')}>
                             <p className="text-2xl font-bold text-[#FF7F3E]">{getStatusCount('new')}</p>
                             <p className="font-semibold text-[#FF7F3E]">New Order</p>
                         </div>
+
                         <div className="shadow-md text-center py-2 bg-[#1b424225]" onClick={() => handleFilterByStatus('pendingPayment')}>
                             <p className="text-2xl font-bold text-[#1B4242]">{getStatusCount('pendingPayment')}</p>
                             <p className="font-semibold text-[#1B4242]">Pending Payment</p>
@@ -203,7 +181,7 @@ const Orders = () => {
 
                         <div className="shadow-md text-center py-2 bg-[#40a57821]" onClick={() => handleFilterByStatus('confirm')}>
                             <p className="text-2xl font-bold text-[#40A578]">{getStatusCount('confirm')}</p>
-                            <p className="font-semibold text-[#40A578]">CONFIRM</p>
+                            <p className="font-semibold text-[#40A578]">Confirm</p>
                         </div>
 
                         <div className="shadow-md text-center py-2 bg-[#ff204d2a]" onClick={() => handleFilterByStatus('hold')}>
@@ -231,14 +209,21 @@ const Orders = () => {
                             <p className="font-semibold text-[#8B9A46]">Delivered</p>
                         </div>
 
+                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('partialReturn')}>
+                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount('partialReturn')}</p>
+                            <p className="font-semibold text-[#8B9A46]">Partial Return</p>
+                        </div>
+
                         <div className="shadow-md text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('return')}>
                             <p className="text-2xl font-bold text-[#C84B31]">{getStatusCount('return')}</p>
                             <p className="font-semibold text-[#C84B31]">Return</p>
                         </div>
+
                         <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('returnExchange')}>
                             <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount('returnExchange')}</p>
                             <p className="font-semibold text-[#8B9A46]">Return Exchange</p>
                         </div>
+
                         <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('cancel')}>
                             <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount('cancel')}</p>
                             <p className="font-semibold text-[#8B9A46]">Cancel</p>
@@ -251,19 +236,24 @@ const Orders = () => {
                             <div className="flex gap-6">
                                 <select
                                     className="select select-bordered"
-                                    value={statusFilter}
-                                    onChange={(e) => handleFilterByStatus(e.target.value)}
+                                    value={orders.status}  // Fix this line to use order.status
+                                    onChange={(e) => handleStatusChange(orders._id, e.target.value)}  // Fix this line to call handleStatusChange
                                 >
-                                    <option value="">Filter By Status</option>
                                     <option value="new">New</option>
                                     <option value="pending">Pending</option>
                                     <option value="confirm">Confirm</option>
                                     <option value="processing">Processing</option>
-                                    <option value="courier">Courier</option>
+                                    <option value="pendingPayment">Pending Payment</option>
+                                    <option value="hold">Hold</option>
+                                    <option value="sentToCourier">Sent to Courier</option>
+                                    <option value="courierProcessing">Courier Processing</option>
+                                    <option value="return">Return</option>
+                                    <option value="returnExchange">Return Exchange</option>
+                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                    <option value="exchange">Exchange</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="cancel">Cancel</option>
                                 </select>
-
                                 <select
                                     className="select select-bordered"
                                     value={courierFilter}
@@ -357,17 +347,26 @@ const Orders = () => {
                                             </td>
                                             <td>
                                                 <select
-                                                    className="select select-bordered w-full"
-                                                    value={order.status}
-                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                                    className="select select-bordered"
+                                                    value={order.status}  // Fix this line to use order.status
+                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Fix this line to call handleStatusChange
                                                 >
+                                                    <option value="new">New</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="confirm">Confirm</option>
                                                     <option value="processing">Processing</option>
-                                                    <option value="courier">Courier</option>
+                                                    <option value="pendingPayment">Pending Payment</option>
+                                                    <option value="hold">Hold</option>
+                                                    <option value="sentToCourier">Sent to Courier</option>
+                                                    <option value="courierProcessing">Courier Processing</option>
+                                                    <option value="return">Return</option>
+                                                    <option value="returnExchange">Return Exchange</option>
+                                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                                    <option value="exchange">Exchange</option>
                                                     <option value="delivered">Delivered</option>
                                                     <option value="cancel">Cancel</option>
                                                 </select>
+
                                             </td>
                                             <td>
                                                 <select
@@ -381,40 +380,45 @@ const Orders = () => {
                                                 </select>
                                             </td>
                                             <td>
-                                                <div>
-                                                    {order.note}
-                                                </div>
-                                                {order.visitor}
+                                                <button onClick={() => handleTrackingOpenModal(order._id)} className="text-blue-500 text-xl" >
+                                                    <FaRegEye />
+                                                </button>
                                             </td>
                                             <td>
-                                                <button onClick={() => toggleDropdown(order._id)}>
-                                                    <FaEllipsisV />
-                                                </button>
-                                                {activeDropdown === order._id && (
-                                                    <div className="dropdown-content">
-                                                        <ul>
-                                                            <li onClick={() => handleAddNoteClick(order._id)}>Add Note</li>
-                                                            <li>Assign Employee</li>
-                                                            <li>Other Option</li>
-                                                        </ul>
+                                                <div className="dropdown flex justify-center relative">
+                                                    <div
+                                                        tabIndex={0}
+                                                        role="button"
+                                                        className="btn m-1 btn-sm"
+                                                        onClick={() => toggleDropdown(order._id)} // Toggle on click
+                                                    >
+                                                        <BsThreeDotsVertical />
                                                     </div>
-                                                )}
-                                                {activeNoteInput === order._id && (
-                                                    <div>
-                                                        <textarea
-                                                            value={notes[order._id] || ''}
-                                                            onChange={(e) => handleNoteChange(order._id, e.target.value)}
-                                                            className="textarea textarea-bordered mt-2"
-                                                        />
-                                                        <button
-                                                            onClick={() => handleNoteSave(order._id)}
-                                                            className="btn btn-sm btn-success mt-2"
-                                                        >
-                                                            Save
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                    <ul
+                                                        tabIndex={0}
+                                                        className={`dropdown-content absolute right-0 mt-1 bg-base-100 rounded-box z-10 p-2 shadow space-y-2 ${activeDropdown === order._id ? '' : 'hidden'}`} // Show/hide based on activeDropdown
+                                                    >
+                                                        <li>
+                                                            <button className="btn btn-sm btn-accent text-white" onClick={() => toggleNoteModal()}>
+                                                                Details
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button onClick={() => toggleNoteModal(order._id)} className="btn btn-sm text-success text-xl">
+                                                                <FaEdit />
+                                                            </button>
+
+                                                        </li>
+                                                        <li>
+                                                            <Button color="primary">
+                                                                Open Modal
+                                                            </Button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
                                             </td>
+
                                         </tr>
                                     ))}
                                 </tbody>
@@ -422,7 +426,20 @@ const Orders = () => {
                         </div>
                     </div>
                 </Container>
-            <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
+                <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
+                {selectedOrderId && (
+                    <NoteModal
+                        isOpen={isNoteModalOpen}
+                        toggle={() => toggleNoteModal(selectedOrderId)}
+                        orderId={selectedOrderId}
+                    // other props as needed
+                    />
+                )}
+                <TrackingModal
+                    isOpen={trackingModalOpen}
+                    toggle={() => setTrackingModalOpen(false)}
+                    orderId={trackingOrderId}
+                />
             </div>
         </React.Fragment>
     );
