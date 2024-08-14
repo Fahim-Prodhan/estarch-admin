@@ -68,6 +68,7 @@ import AddSize from "../pages/Ecommerce/AddSize"
 import InvoicesDetail from "../pages/Invoices/invoices-detail"
 import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
 import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
+import ProductSerial from "../pages/Product/ProductSerial"
 
 
 const userRoutes = [
@@ -101,6 +102,7 @@ const userRoutes = [
   // Product Routes
   { path: "/product-list", component: <ProductList/> },
   { path: "/ecommerce-add-product", component: <AddProduct/> },
+  { path: "/ecommerce-product-serial", component: <ProductSerial/> },
 
   
   
