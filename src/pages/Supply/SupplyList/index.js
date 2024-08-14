@@ -6,6 +6,8 @@ import Breadcrumbs from "../../../components/Common/Breadcrumb"
 import { MDBDataTable } from "mdbreact"
 import "../../../assets/scss/datatables.scss"
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 const SupplyList = () => {
   const [data, setData] = useState({ columns: [], rows: [] })
 

@@ -17,6 +17,7 @@ import EcommercePosOrders from "../src/pages/Ecommerce/EcommercePosOrders/index"
 // Import scss
 import "./assets/scss/theme.scss";
 
+
 // Import Firebase Configuration file
 // import { initFirebaseBackend } from "./helpers/firebase_helper"
 
