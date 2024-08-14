@@ -66,6 +66,11 @@ import AddCategory from "../pages/Ecommerce/AddCategory"
 import AddSubCategory from "../pages/Ecommerce/AddSubCategory"
 import AddBrand from "../pages/Ecommerce/AddBrand"
 import AddType from "../pages/Ecommerce/AddType"
+import AddSizeType from "../pages/Ecommerce/AddSizeType"
+import AddSize from "../pages/Ecommerce/AddSize"
+import InvoicesDetail from "../pages/Invoices/invoices-detail"
+import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
+import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
 
 
 const userRoutes = [
@@ -78,6 +83,9 @@ const userRoutes = [
   { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
   { path: "/ecommerce-add-brand", component: <AddBrand/> },
   { path: "/ecommerce-add-type", component: <AddType/> },
+  { path: "/ecommerce-add-size-type", component: <AddSizeType/> },
+  { path: "/ecommerce-add-size", component: <AddSize/> },
+  { path: "/ecommerce-chart-builder", component: <ChartBuilder/> },
 
 
   // Purchase Routes
@@ -105,7 +113,7 @@ const userRoutes = [
   { path: "/category-list", component: <CategoryList/> },
   
   // Attribute Routes
-  { path: "/main-attribute", component: <MainAttribute/> },
+  { path: "/main-attribute", component: <AddSizeChart/> },
   { path: "/attribute-values", component: <AttributeValue/> },
   
   // brand routes
@@ -114,6 +122,10 @@ const userRoutes = [
   // authentication
   { path: "/pages-register", component: <Register1/> },
   
+  { path: "/invoice/:id", component: <InvoicesDetail/> },
+
+  
+
 
   //Utility
   { path: "/pages-starter", component: <PagesStarter/> },

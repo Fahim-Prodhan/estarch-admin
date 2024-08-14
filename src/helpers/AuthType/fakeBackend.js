@@ -636,22 +636,22 @@ const fakeBackend = () => {
     });
   });
 
-  mock.onGet(new RegExp(`${url.GET_INVOICE_DETAIL}/*`)).reply((config) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (invoiceList) {
-          // Passing fake JSON data as response
-          const { params } = config;
-          const invoice = invoiceList.find(
-            (invoice) => invoice.id.toString() === params.id.toString()
-          );
-          resolve([200, invoice]);
-        } else {
-          reject([400, "Cannot get invoice"]);
-        }
-      });
-    });
-  });
+  // mock.onGet(new RegExp(`${url.GET_INVOICE_DETAIL}/*`)).reply((config) => {
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       if (invoiceList) {
+  //         // Passing fake JSON data as response
+  //         const { params } = config;
+  //         const invoice = invoiceList.find(
+  //           (invoice) => invoice.id.toString() === params.id.toString()
+  //         );
+  //         resolve([200, invoice]);
+  //       } else {
+  //         reject([400, "Cannot get invoice"]);
+  //       }
+  //     });
+  //   });
+  // });
 
   // mock.onGet(url.GET_PROJECTS).reply(() => {
   //   return new Promise((resolve, reject) => {

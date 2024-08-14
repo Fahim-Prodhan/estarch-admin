@@ -60,7 +60,7 @@ const Refund = () => {
                 <p><span className="font-bold">Brand:</span> <span>{item.selectedBrand}</span></p>
               </div>
             ),
-            sku: <p><span className="font-bold">Sku:</span> <span>EST001</span></p>,
+            sku: <p><span className="font-bold">Sku:</span> <span>{item.SKU}</span></p>,
             barcode: (
               <div className="space-y-2">
                 {

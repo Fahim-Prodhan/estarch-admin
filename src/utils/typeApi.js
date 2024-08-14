@@ -31,3 +31,11 @@ export const deleteType = async (id) => {
     });
     return response.json();
 };
+
+export const fetchSku = async () => {
+    const response = await fetch(`${baseUrl}/api/products/products/sku`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch products');
+    }
+    return response.json();
+};
