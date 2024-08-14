@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import JoditEditor from 'jodit-react';
-import { fetchTypes } from "../../../utils/typeApi.js";
-import { fetchSizeTypes } from "../../../utils/sizeTypeApi.js";
+import { fetchSku, fetchTypes } from "../../../utils/typeApi.js";
+import { fetchSizeTypes  } from "../../../utils/sizeTypeApi.js";
 import { fetchSizesBySizeTypeName } from '../../../utils/sizeApi.js';
 import baseUrl from '../../../helpers/baseUrl';
 function AddProduct() {
@@ -34,9 +34,9 @@ function AddProduct() {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [sizeDetails, setSizeDetails] = useState([]);
   const [types, setTypes] = useState([]);
-  const [selectedSizeType, setSelectedSizeType] = useState('');
   const [sizeTypes, setSizeTypes] = useState([]); 
   const [sizes, setSizes] = useState([]);
+  const [SKU , setSKU] =  useState('');
 
   useEffect(() => {
     const getSizeTypes = async () => {
@@ -49,7 +49,15 @@ function AddProduct() {
         console.error('Error fetching size types:', error);
       }
     };
-
+    const getProduct = async () => {
+      try {
+        const data = await fetchSku();
+        setSKU(data.sku);        
+      } catch (error) {
+        console.error('Error fetching size types:', error);
+      }
+    };
+    getProduct();
     getSizeTypes(); // Fetch size types
   }, []);
 
@@ -164,7 +172,6 @@ function AddProduct() {
     const newDetails = [...sizeDetails];
     newDetails[index][field] = value;
 
-    // Automatically update dependent fields
     if (field === 'sellingPrice' || field === 'discountPercent' || field === 'discountAmount') {
       newDetails[index].afterDiscount = calculateAfterDiscount(
         newDetails[index].sellingPrice,
@@ -500,8 +507,8 @@ function AddProduct() {
                     <input type="checkbox" className="toggle toggle-primary" onChange={() => setShowSize(!showSize)} />
                   </div>
                   <div className="flex justify-center items-center">
-                    <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">SKU</label>
-                    <input value='EST0001' disabled type="text" id="sku" className="input input-bordered w-[600px]" placeholder="SKU" />
+                    <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">SKUg</label>
+                    <input value={SKU} disabled type="text" id="sku" className="input input-bordered w-[600px]" placeholder="SKU" />
                   </div>
                   <div className="flex justify-center items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">Stock Alert</label>

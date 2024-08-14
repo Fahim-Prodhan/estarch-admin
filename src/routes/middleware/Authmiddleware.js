@@ -1,16 +1,30 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
+import { AuthContext } from "../../utils/context/AuthProvider";
 
 const Authmiddleware = (props) => {
-  if (!localStorage.getItem("authUser")) {
+  const { authUser,loadingUser } = useContext(AuthContext);
+
+  if (loadingUser) {
     return (
-      <Navigate to={{ pathname: "/login" }} />
+        <div className="flex justify-center">
+            <span className="loading loading-ring loading-xs"></span>
+            <span className="loading loading-ring loading-sm"></span>
+            <span className="loading loading-ring loading-md"></span>
+            <span className="loading loading-ring loading-lg"></span>
+        </div>
     );
+}
+
+  if (!authUser) {
+    return <Navigate to="/login" />;
   }
-  return (
-    <React.Fragment>
-    {props.children}
-  </React.Fragment>);
+
+  if (authUser.role !== 'admin') {
+    return <Navigate to="/login" />;
+  }
+
+  return <React.Fragment>{props.children}</React.Fragment>;
 };
 
 export default Authmiddleware;

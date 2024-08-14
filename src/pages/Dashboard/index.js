@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container } from "reactstrap";
 
 
 
 //Import Breadcrumb
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { AuthContext } from "../../utils/context/AuthProvider";
 
 
 
@@ -13,7 +14,9 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 const Dashboard = () => {
 
   document.title="Estarch | Dashboard"
+  const {authUser} = useContext(AuthContext)
 
+  console.log(authUser);
 
   
 

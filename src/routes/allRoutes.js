@@ -67,6 +67,7 @@ import AddSizeType from "../pages/Ecommerce/AddSizeType"
 import AddSize from "../pages/Ecommerce/AddSize"
 import InvoicesDetail from "../pages/Invoices/invoices-detail"
 import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
+import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
 
 
 const userRoutes = [
@@ -101,7 +102,7 @@ const userRoutes = [
   { path: "/product-list", component: <ProductList/> },
   { path: "/ecommerce-add-product", component: <AddProduct/> },
 
-
+  
   
   
   // Category Routes
@@ -109,11 +110,15 @@ const userRoutes = [
   { path: "/category-list", component: <CategoryList/> },
   
   // Attribute Routes
-  { path: "/main-attribute", component: <MainAttribute/> },
+  { path: "/main-attribute", component: <AddSizeChart/> },
   { path: "/attribute-values", component: <AttributeValue/> },
   
   // brand routes
   { path: "/brand", component: <Brand/> },
+  
+  // authentication
+  { path: "/pages-register", component: <Register1/> },
+  
   { path: "/invoice/:id", component: <InvoicesDetail/> },
 
   
@@ -138,7 +143,7 @@ const authRoutes = [
   { path: "/logout", component: <Logout/> },
   { path: "/login", component: <Login/> },
   { path: "/forgot-password", component: <ForgetPwd/> },
-  { path: "/register", component: <Register/> },
+  // { path: "/register", component: <Register/> },
 
   { path: "/pages-maintenance", component: <PagesMaintenance/> },
   { path: "/pages-comingsoon", component: <PagesComingsoon/> },
@@ -147,7 +152,7 @@ const authRoutes = [
 
   // Authentication Inner
   { path: "/pages-login", component: <Login1/> },
-  { path: "/pages-register", component: <Register1/> },
+  // { path: "/pages-register", component: <Register1/> },
   { path: "/page-recoverpw", component: <Recoverpw/> },
   { path: "/auth-lock-screen", component: <LockScreen/> },
 ]

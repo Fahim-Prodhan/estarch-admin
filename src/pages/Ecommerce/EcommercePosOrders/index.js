@@ -301,9 +301,8 @@ const PosOrders = () => {
                       </figure>
                     </div>
                     <div className="bg-slate-200 h-[70px] text-sm text-center p-2">
-                      SKU: {product.SKU}
-                      {product.productName}
-                      (40)
+                      <p>SKU:{product.SKU}</p>
+                      <p className="text-sm">{product.productName}</p>
                     </div>
                   </div>
                 ))}

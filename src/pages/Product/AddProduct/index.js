@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import JoditEditor from 'jodit-react';
-import { fetchTypes } from "../../../utils/typeApi.js";
+import { fetchSku, fetchTypes } from "../../../utils/typeApi.js";
 import baseUrl from '../../../helpers/baseUrl';
+import { fetchSizes } from '../../../utils/sizeApi.js';
 
 function AddProduct() {
   document.title = " Estarch | Add Product"
@@ -19,10 +20,9 @@ function AddProduct() {
   const [guideContent, setGuideContent] = useState('');
   const [discount, setDiscount] = useState({ type: 'Flat', amount: '' });
   const [regularPrice, setRegularPrice] = useState('');
-  const [salePrice, setSalePrice] = useState('');
+  const [salePrice, setSalePrice] = useState(regularPrice);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const sizes = ["S", "M", "L", "XL", "XXL"];
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -32,16 +32,67 @@ function AddProduct() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [selectedSizeType, setSelectedSizeType] = useState('');
   const [sizeDetails, setSizeDetails] = useState([]);
   const [types, setTypes] = useState([]);
+  const [sizeTypes, setSizeTypes] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [SKU, setSKU] = useState('');
+  const [sizeChart, setSizeChart] = useState([]);
+  const [selectedSizeChart, setSelectedSizeChart] = useState('');
+
+  
 
   useEffect(() => {
     const getTypes = async () => {
       const data = await fetchTypes();
       setTypes(data);
     };
+    const getProduct = async () => {
+      try {
+        const data = await fetchSku();
+        setSKU(data.sku);
+
+      } catch (error) {
+        console.error('Error fetching size types:', error);
+      }
+    };
+
+    const getSizes = async () => {
+      try {
+        const data = await fetchSizes();
+        setSizeTypes(data);
+        console.log(data);
+
+      } catch (error) {
+        console.error('Error fetching sizes:', error);
+      }
+    };
+
+    getSizes();
+    getProduct();
     getTypes();
   }, []);
+
+  useEffect(() => {
+    fetchCharts();
+  }, []);
+  useEffect(() => {
+    const discountAmount = calculateAfterDiscount(regularPrice , discount)
+    setSalePrice(discountAmount)
+  }, [discount ,regularPrice]);
+
+  const fetchCharts = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/charts`);
+      const data = await response.json();
+      setSizeChart(data);
+      console.log(data);
+
+    } catch (error) {
+      console.error('Error fetching charts:', error);
+    }
+  };
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -54,6 +105,20 @@ function AddProduct() {
     };
     fetchBrands();
   }, []);
+  useEffect(() => {
+    const fetchSizes = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/sizes/by-size-type-name/${selectedSizeType}`);
+        const data = await response.json();
+        console.log(data[0].sizes);
+        
+        setSizes(data[0].sizes);
+      } catch (error) {
+        console.error('Error fetching brands:', error);
+      }
+    };
+    fetchSizes();
+  }, [selectedSizeType]);
 
   useEffect(() => {
     if (selectedType) {
@@ -62,7 +127,7 @@ function AddProduct() {
           const response = await fetch(`${baseUrl}/api/categories/categories/${selectedType}`);
           const data = await response.json();
           console.log(data);
-          
+
           setCategories(data)
         } catch (error) {
           console.error('Error fetching subcategories:', error);
@@ -81,7 +146,6 @@ function AddProduct() {
         try {
           const response = await fetch(`${baseUrl}/api/categories/subcategories/${selectedCategory}`);
           const data = await response.json();
-          // console.log(data);
           setSubCategories(data);
         } catch (error) {
           console.error('Error fetching subcategories:', error);
@@ -96,6 +160,7 @@ function AddProduct() {
   const handleRegularPriceChange = (e) => {
     const price = e.target.value;
     setRegularPrice(price);
+    setSalePrice(price);
     updateAllSizeDetails('purchasePrice', price);
   };
 
@@ -109,10 +174,10 @@ function AddProduct() {
         size,
         barcode: generateId(),
         purchasePrice: '00',
-        sellingPrice: salePrice,
+        regularPrice: regularPrice,
         discountPercent: discount.type === 'Percentage' ? discount.amount : '00',
-        discountAmount: discount.type === 'Flat' ? discount.amount : '00',
-        afterDiscount: calculateAfterDiscount(salePrice, discount),
+        discountAmount: discount.type === 'Flat' ? discount.amount : regularPrice * discount.amount / 100 ,
+        salePrice:salePrice,
         wholesalePrice: '00',
         openingStock: '00',
         ospPrice: '00'
@@ -135,8 +200,6 @@ function AddProduct() {
   const updateSizeDetail = (index, field, value) => {
     const newDetails = [...sizeDetails];
     newDetails[index][field] = value;
-
-    // Automatically update dependent fields
     if (field === 'sellingPrice' || field === 'discountPercent' || field === 'discountAmount') {
       newDetails[index].afterDiscount = calculateAfterDiscount(
         newDetails[index].sellingPrice,
@@ -175,6 +238,7 @@ function AddProduct() {
       discountAmount: discount.type === 'Flat' ? amount : detail.discountAmount,
       afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
     })));
+    
   };
 
   const handleSalePriceChange = (e) => {
@@ -256,6 +320,7 @@ function AddProduct() {
       const productData = {
         productName,
         showSize,
+        SKU,
         freeDelevary,
         featureProduct,
         productStatus,
@@ -273,11 +338,11 @@ function AddProduct() {
         selectedCategoryName,
         selectedCategory,
         selectedBrand,
-        selectedType
+        selectedType,
+        charts: selectedSizeChart
 
       };
-
-//  console.log(productData);
+      console.log(productData);
 
       const response = await fetch(`${baseUrl}/api/products/products`, {
         method: 'POST',
@@ -344,7 +409,7 @@ function AddProduct() {
                   <h1 className='bg-sky-950 text-white font-semibold text-2xl py-5 '><span className='mx-5'>Product Information</span></h1>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="productName">Product Name<span className="text-red-500">*</span></label>
-                    <input onChange={(e)=>setProductName(e.target.value)} type="text" name='productName' id="productName" className="input input-bordered w-[600px]" required />
+                    <input onChange={(e) => setProductName(e.target.value)} type="text" name='productName' id="productName" className="input input-bordered w-[600px]" required />
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
@@ -386,6 +451,15 @@ function AddProduct() {
                       <option>Select a brand</option>
                       {brands.map((brand) => (
                         <option key={brand.id} value={brand.name}>{brand.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className='flex justify-center items-center'>
+                    <label className="w-80 text-sm font-medium text-gray-700" htmlFor="brand">Size Chart</label>
+                    <select onChange={(e) => setSelectedSizeChart(e.target.value)} id="brand" className="select select-bordered w-[600px]">
+                      <option>Select a Size Chart</option>
+                      {sizeChart.map((brand) => (
+                        <option key={brand._id} value={brand._id}>{brand.title}</option>
                       ))}
                     </select>
                   </div>
@@ -473,7 +547,7 @@ function AddProduct() {
                   </div>
                   <div className="flex justify-center items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">SKU</label>
-                    <input value='EST0001' disabled type="text" id="sku" className="input input-bordered w-[600px]" placeholder="SKU" />
+                    <input value={SKU} disabled type="text" id="sku" className="input input-bordered w-[600px]" placeholder="SKU" />
                   </div>
                   <div className="flex justify-center items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">Stock Alert</label>
@@ -509,7 +583,7 @@ function AddProduct() {
                   </div>
                   <div className="flex justify-center items-center ">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="salePrice">Sale Price<span className="text-red-500">*</span></label>
-                    <input type="text" id="salePrice" className="input input-bordered w-[600px]" placeholder="Sale Price" required value={salePrice} onChange={handleSalePriceChange} />
+                    <input type="text" id="salePrice" disabled className="cursor-not-allowed input input-bordered w-[600px]" placeholder="Sale Price" required value={salePrice} onChange={handleSalePriceChange} />
                   </div>
                 </form>
                 {
@@ -517,11 +591,17 @@ function AddProduct() {
                     <div className="p-4">
                       <div className="flex flex-col mb-4">
                         <div className=' flex gap-5'>
-                          <select id="category" className="select select-bordered w-1/2">
-                            <option>Select a Type</option>
-                            <option>Type 1</option>
-                            <option>Type 2</option>
-                            <option>Type 3</option>
+                          <select
+                            className="select select-bordered w-1/2"
+
+                            onChange={(e) => setSelectedSizeType(e.target.value)}
+                          >
+                            <option value="" disabled>Select Size Type</option>
+                            {sizeTypes.map((type) => (
+                              <option key={type._id} value={type.sizeType.name}>
+                                {type.sizeType.name}
+                              </option>
+                            ))}
                           </select>
                           <input
                             type="text"
@@ -577,10 +657,10 @@ function AddProduct() {
                             <th className="py-2 px-4 border-b border-gray-200">Size-Color</th>
                             <th className="py-2 px-4 border-b border-gray-200">Barcode</th>
                             <th className="py-2 px-4 border-b border-gray-200">Purchase Price</th>
-                            <th className="py-2 px-4 border-b border-gray-200">Selling Price</th>
+                            <th className="py-2 px-4 border-b border-gray-200">Regular Price</th>
                             <th className="py-2 px-4 border-b border-gray-200">Discount(%)</th>
                             <th className="py-2 px-4 border-b border-gray-200">Discount Amount</th>
-                            <th className="py-2 px-4 border-b border-gray-200">After Discount</th>
+                            <th className="py-2 px-4 border-b border-gray-200">Selling Price</th>
                             <th className="py-2 px-4 border-b border-gray-200">Wholesale Price</th>
                             <th className="py-2 px-4 border-b border-gray-200">Opening Stock</th>
                             <th className="py-2 px-4 border-b border-gray-200">O.S.P. Price</th>
@@ -603,8 +683,8 @@ function AddProduct() {
                                 <input
                                   type="text"
                                   className="w-full border border-gray-300 px-2 py-1"
-                                  value={item.sellingPrice}
-                                  onChange={(e) => updateSizeDetail(index, 'sellingPrice', e.target.value)}
+                                  value={item.regularPrice}
+                                  onChange={(e) => updateSizeDetail(index, 'regularPrice', e.target.value)}
                                 />
                               </td>
                               <td className="py-2 px-4 border-b border-gray-200">
@@ -627,8 +707,8 @@ function AddProduct() {
                                 <input
                                   type="text"
                                   className="w-full border border-gray-300 px-2 py-1"
-                                  value={item.afterDiscount}
-                                  onChange={(e) => updateSizeDetail(index, 'afterDiscount', e.target.value)}
+                                  value={item.salePrice}
+                                  onChange={(e) => updateSizeDetail(index, 'salePrice', e.target.value)}
                                 />
                               </td>
                               <td className="py-2 px-4 border-b border-gray-200">

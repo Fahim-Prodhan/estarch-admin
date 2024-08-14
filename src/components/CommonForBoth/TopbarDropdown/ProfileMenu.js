@@ -16,31 +16,15 @@ import withRouter from "../../Common/withRouter"
 
 // users
 import user4 from "../../../assets/images/users/avatar-4.jpg"
+import useLogout from "../../../utils/Hook/useLogout"
 
 const ProfileMenu = props => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false)
+     const { logout } = useLogout();
 
-  const [username, setusername] = useState("Admin")
 
-  useEffect(() => {
-    if (localStorage.getItem("authUser")) {
-      if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
-        const obj = JSON.parse(localStorage.getItem("authUser"))
-        setusername(obj.displayName)
-      } else if (
-        process.env.REACT_APP_DEFAULTAUTH === "fake" ||
-        process.env.REACT_APP_DEFAULTAUTH === "jwt"
-      ) {
-        const obj = JSON.parse(localStorage.getItem("authUser"))
-        if(obj.username){
-          setusername(obj.username)
-        }else{
-          setusername(obj.name)
-        }
-      }
-    }
-  }, [props.success])
+
 
   return (
     <React.Fragment>
@@ -59,7 +43,7 @@ const ProfileMenu = props => {
             src={user4}
             alt="Header Avatar"
           />
-          <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">{username}</span>{" "}
+          <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">Admin</span>{" "}
           <i className="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
@@ -82,10 +66,10 @@ const ProfileMenu = props => {
             {props.t("Lock screen")}
           </DropdownItem>
           <div className="dropdown-divider" />
-          <Link to="/logout" className="dropdown-item">
+          <button onClick={logout} className="dropdown-item">
             <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
             <span>{props.t("Logout")}</span>
-          </Link>
+          </button>
         </DropdownMenu>
       </Dropdown>
     </React.Fragment>
