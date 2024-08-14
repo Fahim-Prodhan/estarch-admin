@@ -44,7 +44,7 @@ const BarcodeDisplay = () => {
                     src={`https://barcode.tec-it.com/barcode.ashx?data=${sizeDetail.barcode}&code=Code128`}
                     alt={`Barcode for ${sizeDetail.size}`}
                   />
-                  <p className="font-bold  text-black price">Price: {sizeDetail.sellingPrice} ৳</p>
+                  <p className="font-bold text-black price">Price: {sizeDetail.sellingPrice} ৳</p>
                 </div>
               ))}
             </React.Fragment>
