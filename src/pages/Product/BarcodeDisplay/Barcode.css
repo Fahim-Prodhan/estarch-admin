@@ -1,0 +1,78 @@
+.barcode-grid{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px; /* Adjust the gap as needed */
+
+}
+.logo {
+    width: 120px; /* Adjust logo size to fit */
+    height: auto;
+  }
+  .print-button {
+    margin-bottom: 20px; /* Adjust margin as needed */
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .print-button:hover {
+    background-color: #0056b3;
+  }
+  
+  @media print {
+    .print-button {
+      display: none; /* Hide the print button when printing */
+    }
+    .barcode-display-page {
+        padding: 10px;
+        background-color: white;
+      }
+      
+      .barcode-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 50px; /* Adjust the gap as needed */
+        margin-top: -10px;
+      }
+      
+      .barcode-wrapper {
+        width: 2in; /* 2 inches wide */
+        height: 1in; /* 1 inch tall */
+        padding: 5px;
+        /* gap: 10px; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        /* box-sizing: border-box; */
+        page-break-inside:avoid;
+        text-align: center;
+      }
+      
+      .logo-and-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 0px; /* Adjust spacing between elements */
+      }
+      
+      .logo {
+        margin-top: 100px;
+        width: 120px; /* Adjust logo size to fit */
+        height: auto;
+      }
+      
+    
+      .barcode-img {
+        width: 100%; /* Fit the width of the container */
+        height: auto;
+      }
+      
+    
+}

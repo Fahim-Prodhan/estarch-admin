@@ -10,6 +10,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import ProductDetailsModal from "./ProductDetailsModal"; // Import the modal component
 import "./productDetails.css"; // Import the CSS file
+import BarcodePrintModal from "./BarcodePrintModal";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -18,7 +19,12 @@ const Refund = () => {
 
   const [data, setData] = useState({ columns: [], rows: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBarcodeModalOpen, setIsBarcodeModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const toggleBarcodeModal = () => {
+    setIsBarcodeModalOpen(!isBarcodeModalOpen);
+  };
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -103,7 +109,7 @@ const Refund = () => {
                 <div tabIndex={0} role="button" className="btn m-1 btn-sm"><BsThreeDotsVertical /></div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1]  p-2 shadow space-y-2">
                   <li>
-                    <button 
+                    <button
                       className="btn btn-sm btn-accent text-white"
                       onClick={() => {
                         setSelectedProduct(item);
@@ -115,6 +121,10 @@ const Refund = () => {
                   </li>
                   <li><a className="btn btn-sm text-success text-xl"><FaEdit /></a></li>
                   <li><a className="btn btn-sm text-error text-xl"><MdDeleteSweep /></a></li>
+                  <li><button onClick={() => {
+                    setSelectedProduct(item);
+                    toggleBarcodeModal();
+                  }} className="btn btn-sm text-white btn-primary">Print</button></li>
                 </ul>
               </div>
             ),
@@ -146,6 +156,7 @@ const Refund = () => {
         </Container>
       </div>
       <ProductDetailsModal isOpen={isModalOpen} toggle={toggleModal} product={selectedProduct} />
+      <BarcodePrintModal isOpen={isBarcodeModalOpen} toggle={toggleBarcodeModal} product={selectedProduct} />
     </React.Fragment>
   );
 };

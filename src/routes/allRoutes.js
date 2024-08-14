@@ -46,6 +46,9 @@ import AttributeValue from "../pages/Attribute/AttributeValue/index"
 // brand Page
 import Brand from "../pages/Brand/index"
 
+// barcode Print page
+import BarcodeDisplay from "../pages/Product/BarcodeDisplay/index"
+
 
 
 // Authentication related pages
@@ -143,6 +146,7 @@ const authRoutes = [
   // { path: "/pages-register", component: <Register1/> },
   { path: "/page-recoverpw", component: <Recoverpw/> },
   { path: "/auth-lock-screen", component: <LockScreen/> },
+  { path: "/barcode-display", component: <BarcodeDisplay/> },
 ]
 
 export { userRoutes, authRoutes }
