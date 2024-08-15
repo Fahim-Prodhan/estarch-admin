@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rancho&display=swap');
+
+
 .barcode-grid{
     display: flex;
     flex-wrap: wrap;
@@ -22,6 +25,12 @@
   
   .print-button:hover {
     background-color: #0056b3;
+    text-align: center;
+  }
+
+  .price{
+    font-family: "Lato", sans-serif;
+    text-align: center;
   }
   
   @media print {
@@ -29,22 +38,24 @@
       display: none; /* Hide the print button when printing */
     }
     .barcode-display-page {
-        padding: 10px;
+        padding:0 10px;
         background-color: white;
+        margin: 0;
       }
       
       .barcode-grid {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-around;
-        gap: 50px; /* Adjust the gap as needed */
-        margin-top: -10px;
+        gap: 0px; /* Adjust the gap as needed */
+        margin-top: -0px;
+
       }
       
       .barcode-wrapper {
-        width: 2in; /* 2 inches wide */
-        height: 1in; /* 1 inch tall */
-        padding: 5px;
+        width: 1in; /* 2 inches wide */
+        height: .5in; /* 1 inch tall */
+        padding: 0px;
         /* gap: 10px; */
         display: flex;
         flex-direction: column;
@@ -63,8 +74,8 @@
       }
       
       .logo {
-        margin-top: 100px;
-        width: 120px; /* Adjust logo size to fit */
+        margin-top: 50px;
+        width: 60px; /* Adjust logo size to fit */
         height: auto;
       }
       
@@ -72,6 +83,14 @@
       .barcode-img {
         width: 100%; /* Fit the width of the container */
         height: auto;
+      }
+      .price{
+        font-family: "Lato", sans-serif;
+        font-size: 8px;
+        font-weight: bolder;
+      }
+      .product-info{
+        font-size: 8px;
       }
       
     
