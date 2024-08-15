@@ -77,7 +77,7 @@ const Orders = () => {
     const handleStatusChange = async (orderId, newStatus) => {
         try {
           // Get the token from localStorage
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem('authUser');
       
           if (!token) {
             throw new Error('User not authenticated');
