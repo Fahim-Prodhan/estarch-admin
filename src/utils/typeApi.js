@@ -7,20 +7,20 @@ export const fetchTypes = async () => {
     return response.json();
 };
 
-export const createType = async (name) => {
+export const createType = async (name, image) => {
     const response = await fetch(`${API_BASE_URL}/types`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, image }), // Include image in the request body
     });
     return response.json();
 };
 
-export const updateType = async (id, name) => {
+export const updateType = async (id, name, image) => {
     const response = await fetch(`${API_BASE_URL}/types/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, image }), // Include image in the request body
     });
     return response.json();
 };
