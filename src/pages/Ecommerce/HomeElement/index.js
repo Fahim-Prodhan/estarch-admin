@@ -56,6 +56,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from 'reactstrap';
 import { Breadcrumbs } from '@material-ui/core';
+import baseUrl from '../../../helpers/baseUrl';
 
 const HomeElement = () => {
     const [visibleTable, setVisibleTable] = useState('carousel');
@@ -82,7 +83,7 @@ const HomeElement = () => {
     useEffect(() => {
         const fetchVideoData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/video');
+                const response = await fetch(`${baseUrl}/api/video?showAll=true`);
                 const data = await response.json();
                 setVideos(data);
             } catch (error) {
@@ -97,7 +98,7 @@ const HomeElement = () => {
         try {
             if (editingVideoId) {
                 // Update existing video
-                const response = await fetch(`http://localhost:5000/api/video/${editingVideoId}`, {
+                const response = await fetch(`${baseUrl}/api/video/${editingVideoId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -117,7 +118,7 @@ const HomeElement = () => {
                 ));
             } else {
                 // Add new video
-                const response = await fetch('http://localhost:5000/api/video', {
+                const response = await fetch(`${baseUrl}/api/video`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -141,41 +142,6 @@ const HomeElement = () => {
         }
     };
 
-//     const handleVideoSubmit = async () => { 
-// console.log(videoLink,videoName,);
-
-//     }
-
-    //     try {
-    //         const url = editingVideoId
-    //             ? `http://localhost:5000/api/video/${editingVideoId}`
-    //             : 'http://localhost:5000/api/video';
-    //         const method = editingVideoId ? 'PUT' : 'POST';
-    //         const response = await fetch(url, {
-    //             method,
-    //             body: {
-    //                 videoLink,
-    //                 videoName
-    //             },
-    //         });
-    //         if (!response.ok) {
-    //             console.error('Failed to upload video');
-    //             return;
-    //         }
-    //         const updatedVideo = await response.json();
-    //         if (editingVideoId) {
-    //             setVideos(videos.map(video =>
-    //                 video._id === editingVideoId ? updatedVideo : video
-    //             ));
-    //         } else {
-    //             setVideos([...videos, updatedVideo]);
-    //         }
-    //         closeVideoModal();
-    //     } catch (error) {
-    //         console.error('Error uploading video:', error);
-    //     }
-    // };
-    
 
     const handleVideoEdit = (id) => {
         openVideoModal(id);
@@ -183,7 +149,7 @@ const HomeElement = () => {
 
     const handleVideoDelete = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/video/${id}`, {
+            const response = await fetch(`${baseUrl}/api/video/${id}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -198,7 +164,7 @@ const HomeElement = () => {
 
     const handleVideoToggleActive = async (id, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/video/${id}/status`, {
+            const response = await fetch(`${baseUrl}/api/video/${id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,19 +196,20 @@ const HomeElement = () => {
         setEditingVideoId(null);
         setVideoLink('');
     };
+ 
     useEffect(() => {
         const fetchHomeImageData = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/home-image');
-                const data = await response.json();
-                setHomeImages(data);
-            } catch (error) {
-                console.error('Error fetching home image data:', error);
-            }
+          try {
+            const response = await fetch(`${baseUrl}/api/home-image?showAll=true`);
+            const data = await response.json();
+            setHomeImages(data);
+          } catch (error) {
+            console.error('Error fetching home image data:', error);
+          }
         };
-
+      
         fetchHomeImageData();
-    }, []);
+      }, []);
     const handleHomeImageSelect = (e) => {
         const files = Array.from(e.target.files);
         setSelectedHomeImages(files);
@@ -259,8 +226,8 @@ const HomeElement = () => {
 
         try {
             const url = editingHomeImageId
-                ? `http://localhost:5000/api/home-image/${editingHomeImageId}`
-                : 'http://localhost:5000/api/home-image';
+                ? `${baseUrl}/api/home-image/${editingHomeImageId}`
+                : `${baseUrl}/api/home-image`;
             const method = editingHomeImageId ? 'PUT' : 'POST';
             const response = await fetch(url, {
                 method,
@@ -289,7 +256,7 @@ const HomeElement = () => {
     };
     const handleHomeImageDelete = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/home-image/${id}`, {
+            const response = await fetch(`${baseUrl}/api/home-image/${id}`, {
                 method: 'DELETE',
             });
 
@@ -305,23 +272,24 @@ const HomeElement = () => {
     const handleHomeImageEdit = (id) => {
         const homeImage = homeImages.find(homeImage => homeImage._id === id);
         if (homeImage) {
-            setHomeImagePreviews(homeImage.images.map(image => `http://localhost:5000/${image}`));
+            setHomeImagePreviews(homeImage.images.map(image => `${baseUrl}/${image}`));
             setHomeImageLink(homeImage.link);
             setHomeImageName(homeImage.name);
             setEditingHomeImageId(id);
             openHomeImageModal();
         }
     };
+ 
     const handleHomeImageToggleActive = async (id, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/home-image/${id}/status`, {
+            const response = await fetch(`${baseUrl}/api/home-image/${id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ active: !currentStatus }),
             });
-
+    
             if (response.ok) {
                 const updatedHomeImage = await response.json();
                 setHomeImages(homeImages.map(homeImage =>
@@ -334,13 +302,13 @@ const HomeElement = () => {
             console.error('Error updating home image status:', error);
         }
     };
-
+    
     const openCarouselModal = (carouselId = null) => {
         setEditingCarouselId(carouselId);
         if (carouselId) {
             const carousel = carouselImages.find(carousel => carousel._id === carouselId);
             if (carousel) {
-                setImagePreviews(carousel.images.map(image => `http://localhost:5000/${image}`));
+                setImagePreviews(carousel.images.map(image => `${baseUrl}/${image}`));
                 setLink(carousel.link);
             }
         }
@@ -357,19 +325,32 @@ const HomeElement = () => {
     const openHomeImageModal = () => setHomeImageModalOpen(true);
 
     const closeSetImageModal = () => setHomeImageModalOpen(false);
-    useEffect(() => {
-        const fetchCarouselData = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/carosul');
-                const data = await response.json();
-                setCarouselImages(data);
-            } catch (error) {
-                console.error('Error fetching carousel data:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchCarouselData = async () => {
+    //         try {
+    //             const response = await fetch(`${baseUrl}/api/carosul`);
+    //             const data = await response.json();
+    //             setCarouselImages(data);
+    //         } catch (error) {
+    //             console.error('Error fetching carousel data:', error);
+    //         }
+    //     };
 
-        fetchCarouselData();
-    }, []);
+    //     fetchCarouselData();
+    // }, []);
+    useEffect(() => {
+        const fetchCarousels = async () => {
+          try {
+            const response = await fetch(`${baseUrl}/api/carosul?showAll=true`);
+            const data = await response.json();
+            setCarouselImages(data);
+          } catch (error) {
+            console.error('Error fetching carousels:', error);
+          }
+        };
+    
+        fetchCarousels();
+      }, []);
     const handleImageSelect = (e) => {
         const files = Array.from(e.target.files);
         setSelectedImages(files);
@@ -384,8 +365,8 @@ const HomeElement = () => {
         formData.append('link', link);
         try {
             const url = editingCarouselId
-                ? `http://localhost:5000/api/carosul/${editingCarouselId}`
-                : 'http://localhost:5000/api/carosul';
+                ? `${baseUrl}/api/carosul/${editingCarouselId}`
+                : `${baseUrl}/api/carosul`;
             const method = editingCarouselId ? 'PUT' : 'POST';
             const response = await fetch(url, {
                 method,
@@ -411,7 +392,7 @@ const HomeElement = () => {
     };
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/carosul/${id}`, {
+            const response = await fetch(`${baseUrl}/api/carosul/${id}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -428,7 +409,7 @@ const HomeElement = () => {
     };
     const handleToggleActive = async (id, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/carosul/${id}`, {
+            const response = await fetch(`${baseUrl}/api/carosul/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
