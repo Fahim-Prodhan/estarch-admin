@@ -72,12 +72,14 @@ import InvoicesDetail from "../pages/Invoices/invoices-detail"
 import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
 import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
 import ProductSerial from "../pages/Product/ProductSerial"
+import HomeElement from "../pages/Ecommerce/HomeElement"
 
 
 const userRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
 
   // E-commerce Routes
+  { path: "/ecommerce-home-element", component: <HomeElement/> },
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
   { path: "/ecommerce-add-category", component: <AddCategory/> },
