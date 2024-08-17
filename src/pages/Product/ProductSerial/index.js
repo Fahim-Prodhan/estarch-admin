@@ -1,16 +1,84 @@
-import React from 'react'
-import { Container } from 'reactstrap'
+import React, { useState, useEffect } from 'react';
+import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
+import baseUrl from '../../../helpers/baseUrl';
 
 function ProductSerial() {
-    const products = [
-        { id: 1, name: "JUST DO IT", sku: "hoodie1", qty: 8, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" },
-        { id: 2, name: "New Premium T-Shirt", sku: "05T", qty: 45, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" },
-        { id: 3, name: "New Premium T-Shirt", sku: "07T", qty: 1, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" },
-        { id: 4, name: "New Premium T-Shirt", sku: "06T", qty: 5, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" },
-        { id: 5, name: "Icon New T Shirt", sku: "10TS", qty: 0, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" },
-        { id: 6, name: "PREMARK TROUSER", sku: "T02", qty: 36, img: "https://i.ibb.co/4TBWPVW/1-psd.jpg" }
-    ];
+    const [products, setProducts] = useState([]);
+    const [serialNumbers, setSerialNumbers] = useState({});
+
+    useEffect(() => {
+        // Fetch the products from the API when the component mounts
+        const fetchProducts = async () => {
+            const response = await fetch('https://api.v1.estarch.online/api/products/products');
+            const data = await response.json();
+            setProducts(data);
+        };
+        fetchProducts();
+    }, []);
+
+    const handleSerialChange = (productId, value) => {
+        setSerialNumbers(prev => ({
+            ...prev,
+            [productId]: value === "" ? undefined : parseInt(value)
+        }));
+    };
+
+    const validateSerialNumbers = (serialNumbers, products) => {
+        const serialNoSet = new Set();
+
+        for (const product of products) {
+            const serialNo = serialNumbers[product._id] !== undefined 
+                ? serialNumbers[product._id] 
+                : product.serialNo || 0;
+
+            if (serialNo > 0) {
+                if (serialNoSet.has(serialNo)) {
+                    return false; // Duplicate serial number found
+                }
+                serialNoSet.add(serialNo);
+            }
+        }
+
+        return true; // No duplicates found
+    };
+
+    const handleSave = async () => {
+        if (!validateSerialNumbers(serialNumbers, products)) {
+            console.error('Duplicate serial numbers found!');
+            alert('Duplicate serial numbers are not allowed!');
+            return;
+        }
+
+        const serializedProducts = products.map(product => ({
+            productId: product._id,
+            serialNo: serialNumbers[product._id] !== undefined 
+                ? serialNumbers[product._id] 
+                : product.serialNo || 0
+        }));
+
+        console.log(serializedProducts); // Log the serialized products
+
+        try {
+            const response = await fetch(`${baseUrl}/api/products/products/serials/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ serialUpdates: serializedProducts })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                console.log('Serial numbers updated successfully', result);
+            } else {
+                console.error('Failed to update serial numbers', result);
+            }
+        } catch (error) {
+            console.error('Error updating serial numbers', error);
+        }
+    };
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -20,22 +88,25 @@ function ProductSerial() {
                         <div className="container mx-auto">
                             <div className="flex justify-between items-center mb-5">
                                 <h1 className="text-2xl font-semibold">Manage Product Serial</h1>
-                                <button className="bg-orange-500 text-white px-4 py-2 rounded">Back</button>
+                                <button onClick={handleSave} className="bg-orange-500 text-white px-4 py-2 rounded">
+                                    Save Serial Numbers
+                                </button>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                                 {products.map(product => (
-                                    <div key={product.id} className="bg-white p-2 flex flex-col justify-center items-center rounded-lg shadow-md">
-                                        <img src={product.img} alt={product.name} className="w-full h-40 object-cover rounded-md mb-4" />
+                                    <div key={product._id} className="bg-white p-2 flex flex-col justify-center items-center rounded-lg shadow-md">
+                                        <img src={product.images} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
                                         <h2 className="text-base font-semibold">
-                                            {product.name.length > 10 ? `${product.name.slice(0, 10)}...` : product.name}
+                                            {product?.productName?.length > 10 ? `${product.productName.slice(0, 10)}...` : product.productName}
                                         </h2>
-                                        <p className="text-orange-500">{product.sku}</p>
+                                        <p className="text-orange-500">{product.SKU}</p>
                                         <p className="text-orange-500">Qty: {product.qty}</p>
                                         <input
                                             type="number"
                                             min="0"
                                             className="mt-3 w-full border rounded-md p-2"
-                                            defaultValue={0}
+                                            defaultValue={product.serialNo}
+                                            onChange={(e) => handleSerialChange(product._id, e.target.value)}
                                         />
                                     </div>
                                 ))}
@@ -45,7 +116,7 @@ function ProductSerial() {
                 </Container>
             </div>
         </React.Fragment>
-    )
+    );
 }
 
-export default ProductSerial
+export default ProductSerial;

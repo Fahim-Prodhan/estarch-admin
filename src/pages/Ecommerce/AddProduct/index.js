@@ -703,6 +703,9 @@ function AddProduct() {
                   </div>
                 }
               </div>
+
+
+              
               <div className="bg-neutral-focus p-4 rounded-lg ">
                 <div className="border shadow-xl">
                   <div className="bg-sky-950 text-white text-2xl py-5 px-4">

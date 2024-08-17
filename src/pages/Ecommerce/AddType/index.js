@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { fetchTypes, createType, updateType, deleteType } from "../../../utils/typeApi.js";
 import Modal from '../../../components/Common/Modal.js';
 import baseUrl from '../../../helpers/baseUrl.js';
-
+import JoditEditor from 'jodit-react';
 const AddType = () => {
     const [types, setTypes] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -12,7 +12,6 @@ const AddType = () => {
     const [newImage, setNewImage] = useState(null);
     const [editingType, setEditingType] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
     useEffect(() => {
         const getTypes = async () => {
             const data = await fetchTypes();
@@ -36,11 +35,11 @@ const AddType = () => {
     };
 
     const handleSaveType = async () => {
-       
+
         if (editingType) {
-            await updateType(editingType._id,newType , newImage);
+            await updateType(editingType._id, newType, newImage);
         } else {
-            await createType(newType , newImage);
+            await createType(newType, newImage);
         }
         setModalOpen(false);
         const data = await fetchTypes();
@@ -68,7 +67,7 @@ const AddType = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                setNewImage( result.file );
+                setNewImage(result.file);
             } else {
                 console.error('Upload failed:', response.statusText);
             }
@@ -153,7 +152,7 @@ const AddType = () => {
                     onChange={(e) => setNewType(e.target.value)}
                 />
                 {newImage ? (
-                   <div className="relative mt-2 w-36 h-36">
+                    <div className="relative mt-2 w-36 h-36">
                         <img src={newImage} alt="Category" className="h-36 w-36 object-cover" />
                         <button
                             className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
@@ -163,19 +162,19 @@ const AddType = () => {
                         </button>
                     </div>
                 ) : <>
-                        <label htmlFor="productImage" className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer">
+                    <label htmlFor="productImage" className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer">
                         <span className="text-gray-400">+</span>
-                      </label>
-                      <input
+                    </label>
+                    <input
                         type="file"
                         id="productImage"
                         multiple
                         onChange={handleImageChange}
                         className="hidden"
                         disabled={isLoading}
-                      />
-                        {isLoading && <p className="mt-2">Uploading...</p>}
-                    </>}
+                    />
+                    {isLoading && <p className="mt-2">Uploading...</p>}
+                </>}
             </Modal>
         </React.Fragment>
     );
