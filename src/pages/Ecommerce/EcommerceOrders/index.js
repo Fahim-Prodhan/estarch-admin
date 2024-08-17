@@ -203,36 +203,36 @@ const Orders = () => {
 
     const handleStatusChange = async (orderId, newStatus) => {
         try {
-            // Get the token from localStorage
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                throw new Error('User not authenticated');
+          // Get the token from localStorage
+          const token = localStorage.getItem('authUser');
+      
+          if (!token) {
+            throw new Error('User not authenticated');
+          }
+      
+          // Send a PATCH request to the server to update the status
+          const response = await axios.patch(
+            `/api/order/status${orderId}`,
+            { status: newStatus },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-
-            // Send a PATCH request to the server to update the status
-            const response = await axios.patch(
-                `/api/order/status${orderId}`,
-                { status: newStatus },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            // Update UI with the new order data
-            const updatedOrder = response.data;
-
-            // Find and update the order in the state (assuming you have state management here)
-            setOrders((prevOrders) =>
-                prevOrders.map((order) =>
-                    order._id === updatedOrder._id ? updatedOrder : order
-                )
-            );
-
-            // Optionally, show a success message
-            alert('Order status updated successfully');
+          );
+      
+          // Update UI with the new order data
+          const updatedOrder = response.data;
+      
+          // Find and update the order in the state (assuming you have state management here)
+          setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+              order._id === updatedOrder._id ? updatedOrder : order
+            )
+          );
+      
+          // Optionally, show a success message
+          alert('Order status updated successfully');
         } catch (error) {
             // Handle errors (unauthenticated, server issues, etc.)
             console.error(error);
