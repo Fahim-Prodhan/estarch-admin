@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaRegEye } from 'react-icons/fa';
 import { IoIosAddCircle } from 'react-icons/io';
-import { Button, Container } from 'reactstrap';
+import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
 import baseUrl from "../../../helpers/baseUrl";
 import ViewOrderProduct from './ViewOrderProduct';
 import productIcon from '../../../assets/images/product-icon.png'
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import NoteModal from './NoteModal';
 import TrackingModal from './TrackingModal';
+import { MdDeleteSweep } from 'react-icons/md';
+import { MDBDataTable } from 'mdbreact';
 
 const statusHierarchy = [
     'new', 'pending', 'pendingPayment', 'confirm', 'hold',
@@ -30,6 +32,131 @@ const Orders = () => {
 
     const [trackingModalOpen, setTrackingModalOpen] = useState(false);
     const [trackingOrderId, setTrackingOrderId] = useState(null);
+    const [data, setData] = useState({ columns: [], rows: [] })
+
+
+    useEffect(() => {
+        // Simulate fetching data from an API or static JSON file
+        fetch(`${baseUrl}/api/orders`)
+            .then(response => response.json())
+            .then(data => {
+                const formattedData = {
+                    columns: [
+                        { label: "Serial", field: "serial", sort: "asc", width: 150 },
+                        { label: "Total Bill", field: "total_bill", sort: "asc", width: 270 },
+                        { label: "Product", field: "product", sort: "asc", width: 200 },
+                        { label: "Status", field: "status", sort: "asc", width: 50 },
+                        { label: "Courier", field: "courier", sort: "asc", width: 100 },
+                        { label: "Create", field: "create", width: 100 },
+                        { label: "Action", field: "action", width: 100 },
+                    ],
+                    rows: data.map(item => ({
+                        serial: (
+                            <div>
+                                <p className="font-bold">{item.serialId}</p>
+                                <p>{item.invoice}</p>
+                                <p>{item.date}</p>
+                                <p>{item.name}</p>
+                                <p>{item.address}</p>
+                                <p>{item.phone}</p>
+                                <p className="text-red-500">{item.orderNotes}</p>
+                            </div>
+                        ),
+                        total_bill: (
+                            <div className='md:w-full w-36'>
+                                <p className='text-right'>Total Bill: {item.totalAmount} TK</p>
+                                <p className='text-right'>Delivery Charge: {item.deliveryCharge} TK</p>
+                                <p className='text-right'>Discount: {item.discount} TK</p>
+                                <hr />
+                                <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
+                                <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>
+                                <p className='text-right'>Available: {item.grandTotal - item.advanced} TK</p>
+                            </div>
+                        ),
+                        product: (
+                          
+                                <button onClick={() => {
+                                    setSelectedOrder(item);
+                                    toggleModal();
+                                }} className="btn btn-sm btn-error text-white w-36">View Product</button>
+                          
+                        ),
+                        status: (
+                            <select
+                                className="select select-bordered w-36"
+                                value={item.status[item.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
+                                onChange={(e) => handleStatusChange(item._id, e.target.value)}  // Call the function on change
+                            >
+                                <option value="new">New</option>
+                                <option value="pending">Pending</option>
+                                <option value="pendingPayment">Pending Payment</option>
+                                <option value="confirm">Confirm</option>
+                                <option value="hold">Hold</option>
+                                <option value="processing">Processing</option>
+                                <option value="sentToCourier">Sent to Courier</option>
+                                <option value="courierProcessing">Courier Processing</option>
+                                <option value="return">Return</option>
+                                <option value="returnExchange">Return Exchange</option>
+                                <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                <option value="exchange">Exchange</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancel">Cancel</option>
+                            </select>
+                        ),
+                        courier: (
+                            <select
+                                className="select select-bordered w-36"
+                                value={item.courier}
+                                onChange={(e) => handleCourierChange(item._id, e.target.value)}
+                            >
+                                <option value="courier">Courier</option>
+                                <option value="user1">User1</option>
+                                <option value="user2">User2</option>
+                            </select>
+                        ),
+                        create: (
+                            <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl" >
+                                <FaRegEye />
+                            </button>
+                        ),
+                        action: (
+                            <div className="dropdown flex justify-center relative">
+                                <div
+                                    tabIndex={0}
+                                    role="button"
+                                    className="btn m-1 btn-sm"
+                                    onClick={() => toggleDropdown(item._id)} // Toggle on click
+                                >
+                                    <BsThreeDotsVertical />
+                                </div>
+                                <ul
+                                    tabIndex={0}
+                                    className={`dropdown-content absolute right-0 mt-1 bg-base-100 rounded-box z-10 p-2 shadow space-y-2 ${activeDropdown === item._id ? '' : 'hidden'}`} // Show/hide based on activeDropdown
+                                >
+                                    <li>
+                                        <button className="btn btn-sm btn-accent text-white" onClick={() => toggleNoteModal()}>
+                                            Details
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button onClick={() => toggleNoteModal(item._id)} className="btn btn-sm text-success text-xl">
+                                            <FaEdit />
+                                        </button>
+
+                                    </li>
+                                    <li>
+                                        <Button color="primary">
+                                            Open Modal
+                                        </Button>
+                                    </li>
+                                </ul>
+                            </div>
+                        ),
+                    })),
+                }
+                setData(formattedData)
+            })
+    }, [])
 
     const handleTrackingOpenModal = (orderId) => {
         setTrackingOrderId(orderId);
@@ -76,42 +203,42 @@ const Orders = () => {
 
     const handleStatusChange = async (orderId, newStatus) => {
         try {
-          // Get the token from localStorage
-          const token = localStorage.getItem('token');
-      
-          if (!token) {
-            throw new Error('User not authenticated');
-          }
-      
-          // Send a PATCH request to the server to update the status
-          const response = await axios.patch(
-            `/api/order/status${orderId}`,
-            { status: newStatus },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+            // Get the token from localStorage
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                throw new Error('User not authenticated');
             }
-          );
-      
-          // Update UI with the new order data
-          const updatedOrder = response.data;
-      
-          // Find and update the order in the state (assuming you have state management here)
-          setOrders((prevOrders) =>
-            prevOrders.map((order) =>
-              order._id === updatedOrder._id ? updatedOrder : order
-            )
-          );
-      
-          // Optionally, show a success message
-          alert('Order status updated successfully');
+
+            // Send a PATCH request to the server to update the status
+            const response = await axios.patch(
+                `/api/order/status${orderId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Update UI with the new order data
+            const updatedOrder = response.data;
+
+            // Find and update the order in the state (assuming you have state management here)
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === updatedOrder._id ? updatedOrder : order
+                )
+            );
+
+            // Optionally, show a success message
+            alert('Order status updated successfully');
         } catch (error) {
-          // Handle errors (unauthenticated, server issues, etc.)
-          console.error(error);
-          alert(error.response?.data?.error || error.message);
+            // Handle errors (unauthenticated, server issues, etc.)
+            console.error(error);
+            alert(error.response?.data?.error || error.message);
         }
-      };
+    };
 
 
     const handleCourierChange = async (orderId, newCourier) => {
@@ -247,6 +374,7 @@ const Orders = () => {
                             <p className="font-semibold text-[#8B9A46]">Cancel</p>
                         </div>
                     </div>
+        
 
                     {/* Orders Table */}
                     <div className="mt-8">
@@ -308,7 +436,17 @@ const Orders = () => {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto w-full mt-8">
+                        <Row>
+                        <Col className="col-12">
+                            <Card>
+                                <CardBody>
+                                    <MDBDataTable responsive bordered data={data} />
+                                </CardBody>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                        {/* <div className="overflow-x-auto w-full mt-8">
                             <table className="table w-full table-compact">
                                 <thead>
                                     <tr>
@@ -364,27 +502,27 @@ const Orders = () => {
                                                 }} className="btn btn-sm btn-error text-white ">View Product</button>
                                             </td>
                                             <td>
-  <select
-    className="select select-bordered"
-    value={order.status[order.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
-    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Call the function on change
-  >
-    <option value="new">New</option>
-    <option value="pending">Pending</option>
-    <option value="pendingPayment">Pending Payment</option>
-    <option value="confirm">Confirm</option>
-    <option value="hold">Hold</option>
-    <option value="processing">Processing</option>
-    <option value="sentToCourier">Sent to Courier</option>
-    <option value="courierProcessing">Courier Processing</option>
-    <option value="return">Return</option>
-    <option value="returnExchange">Return Exchange</option>
-    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
-    <option value="exchange">Exchange</option>
-    <option value="delivered">Delivered</option>
-    <option value="cancel">Cancel</option>
-  </select>
-</td>
+                                                <select
+                                                    className="select select-bordered"
+                                                    value={order.status[order.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
+                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Call the function on change
+                                                >
+                                                    <option value="new">New</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="pendingPayment">Pending Payment</option>
+                                                    <option value="confirm">Confirm</option>
+                                                    <option value="hold">Hold</option>
+                                                    <option value="processing">Processing</option>
+                                                    <option value="sentToCourier">Sent to Courier</option>
+                                                    <option value="courierProcessing">Courier Processing</option>
+                                                    <option value="return">Return</option>
+                                                    <option value="returnExchange">Return Exchange</option>
+                                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                                    <option value="exchange">Exchange</option>
+                                                    <option value="delivered">Delivered</option>
+                                                    <option value="cancel">Cancel</option>
+                                                </select>
+                                            </td>
 
                                             <td>
                                                 <select
@@ -441,7 +579,7 @@ const Orders = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
+                        </div> */}
                     </div>
                 </Container>
                 <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
