@@ -23,6 +23,7 @@ function AddProduct() {
   const [salePrice, setSalePrice] = useState(regularPrice);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const [productValue, setProductValue] = useState("");
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -40,8 +41,52 @@ function AddProduct() {
   const [SKU, setSKU] = useState('');
   const [sizeChart, setSizeChart] = useState([]);
   const [selectedSizeChart, setSelectedSizeChart] = useState('');
+  const [products, setProducts] = useState([]);
+  const [filteredProduct, setFilteredProduct] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState([]);
 
-  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/products/products`);
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (productValue) {
+      const filtered = products
+        .filter(product => product.SKU.toLowerCase().includes(productValue.toLowerCase()))
+      setFilteredProduct(filtered);
+      console.log(filtered);
+
+    } else {
+      setFilteredProduct([]);
+    }
+  }, [productValue, products]);
+
+  const clickProduct = (product) => {
+    const data = {
+      name: product.productName,
+      SKU: product.SKU,
+      product: product._id,
+    };
+    
+    // Make sure to spread the existing array inside an array literal
+    setSelectedProduct([...selectedProduct, data]);
+    console.log(selectedProduct);
+    
+    // Clear the product value (assuming this is used to clear an input field)
+    setProductValue('');
+  };
+  const removeProduct = (id) => {
+    setSelectedProduct(selectedProduct.filter((s) => s.product !== id));
+  };
 
   useEffect(() => {
     const getTypes = async () => {
@@ -78,9 +123,9 @@ function AddProduct() {
     fetchCharts();
   }, []);
   useEffect(() => {
-    const discountAmount = calculateAfterDiscount(regularPrice , discount)
+    const discountAmount = calculateAfterDiscount(regularPrice, discount)
     setSalePrice(discountAmount)
-  }, [discount ,regularPrice]);
+  }, [discount, regularPrice]);
 
   const fetchCharts = async () => {
     try {
@@ -111,7 +156,7 @@ function AddProduct() {
         const response = await fetch(`${baseUrl}/api/sizes/by-size-type-name/${selectedSizeType}`);
         const data = await response.json();
         console.log(data[0].sizes);
-        
+
         setSizes(data[0].sizes);
       } catch (error) {
         console.error('Error fetching brands:', error);
@@ -176,8 +221,8 @@ function AddProduct() {
         purchasePrice: '00',
         regularPrice: regularPrice,
         discountPercent: discount.type === 'Percentage' ? discount.amount : '00',
-        discountAmount: discount.type === 'Flat' ? discount.amount : regularPrice * discount.amount / 100 ,
-        salePrice:salePrice,
+        discountAmount: discount.type === 'Flat' ? discount.amount : regularPrice * discount.amount / 100,
+        salePrice: salePrice,
         wholesalePrice: '00',
         openingStock: '00',
         ospPrice: '00'
@@ -238,7 +283,7 @@ function AddProduct() {
       discountAmount: discount.type === 'Flat' ? amount : detail.discountAmount,
       afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
     })));
-    
+
   };
 
   const handleSalePriceChange = (e) => {
@@ -339,8 +384,8 @@ function AddProduct() {
         selectedCategory,
         selectedBrand,
         selectedType,
-        charts: selectedSizeChart
-
+        charts: selectedSizeChart,
+        relatedProducts:selectedProduct
       };
       console.log(productData);
 
@@ -742,6 +787,52 @@ function AddProduct() {
                     </div>
                   </div>
                 }
+              </div>
+              <div className=' p-4'>
+                <div className="bg-sky-950 text-white text-2xl py-5 px-4">
+                  <h2 className="text-2xl font-semibold text-white"> Related Product</h2>
+                </div>
+                <div className='grid grid-cols-2 gap-5'>
+                  <div>
+                    <input value={productValue}
+                      onChange={(e) => setProductValue(e.target.value)} type="text" placeholder="Type SKU" className="input input-bordered w-full mt-4 " />
+                    {productValue && (
+                      <div className="mt-2 bg-white border border-gray-300 rounded shadow-md">
+                        {filteredProduct.length > 0 ? (
+                          filteredProduct.map((product, index) => (
+                            <div
+                              key={index}
+                              onClick={()=> clickProduct(product)}
+                              className="cursor-pointer p-2 hover:bg-gray-200 text-black"
+                            >
+                              {product.productName}<span>({product.SKU})</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-2 text-gray-500">No product available</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {selectedProduct?.map((product) => (
+                      <div
+                        key={product}
+                        className="flex items-center px-2 py-1 h-12 bg-gray-200 rounded-full"
+                      >
+                        <span>{product.name} ({product.SKU})</span>
+                        <button
+                        onClick={()=> removeProduct(product.product)}
+                          className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                </div>
               </div>
               <div className="bg-neutral-focus p-4 rounded-lg ">
                 <div className="border shadow-xl">

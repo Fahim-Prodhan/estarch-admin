@@ -1,9 +1,9 @@
-// src/pages/AddSubCategory.js
 import React, { useState, useEffect } from 'react';
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { fetchCategories, fetchSubCategories, createSubCategory, updateSubCategory, deleteSubCategory } from "../../../utils/categoryApi.js";
 import Modal from '../../../components/Common/Modal.js';
+import baseUrl from '../../../helpers/baseUrl.js';
 
 const AddSubCategory = () => {
     const [categories, setCategories] = useState([]);
@@ -11,7 +11,9 @@ const AddSubCategory = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [newSubCategory, setNewSubCategory] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [newImage, setNewImage] = useState(''); // For image
     const [editingSubCategory, setEditingSubCategory] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const getCategoriesAndSubCategories = async () => {
@@ -32,23 +34,24 @@ const AddSubCategory = () => {
         setEditingSubCategory(null);
         setNewSubCategory('');
         setSelectedCategory('');
+        setNewImage(''); // Reset image
         setModalOpen(true);
     };
 
     const handleEditSubCategory = (subCategory) => {
         setEditingSubCategory(subCategory);
         setNewSubCategory(subCategory.name);
-        setSelectedCategory(subCategory.category._id); // Update to use the correct ID
+        setSelectedCategory(subCategory.category._id);
+        setNewImage(subCategory.image || ''); // Set image
         setModalOpen(true);
     };
 
     const handleSaveSubCategory = async () => {
-        // console.log(newSubCategory);
         try {
             if (editingSubCategory) {
-                await updateSubCategory(editingSubCategory._id, newSubCategory, selectedCategory);
+                await updateSubCategory(editingSubCategory._id, newSubCategory, selectedCategory, newImage);
             } else {
-                await createSubCategory(newSubCategory, selectedCategory);
+                await createSubCategory(newSubCategory, selectedCategory, newImage);
             }
             setModalOpen(false);
             const data = await fetchSubCategories();
@@ -67,7 +70,35 @@ const AddSubCategory = () => {
             console.error('Error deleting subcategory:', error);
         }
     };
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
 
+        setIsLoading(true);
+
+        try {
+            const response = await fetch(`${baseUrl}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setNewImage( result.file );
+            } else {
+                console.error('Upload failed:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setNewImage('');
+    };
     return (
         <React.Fragment>
             <div className="page-content">
@@ -86,6 +117,7 @@ const AddSubCategory = () => {
                                     <th className="py-3 px-6 text-left">SL</th>
                                     <th className="py-3 px-6 text-left">Sub Category Name</th>
                                     <th className="py-3 px-6 text-left">Category Name</th>
+                                    <th className="py-3 px-6 text-left">Image</th> {/* New column for image */}
                                     <th className="py-3 px-6 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -95,6 +127,11 @@ const AddSubCategory = () => {
                                         <td className="py-3 px-6 text-left">{index + 1}</td>
                                         <td className="py-3 px-6 text-left">{subCategory.name}</td>
                                         <td className="py-3 px-6 text-left">{subCategory.category ? subCategory.category.name : 'N/A'}</td>
+                                        <td className="py-3 px-6 text-left">
+                                            {subCategory.image && (
+                                                <img src={subCategory.image} alt={subCategory.name} className="h-12 w-12 object-cover" />
+                                            )}
+                                        </td> {/* Display image */}
                                         <td className="py-3 px-6 text-center">
                                             <button
                                                 className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
@@ -136,10 +173,34 @@ const AddSubCategory = () => {
                 <input
                     type="text"
                     placeholder="Sub Category Name"
-                    className="border border-gray-300 rounded p-2 w-full"
+                    className="border border-gray-300 rounded p-2 w-full mb-4"
                     value={newSubCategory}
                     onChange={(e) => setNewSubCategory(e.target.value)}
                 />
+                {newImage ? (
+                   <div className="relative mt-2 w-36 h-36">
+                        <img src={newImage} alt="Category" className="h-36 w-36 object-cover" />
+                        <button
+                            className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                            onClick={handleRemoveImage}
+                        >
+                            X
+                        </button>
+                    </div>
+                ) : <>
+                        <label htmlFor="productImage" className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer">
+                        <span className="text-gray-400">+</span>
+                      </label>
+                      <input
+                        type="file"
+                        id="productImage"
+                        multiple
+                        onChange={handleImageChange}
+                        className="hidden"
+                        disabled={isLoading}
+                      />
+                        {isLoading && <p className="mt-2">Uploading...</p>}
+                    </>}
             </Modal>
         </React.Fragment>
     );

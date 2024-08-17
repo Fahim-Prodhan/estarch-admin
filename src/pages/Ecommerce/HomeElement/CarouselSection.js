@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import baseUrl from '../../../helpers/baseUrl';
 
 const CarouselSection = () => {
     const [carouselImages, setCarouselImages] = useState([]);
@@ -11,7 +12,7 @@ const CarouselSection = () => {
     useEffect(() => {
         const fetchCarouselData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/carosul');
+                const response = await fetch(`${baseUrl}/api/carosul`);
                 const data = await response.json();
                 setCarouselImages(data);
             } catch (error) {
@@ -30,38 +31,64 @@ const CarouselSection = () => {
     };
 
     const handleCarouselSubmit = async () => {
-        const formData = new FormData();
-        Array.from(selectedImages).forEach(image => {
-            formData.append('images', image);
-        });
-        formData.append('link', link);
-
         try {
-            const url = editingCarouselId
-                ? `http://localhost:5000/api/carosul/${editingCarouselId}`
-                : 'http://localhost:5000/api/carosul';
-            const method = editingCarouselId ? 'PUT' : 'POST';
-            const response = await fetch(url, {
-                method,
+            // Step 1: Upload Images
+            const formData = new FormData();
+            Array.from(selectedImages).forEach(image => {
+                formData.append('images', image);
+            });
+
+            const uploadResponse = await fetch(`${baseUrl}/upload`, {
+                method: 'POST',
                 body: formData,
             });
-            if (!response.ok) {
-                console.error('Failed to upload images');
+
+            if (!uploadResponse.ok) {
+                console.error('Image upload failed:', uploadResponse.statusText);
                 return;
             }
-            const updatedCarousel = await response.json();
-            if (editingCarouselId) {
-                setCarouselImages(carouselImages.map(carousel =>
-                    carousel._id === editingCarouselId ? updatedCarousel : carousel
-                ));
-            } else {
-                setCarouselImages([...carouselImages, updatedCarousel]);
-            }
+
+            const uploadResult = await uploadResponse.json();
+            const uploadedImages = uploadResult.files.map(file => file.url); // Assuming 'files' contains the uploaded file data
+
+            // Step 2: Submit Carousel Data
+            const carouselData = {
+                images: uploadedImages,
+                link,
+            };
+            console.log(carouselData);
+            // const url = editingCarouselId
+            //     ? `${baseUrl}/api/carosul/${editingCarouselId}`
+            //     : `${baseUrl}/api/carosul`;
+            // const method = editingCarouselId ? 'PUT' : 'POST';
+            // const response = await fetch(url, {
+            //     method,
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(carouselData),
+            // });
+
+            // if (!response.ok) {
+            //     console.error('Failed to submit carousel data:', response.statusText);
+            //     return;
+            // }
+
+            // const updatedCarousel = await response.json();
+            // if (editingCarouselId) {
+            //     setCarouselImages(carouselImages.map(carousel =>
+            //         carousel._id === editingCarouselId ? updatedCarousel : carousel
+            //     ));
+            // } else {
+            //     setCarouselImages([...carouselImages, updatedCarousel]);
+            // }
+
             closeCarouselModal();
         } catch (error) {
-            console.error('Error uploading images:', error);
+            console.error('Error submitting carousel:', error);
         }
     };
+
 
     const handleEdit = (id) => {
         openCarouselModal(id);
@@ -69,7 +96,7 @@ const CarouselSection = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/carosul/${id}`, {
+            const response = await fetch(`${baseUrl}/api/carosul/${id}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -83,7 +110,7 @@ const CarouselSection = () => {
     };
     const handleToggleActive = async (id, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/carosul/${id}`, {
+            const response = await fetch(`${baseUrl}/api/carosul/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,7 +162,7 @@ const CarouselSection = () => {
                                 <td className="border border-gray-300 p-3">{index + 1}</td>
                                 <td className="border border-gray-300 p-3">
                                     {carousel.images.map((image, i) => (
-                                        <img key={i} src={`http://localhost:5000/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${carousel.active ? '' : 'opacity-50'}`} />
+                                        <img key={i} src={`${baseUrl}/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${carousel.active ? '' : 'opacity-50'}`} />
                                     ))}
                                 </td>
                                 <td className="border border-gray-300 p-3">{carousel.link}</td>

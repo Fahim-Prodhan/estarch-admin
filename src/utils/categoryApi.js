@@ -39,21 +39,20 @@ export const fetchSubCategories = async () => {
     return response.json();
 };
 
-export const createSubCategory = async ( name, categoryId ) => {
-    console.log(categoryId);
+export const createSubCategory = async (name, categoryId, image) => {
     const response = await fetch(`${API_BASE_URL}/subcategories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, categoryId }),
+        body: JSON.stringify({ name, categoryId, image }), // Include the image in the request body
     });
     return response.json();
 };
 
-export const updateSubCategory = async (id,  name, categoryId ) => {
+export const updateSubCategory = async (id, name, categoryId, image) => {
     const response = await fetch(`${API_BASE_URL}/subcategories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, categoryId }),
+        body: JSON.stringify({ name, categoryId, image }), // Include the image in the request body
     });
     return response.json();
 };
@@ -64,6 +63,7 @@ export const deleteSubCategory = async (id) => {
     });
     return response.json();
 };
+
 
 export const fetchBrands = async () => {
     try {

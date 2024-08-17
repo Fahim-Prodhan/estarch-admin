@@ -4,6 +4,7 @@ import baseUrl from '../../../helpers/baseUrl';
 
 const TrackingModal = ({ isOpen, toggle, orderId }) => {
     const [notes, setNotes] = useState([]);
+    const [status, setStatus] = useState([]);
 
     useEffect(() => {
         if (isOpen && orderId) {
@@ -15,7 +16,18 @@ const TrackingModal = ({ isOpen, toggle, orderId }) => {
                     console.error('Error fetching notes:', error);
                 }
             };
+            const fetchStatus = async () => {
+                try {
+                    const response = await axios.get(`${baseUrl}/api/orders/order/status/${orderId}`);
+                    console.log(response);
+                    
+                    setStatus(response.data || []);
+                } catch (error) {
+                    console.error('Error fetching notes:', error);
+                }
+            };
 
+            fetchStatus();
             fetchNotes();
         }
     }, [isOpen, orderId]);
@@ -24,7 +36,7 @@ const TrackingModal = ({ isOpen, toggle, orderId }) => {
 
     return (
         <div className="modal-overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={toggle}>
-            <div className="modal-content bg-white p-6 rounded shadow-lg w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content bg-white p-6 rounded shadow-lg w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
                 <button className="close-button text-xl font-bold float-right" onClick={toggle}>X</button>
                 <h2 className="text-xl font-bold mb-4 text-center">Order Tracking</h2>
 
@@ -50,6 +62,20 @@ const TrackingModal = ({ isOpen, toggle, orderId }) => {
                         ) : (
                             <tr>
                                 <td className="border px-4 py-2" colSpan="4">No notes available</td>
+                            </tr>
+                        )}
+                        {status?.length > 0 ? (
+                            status?.map((status) => (
+                                <tr key={status._id}>
+                                    <td className="border px-4 py-2">{status?.statusContent || 'N/A'}</td>
+                                    <td className="border px-4 py-2">{status?.name }</td>
+                                    <td className="border px-4 py-2">{status?.user?.fullName}</td>
+                                    <td className="border px-4 py-2">{new Date(status?.timestamp).toLocaleString()}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td className="border px-4 py-2" colSpan="4">No status available</td>
                             </tr>
                         )}
                     </tbody>

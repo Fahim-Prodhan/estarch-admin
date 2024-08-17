@@ -493,7 +493,7 @@ const HomeElement = () => {
                                             <td className="border border-gray-300 p-3">{index + 1}</td>
                                             <td className="border border-gray-300 p-3">
                                                 {carousel.images.map((image, i) => (
-                                                    <img key={i} src={`http://localhost:5000/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${carousel.active ? '' : 'opacity-50'}`} />
+                                                    <img key={i} src={`${baseUrl}/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${carousel.active ? '' : 'opacity-50'}`} />
                                                 ))}
                                             </td>
                                             <td className="border border-gray-300 p-3">{carousel.link}</td>
@@ -595,7 +595,7 @@ const HomeElement = () => {
                                             <td className="border border-gray-300 p-3">{home.name}</td>
                                             <td className="border border-gray-300 p-3">
                                                 {home.images.map((image, i) => (
-                                                    <img key={i} src={`http://localhost:5000/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${home.active ? '' : 'opacity-50'}`} />
+                                                    <img key={i} src={`${baseUrl}/${image}`} alt="carousel" className={`w-20 h-20 object-cover ${home.active ? '' : 'opacity-50'}`} />
                                                 ))}
                                             </td>
                                             <td className="border border-gray-300 p-3">{home.link}</td>
