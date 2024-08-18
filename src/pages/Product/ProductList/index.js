@@ -38,7 +38,7 @@ const Refund = () => {
           columns: [
             { label: "Image", field: "image", sort: "asc", width: 150 },
             { label: "Product Info", field: "p_info", sort: "asc", width: 150 },
-            { label: "SKU", field: "sku", sort: "asc", width: 200 },
+            { label: "SKU", field: "sku", sort: "asc", width: 100 },
             { label: "Barcode", field: "barcode", sort: "asc", width: 150 },
             { label: "Others info", field: "others_info", sort: "asc", width: 300 },
             { label: "Action", field: "action", width: 100 },
@@ -52,7 +52,7 @@ const Refund = () => {
               </div>
             ),
             p_info: (
-              <div>
+              <div className="w-32 p-0">
                 <p><span className="font-bold">Name:</span> <span>{item.productName}</span></p>
                 <p><span className="font-bold">Type:</span> <span>{item.selectedType}</span></p>
                 <p><span className="font-bold">Category:</span> <span>{item.selectedCategoryName}</span></p>
@@ -65,7 +65,10 @@ const Refund = () => {
               <div className="space-y-2">
                 {
                   item.sizeDetails.map(s =>
-                    <p className="flex items-center gap-2"><span className="bg-base-300 px-2 rounded-md">{s.size}</span><FaArrowRightLong /><span className="text-success">{s.barcode}</span></p>
+                    <div className="flex justify-center gap-1">
+                      <input type="checkbox" className="toggle toggle-info" defaultChecked={parseInt(s.openingStock) > 0  ? true : false} />
+                      <p className="flex items-center gap-2 w-1/2"><span className="bg-base-300 px-2 rounded-md">{s.size}</span><FaArrowRightLong /><span className="text-success">{s.barcode}<FaArrowRightLong />{s.openingStock}</span></p>
+                    </div>
                   )
                 }
               </div>

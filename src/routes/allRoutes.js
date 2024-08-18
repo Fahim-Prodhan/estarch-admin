@@ -15,6 +15,7 @@ import Pages500 from "../pages/Utility/pages-500"
 
 // E-commerce Pages
 import EcommerceOrders from "../pages/Ecommerce/EcommerceOrders/index"
+import EcommerceManageOrders from "../pages/Ecommerce/ManageOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
 
 // Purchase Pages
@@ -83,6 +84,7 @@ const userRoutes = [
   { path: "/ecommerce-home-element", component: <HomeElement/> },
   { path: "/ecommerce-home-view", component: <HomeView/> },
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
+  { path: "/manage-orders", component: <EcommerceManageOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
   { path: "/ecommerce-add-category", component: <AddCategory/> },
   { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
@@ -111,7 +113,7 @@ const userRoutes = [
   { path: "/ecommerce-add-product", component: <AddProduct/> },
   { path: "/ecommerce-product-serial", component: <ProductSerial/> },
 
-  
+
   
   
   // Category Routes
@@ -127,7 +129,6 @@ const userRoutes = [
   
   // authentication
   { path: "/pages-register", component: <Register1/> },
-  
   { path: "/invoice/:id", component: <InvoicesDetail/> },
 
   

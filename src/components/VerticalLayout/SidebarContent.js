@@ -164,6 +164,9 @@ const SidebarContent = props => {
                   <Link to="/ecommerce-home-element">{props.t("Home Element")}</Link>
                 </li>
                 <li>
+                  <Link to="/ecommerce-home-view">{props.t("Home View")}</Link>
+                </li>
+                <li>
                   <Link to="/ecommerce-add-type">{props.t("Add Type")}</Link>
                 </li>
                 <li>
@@ -183,6 +186,9 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="/ecommerce-orders">{props.t("Orders")}</Link>
+                </li>
+                <li>
+                  <Link to="/manage-orders">{props.t("Manage Orders")}</Link>
                 </li>
                 <li>
                   <Link to="/ecommerce-return">
