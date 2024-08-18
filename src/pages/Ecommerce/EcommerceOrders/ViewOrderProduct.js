@@ -78,9 +78,9 @@ const ViewOrderProduct = ({ isOpen, toggle, order }) => {
                     <div className='grid grid-cols-3 gap-6 justify-center items-center'>
                         {products.map(p => (
                             <div key={p._id} onClick={() => handleProductClick(p)} className="cursor-pointer shadow-lg p-4 rounded-md">
-                                <div>
+                                <div className='h-[180px]'>
                                     <img src={p.images[0]} alt={p.productName} />
-                                    <p className='text-xl font-bold'>{p.productName}</p>
+                                    <p className='font-bold'>{p.productName}</p>
                                 </div>
                             </div>
                         ))}
