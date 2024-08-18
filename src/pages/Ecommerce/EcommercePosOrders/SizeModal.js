@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const SizeModal = ({ product, onSizeSelect, onClose }) => {
   const [selectedSize, setSelectedSize] = useState(null);
-
   const handleSizeChange = (e) => {
     setSelectedSize(e.target.value);
   };
@@ -21,9 +20,9 @@ const SizeModal = ({ product, onSizeSelect, onClose }) => {
         <h2 className="text-xl mb-4">{product.productName}</h2>
         <select className="w-full p-2 border rounded" onChange={handleSizeChange}>
           <option value="">Select Size</option>
-          {product?.selectedSizes?.map((size, index) => (
-            <option key={index} value={size}>
-              {size}
+          {product?.sizeDetails?.map((size, index) => (
+            <option key={index} value={size.size}>
+              {size.size}({size.openingStock})
             </option>
           ))}
         </select>

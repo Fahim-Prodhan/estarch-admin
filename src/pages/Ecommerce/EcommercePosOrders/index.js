@@ -23,6 +23,8 @@ const PosOrders = () => {
   const [filteredBrands, setFilteredBrands] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+  const [totalTk , setTotalTK] = useState(0)
+  const [totalPayable , setTotalPayable] = useState(0)
   const [userInfo, setUserInfo] = useState({
     phone: '',
     name: '',
@@ -30,9 +32,6 @@ const PosOrders = () => {
   });
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [orders, setOrders] = useState([]);
-  const [ordersModalVisible, setOrdersModalVisible] = useState(false);
-
-
   const fetchUserData = async (phone) => {
     try {
       const response = await fetch(`${baseUrl}/api/orders/orders/${phone}`);
@@ -66,6 +65,7 @@ const PosOrders = () => {
       console.error("Error fetching user data:", error);
     }
   };
+console.log(orderItems);
 
   const handleUserInfoChange = async (e) => {
     const { name, value } = e.target;
@@ -138,6 +138,8 @@ const PosOrders = () => {
     let query = new URLSearchParams(filters).toString();
     const response = await fetch(`${baseUrl}/api/products/products-for-pos?${query}`);
     const data = await response.json();
+    console.log(data);
+    
     setProducts(data);
   };
 
@@ -148,7 +150,6 @@ const PosOrders = () => {
   };
   const handleFilterSelect = (type, value) => {
     setFilters(prevFilters => ({
-      // ...prevFilters,
       [type.toLowerCase()]: value,
     }));
   };
@@ -159,7 +160,18 @@ const PosOrders = () => {
   };
 
   const handleSizeSelect = (size) => {
-    const { _id, ...sizeData } = selectedProduct.sizeDetails.find((detail) => detail.size === size);
+    // Find the selected size details from the product's sizeDetails array
+    const { _id, price, discountPercent = 0, discountAmount = 0, ...sizeData } = selectedProduct.sizeDetails.find(
+      (detail) => detail.size === size
+    );
+    
+    
+    // Calculate the after-discount price based on the discountPercent and price
+    const afterDiscount = discountAmount > 0 
+      ? price - discountAmount 
+      : price - (price * discountPercent) / 100;
+  
+    // Add the selected product with the size, quantity, and discount information to the order items
     setOrderItems([
       ...orderItems,
       {
@@ -167,13 +179,17 @@ const PosOrders = () => {
         ...sizeData,
         size,
         quantity: 1,
-        discountPercent: 0,
-        discountAmount: 0
+        discountPercent,
+        discountAmount,
+        afterDiscount: afterDiscount > 0 ? afterDiscount : 0, // Ensure price doesn't go below 0
       }
     ]);
+  
+    // Close the modal and reset the selected product
     setModalVisible(false);
     setSelectedProduct(null);
   };
+  
 
 
   const handleQuantityChange = (index, increment) => {
@@ -188,12 +204,12 @@ const PosOrders = () => {
     newOrderItems[index][field] = parseFloat(value) || 0;
 
     if (field === 'discountPercent') {
-      newOrderItems[index].discountAmount = (newOrderItems[index].sellingPrice * newOrderItems[index].discountPercent) / 100;
+      newOrderItems[index].discountAmount = (newOrderItems[index].regularPrice * newOrderItems[index].discountPercent) / 100;
     } else {
-      newOrderItems[index].discountPercent = (newOrderItems[index].discountAmount / newOrderItems[index].sellingPrice) * 100;
+      newOrderItems[index].discountPercent = (newOrderItems[index].discountAmount / newOrderItems[index].regularPrice) * 100;
     }
 
-    newOrderItems[index].afterDiscount = newOrderItems[index].sellingPrice - newOrderItems[index].discountAmount;
+    newOrderItems[index].salePrice = newOrderItems[index].regularPrice - newOrderItems[index].discountAmount;
     setOrderItems(newOrderItems);
   };
 
@@ -202,7 +218,7 @@ const PosOrders = () => {
       ...item,
       discountPercent: 0,
       discountAmount: 0,
-      afterDiscount: item.sellingPrice
+      salePrice: item.regularPrice
     }));
     setOrderItems(newOrderItems);
   };
@@ -212,37 +228,26 @@ const PosOrders = () => {
   };
 
   const handleTypeChange = (e) => {
-    const totalDiscount = orderItems.reduce((total, item) => total + item.discountAmount * item.quantity, 0);
-    if (totalDiscount > 0) {
-      alert("please clear discount");
-      setDiscount((prevDiscount) => ({ ...prevDiscount, value: 0 }));
-    } else {
+    
       setDiscount((prevDiscount) => ({ ...prevDiscount, type: e.target.value }));
-    }
+    
   };
 
   const handleValueChange = (e) => {
-    const totalDiscount = orderItems.reduce((total, item) => total + item.discountAmount * item.quantity, 0);
-    if (totalDiscount > 0) {
-      alert("please clear discount");
-      setDiscount((prevDiscount) => ({ ...prevDiscount, value: 0 }));
-    } else {
+   
       setDiscount((prevDiscount) => ({ ...prevDiscount, value: e.target.value }));
-    }
   };
 
   const calculateTotalItems = () => orderItems.reduce((total, item) => total + item.quantity, 0);
 
-  const calculateTotalDiscountAmount = () => orderItems.reduce((total, item) => total + item.discountAmount * item.quantity, 0);
+  const calculateTotalAmount = () => orderItems.reduce((total, item) => total + item.salePrice * item.quantity, 0);
 
-  const calculateTotalAmount = () => orderItems.reduce((total, item) => total + item.afterDiscount * item.quantity - calculateTotalDiscountAmount(), 0);
-  const finalAmount = () => {
-    if (discount.type === 'percentage') {
-      return calculateTotalAmount() - calculateTotalAmount() * parseInt(discount.value) / 100
-    } else {
-      return calculateTotalAmount() - parseInt(discount.value)
-    }
-  };
+  const totalDiscount = discount.type === 'percentage' ? calculateTotalAmount() * discount.value / 100 : discount.value
+
+  useEffect(()=>{
+    setTotalTK(calculateTotalAmount() - totalDiscount)
+  },[calculateTotalAmount() , totalDiscount ,discount ])
+
   return (
     <React.Fragment>
       <div className="mt-2">
@@ -302,7 +307,7 @@ const PosOrders = () => {
                     </div>
                     <div className="bg-slate-200 h-[70px] text-sm text-center p-2">
                       <p>SKU:{product.SKU}</p>
-                      <p className="text-sm">{product.productName}</p>
+                      <p className="text-sm">{product.productName}({product.totalStock})</p>
                     </div>
                   </div>
                 ))}
@@ -369,7 +374,7 @@ const PosOrders = () => {
                           <br />
                           Barcode: {item.barcode}
                         </td>
-                        <td className="border px-4 py-2">{item.sellingPrice}</td>
+                        <td className="border px-4 py-2">{item.regularPrice}</td>
                         <td className="border px-4 py-2">
                           <input
                             type="number"
@@ -386,7 +391,7 @@ const PosOrders = () => {
                             className="input w-16"
                           />
                         </td>
-                        <td className="border px-4 py-2">{item.afterDiscount}</td>
+                        <td className="border px-4 py-2">{item.salePrice}</td>
                         <td className="border px-4 py-2 flex items-center">
                           <button
                             onClick={() => handleQuantityChange(index, -1)}
@@ -403,7 +408,7 @@ const PosOrders = () => {
                             +
                           </button>
                         </td>
-                        <td className="border px-4 py-2">{item.afterDiscount * item.quantity}</td>
+                        <td className="border px-4 py-2">{item.salePrice * item.quantity}</td>
                         <td className="border px-4 py-2 text-center">
                           <button onClick={() => handleDelete(index)} className="text-red-500">🗑️</button>
                         </td>
@@ -454,7 +459,7 @@ const PosOrders = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>After Discount Price</span>
-                    <span>{finalAmount()}</span>
+                    <span>{totalTk} </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total VAT</span>
@@ -462,7 +467,7 @@ const PosOrders = () => {
                   </div>
                   <div className="flex justify-between font-bold">
                     <span>Total Payable</span>
-                    <span>{finalAmount()}</span>
+                    <span> {totalTk}</span>
                   </div>
                 </div>
 
@@ -478,7 +483,7 @@ const PosOrders = () => {
                 </div>
 
                 <p className="text-4xl font-bold py-4 text-white">
-                  Total : {finalAmount()} TK
+                  Total : {totalTk} TK
                 </p>
               </div>
               <div className="bg-[#188ae2] w-2/12" onClick={() => document.getElementById('my_modal_3').showModal()}>
@@ -529,7 +534,7 @@ const PosOrders = () => {
           <SizeModal product={selectedProduct} onSizeSelect={handleSizeSelect} onClose={() => setModalVisible(false)} />
         )}
         {paymentModalVisible && (
-          <PaymentModal setPaymentModalVisible={setPaymentModalVisible} userInfo={userInfo} orderItems={orderItems} discount={discount} calculateTotalAmount={calculateTotalAmount} finalAmount={finalAmount} />
+          <PaymentModal setPaymentModalVisible={setPaymentModalVisible} userInfo={userInfo} orderItems={orderItems} discount={discount} calculateTotalAmount={calculateTotalAmount} finalAmount={totalTk} />
 
         )}
 

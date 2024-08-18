@@ -8,16 +8,19 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
   const [orderNote, setOrderNote] = useState('');
   const [customerNote, setCustomerNote] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [advancePayment, setAdvancePayment] = useState(0);
+  const [orderSource, setOrderSource] = useState('Website');
 
   const getDeliveryAmount = () => {
     return deliveryLocation === 'inside' ? 60 : 120;
   };
 
   const discountAmount = discount.type === 'percentage' ? (calculateTotalAmount() * discount.value) / 100 : discount.value;
-  const grandTotalAmount = finalAmount() - discountAmount + getDeliveryAmount();
+  const grandTotalAmount = finalAmount - discountAmount + getDeliveryAmount();
+  const dueAmount = grandTotalAmount - advancePayment;
 
   const orderData = {
-    serialId: 'E-commerce',
+    serialId: orderSource,  // Set based on selected order source
     name: userInfo.name,
     phone: userInfo.phone,
     deliveryCharge: getDeliveryAmount(),
@@ -27,7 +30,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
       productId: item._id,
       title: item.productName,
       quantity: item.quantity,
-      price: item.sellingPrice,
+      price: item.salePrice,
       size: item.size,
     })),
     paymentMethod: 'Cash on Delivery',
@@ -35,9 +38,11 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
     userId: null,
     discount: discountAmount,
     grandTotal: grandTotalAmount,
+    advanced: advancePayment,  // Store advance payment
+    dueAmount,  // Store calculated due amount
     note: customerNote,
-    district:selectedDistrict,
-    area:deliveryLocation
+    district: selectedDistrict,
+    area: deliveryLocation,
   };
 
   const handleSave = async () => {
@@ -53,7 +58,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
       if (response.ok) {
         const responseData = await response.json();
         alert('Order placed successfully!');
-        navigate(`/invoice/${responseData.order._id}`)
+        navigate(`/invoice/${responseData.order._id}`);
         console.log(responseData);
       } else {
         console.error('There was an error placing the order:', response.statusText);
@@ -93,7 +98,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
                   <tr key={index}>
                     <td className="border-b py-2">{item.productName} ({item.size})</td>
                     <td className="border-b py-2">{item.quantity}</td>
-                    <td className="border-b py-2">{item.afterDiscount * item.quantity}</td>
+                    <td className="border-b py-2">{item.salePrice * item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
@@ -102,6 +107,8 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
             <p className="mb-2"><strong>Discount:</strong> {discount.value} {discount.type === 'percentage' ? '%' : 'TK'}</p>
             <p className="mb-2"><strong>Delivery Amount:</strong> {getDeliveryAmount()} TK</p>
             <p className="mb-4"><strong>Final Amount:</strong> {grandTotalAmount} TK</p>
+            <p className="mb-2"><strong>Advance Payment:</strong> {advancePayment} TK</p>
+            <p className="mb-2"><strong>Due Amount:</strong> {dueAmount} TK</p>
           </div>
 
           <div>
@@ -136,6 +143,29 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
                 <option value="Rangpur">Rangpur</option>
                 <option value="Sylhet">Sylhet</option>
               </select>
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold mb-2">Order Source</label>
+              <select
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                value={orderSource}
+                onChange={(e) => setOrderSource(e.target.value)}
+              >
+                <option value="Store">Store</option>
+                <option value="Facebook">Facebook</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="E-commerce">E-commerce</option>
+              </select>
+
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold mb-2">Advance Payment</label>
+              <input
+                type="number"
+                className="w-full p-2 border rounded"
+                value={advancePayment}
+                onChange={(e) => setAdvancePayment(Number(e.target.value))}
+              />
             </div>
             <div className="mb-4">
               <label className="block font-semibold mb-2">Order Note</label>
