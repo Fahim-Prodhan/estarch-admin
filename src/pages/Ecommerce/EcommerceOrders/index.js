@@ -2,22 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaRegEye } from 'react-icons/fa';
 import { IoIosAddCircle } from 'react-icons/io';
-import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
+import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import baseUrl from "../../../helpers/baseUrl";
 import ViewOrderProduct from './ViewOrderProduct';
-import productIcon from '../../../assets/images/product-icon.png'
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import NoteModal from './NoteModal';
 import TrackingModal from './TrackingModal';
-import { MdDeleteSweep } from 'react-icons/md';
 import { MDBDataTable } from 'mdbreact';
-import { Link } from 'react-router-dom';
 
-const statusHierarchy = [
-    'new', 'pending', 'pendingPayment', 'confirm', 'hold',
-    'processing', 'sentToCourier', 'courierProcessing', 'delivered',
-    'return', 'returnExchange', 'returnWithDeliveryCharge', 'exchange', 'cancel'
-];
+
+
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -30,7 +24,7 @@ const Orders = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-
+    const [searchTerm, setSearchTerm] = useState('');
     const [trackingModalOpen, setTrackingModalOpen] = useState(false);
     const [trackingOrderId, setTrackingOrderId] = useState(null);
     const [data, setData] = useState({ columns: [], rows: [] })
@@ -87,14 +81,14 @@ const Orders = () => {
                     >
                         <option value="new">New</option>
                         <option value="pending">Pending</option>
-                        <option value="pendingPayment">Pending Payment</option>
                         <option value="confirm">Confirm</option>
-                        <option value="hold">Hold</option>
                         <option value="processing">Processing</option>
-                        <option value="sentToCourier">Sent to Courier</option>
+                        <option value="pendingPayment">Pending Payment</option>
+                        <option value="hold">Hold</option>
+                        <option value="sendToCourier">Sent to Courier</option>
                         <option value="courierProcessing">Courier Processing</option>
                         <option value="return">Return</option>
-                        <option value="returnExchange">Return Exchange</option>
+                        <option value="exchange">Return Exchange</option>
                         <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                         <option value="exchange">Exchange</option>
                         <option value="delivered">Delivered</option>
@@ -251,43 +245,49 @@ const Orders = () => {
 
     const handleFilterByStatus = (status) => {
         setStatusFilter(status);
-        filterOrders(orders, status, courierFilter, dateFilter);
+        filterOrders(orders, status, courierFilter, dateFilter, searchTerm);
     };
+
     const handleFilterByCourier = (courier) => {
         setCourierFilter(courier);
-        filterOrders(orders, statusFilter, courier, dateFilter);
+        filterOrders(orders, statusFilter, courier, dateFilter, searchTerm);
     };
+
     const handleFilterByDate = (date) => {
         setDateFilter(date);
-        filterOrders(orders, statusFilter, courierFilter, date);
+        filterOrders(orders, statusFilter, courierFilter, date, searchTerm);
     };
-    const filterOrders = (orders, status, courier, date) => {
+
+    const handleSearchTermChange = (searchTerm) => {
+        setSearchTerm(searchTerm);
+        filterOrders(orders, statusFilter, courierFilter, dateFilter, searchTerm);
+    };
+
+
+    const filterOrders = (orders, status, courier, date, searchTerm) => {
         const filtered = orders.filter(order => {
-            const statusMatches = status && status !== 'all'
-                ? order.status.some(statusEntry => statusEntry.name === status)
-                : true;
+            const statusMatches = status ? (order.lastStatus && order.lastStatus.name === status) : true;
+            const courierMatches = courier ? (order.courier === courier) : true;
+            const dateMatches = date ? new Date(order.createdAt).toISOString().startsWith(date) : true;
+            const searchTermMatches = searchTerm ? order.invoice.toLowerCase().includes(searchTerm.toLowerCase()) : true;
 
-            const courierMatches = courier ? order.courier === courier : true;
-
-            const dateMatches = date
-                ? new Date(order.createdAt).toISOString().startsWith(date) // Ensure `date` is in a comparable format
-                : true;
-
-            return statusMatches && courierMatches && dateMatches;
+            return statusMatches && courierMatches && dateMatches && searchTermMatches;
         });
 
         setFilteredOrders(filtered);
     };
 
+
     useEffect(() => {
-        filterOrders(orders, statusFilter, courierFilter, dateFilter);
-    }, [orders, statusFilter, courierFilter, dateFilter]);
+        filterOrders(orders, statusFilter, courierFilter, dateFilter, searchTerm);
+    }, [orders, statusFilter, courierFilter, dateFilter, searchTerm]);
+
 
 
 
     const getStatusCount = (orders, status) => {
         return orders.filter(order =>
-            order.status.some(statusEntry => statusEntry.name === status)
+            order.lastStatus.name === status
         ).length;
     };
 
@@ -330,8 +330,8 @@ const Orders = () => {
                             <p className="font-semibold text-[#FF3EA5]">Processing</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#620c9f21]" onClick={() => handleFilterByStatus('courier')}>
-                            <p className="text-2xl font-bold text-[#610C9F]">{getStatusCount(orders, 'courier')}</p>
+                        <div className="shadow-md text-center py-2 bg-[#620c9f21]" onClick={() => handleFilterByStatus('sendToCourier')}>
+                            <p className="text-2xl font-bold text-[#610C9F]">{getStatusCount(orders, 'sendToCourier')}</p>
                             <p className="font-semibold text-[#610C9F]">Sent to Courier</p>
                         </div>
 
@@ -349,14 +349,18 @@ const Orders = () => {
                             <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'partialReturn')}</p>
                             <p className="font-semibold text-[#8B9A46]">Partial Return</p>
                         </div>
-
+                        <div className="shadow-md text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('returnWithDeliveryCharge')}>
+                            <p className="text-2xl font-bold text-[#C84B31]">{getStatusCount(orders, 'returnWithDeliveryCharge')}</p>
+                            <p className="font-semibold text-[#C84B31]">Return With DeliveryCharge</p>
+                        </div>
                         <div className="shadow-md text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('return')}>
                             <p className="text-2xl font-bold text-[#C84B31]">{getStatusCount(orders, 'return')}</p>
                             <p className="font-semibold text-[#C84B31]">Return</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('returnExchange')}>
-                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'returnExchange')}</p>
+
+                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('exchange')}>
+                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'exchange')}</p>
                             <p className="font-semibold text-[#8B9A46]">Return Exchange</p>
                         </div>
 
@@ -372,8 +376,8 @@ const Orders = () => {
                         <div className="flex justify-between items-center">
                             <div className="flex gap-6">
                                 <select
-                                    className="select select-bordered"  // Fix this line to use order.status
-                                    onChange={(e) => handleFilterByStatus(e.target.value)}  // Fix this line to call handleStatusChange
+                                    className="select select-bordered"
+                                    onChange={(e) => handleFilterByStatus(e.target.value)}
                                 >
                                     <option value="new">New</option>
                                     <option value="pending">Pending</option>
@@ -381,15 +385,16 @@ const Orders = () => {
                                     <option value="processing">Processing</option>
                                     <option value="pendingPayment">Pending Payment</option>
                                     <option value="hold">Hold</option>
-                                    <option value="sentToCourier">Sent to Courier</option>
+                                    <option value="sendToCourier">Sent to Courier</option>
                                     <option value="courierProcessing">Courier Processing</option>
                                     <option value="return">Return</option>
-                                    <option value="returnExchange">Return Exchange</option>
+                                    <option value="exchange">Return Exchange</option>
                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                     <option value="exchange">Exchange</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="cancel">Cancel</option>
                                 </select>
+
                                 <select
                                     className="select select-bordered"
                                     value={courierFilter}
@@ -408,11 +413,15 @@ const Orders = () => {
                                     onChange={(e) => handleFilterByDate(e.target.value)}
                                 />
                             </div>
+
                             <input
                                 type="text"
                                 placeholder="Search by Invoice No"
                                 className="input input-bordered w-full max-w-xs"
+                                value={searchTerm}
+                                onChange={(e) => handleSearchTermChange(e.target.value)}
                             />
+
                             <div className="flex gap-6 md:mr-4">
                                 <button className="btn btn-sm bg-error text-white border-none">
                                     <span>
@@ -426,6 +435,7 @@ const Orders = () => {
                             </div>
                         </div>
 
+
                         <Row>
                             <Col className="col-12">
                                 <Card>
@@ -435,141 +445,6 @@ const Orders = () => {
                                 </Card>
                             </Col>
                         </Row>
-
-                        {/* <div className="overflow-x-auto w-full mt-8">
-                            <table className="table w-full table-compact">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <label>
-                                                <input type="checkbox" className="checkbox" />
-                                            </label>
-                                        </th>
-                                        <th>Serial ID</th>
-                                        <th>Total Bill</th>
-                                        <th>Product</th>
-                                        <th>Status</th>
-                                        <th>Courier</th>
-                                        <th>Create</th>
-                                        <th>Update</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredOrders.map((order) => (
-                                        <tr key={order._id}>
-                                            <td>
-                                                <label>
-                                                    <input type="checkbox" className="checkbox" />
-                                                </label>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <p className="font-bold">{order.serialId}</p>
-                                                    <p>{order.invoice}</p>
-                                                    <p>{order.date}</p>
-                                                    <p>{order.name}</p>
-                                                    <p>{order.address}</p>
-                                                    <p>{order.phone}</p>
-                                                    <p className="text-red-500">{order.orderNotes}</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <p className='text-right'>Total Bill: {order.totalAmount} TK</p>
-                                                    <p className='text-right'>Delivery Charge: {order.deliveryCharge} TK</p>
-                                                    <p className='text-right'>Discount: {order.discount} TK</p>
-                                                    <hr />
-                                                    <p className="font-bold text-right">Grand Total: {order.grandTotal} TK</p>
-                                                    <p className="font-bold text-green-500 text-right">Advanced: {order.advanced} TK</p>
-                                                    <p className='text-right'>Available: {order.grandTotal - order.advanced} TK</p>
-                                                </div>
-                                            </td>
-                                            <td className='text-center grid justify-center gap-2'>
-                                                <img className='w-16 mx-8' src={productIcon} alt="" />
-                                                <button onClick={() => {
-                                                    setSelectedOrder(order);
-                                                    toggleModal();
-                                                }} className="btn btn-sm btn-error text-white ">View Product</button>
-                                            </td>
-                                            <td>
-                                                <select
-                                                    className="select select-bordered"
-                                                    value={order.status[order.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
-                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}  // Call the function on change
-                                                >
-                                                    <option value="new">New</option>
-                                                    <option value="pending">Pending</option>
-                                                    <option value="pendingPayment">Pending Payment</option>
-                                                    <option value="confirm">Confirm</option>
-                                                    <option value="hold">Hold</option>
-                                                    <option value="processing">Processing</option>
-                                                    <option value="sentToCourier">Sent to Courier</option>
-                                                    <option value="courierProcessing">Courier Processing</option>
-                                                    <option value="return">Return</option>
-                                                    <option value="returnExchange">Return Exchange</option>
-                                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
-                                                    <option value="exchange">Exchange</option>
-                                                    <option value="delivered">Delivered</option>
-                                                    <option value="cancel">Cancel</option>
-                                                </select>
-                                            </td>
-
-                                            <td>
-                                                <select
-                                                    className="select select-bordered w-full"
-                                                    value={order.courier}
-                                                    onChange={(e) => handleCourierChange(order._id, e.target.value)}
-                                                >
-                                                    <option value="courier">Courier</option>
-                                                    <option value="user1">User1</option>
-                                                    <option value="user2">User2</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <button onClick={() => handleTrackingOpenModal(order._id)} className="text-blue-500 text-xl" >
-                                                    <FaRegEye />
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <div className="dropdown flex justify-center relative">
-                                                    <div
-                                                        tabIndex={0}
-                                                        role="button"
-                                                        className="btn m-1 btn-sm"
-                                                        onClick={() => toggleDropdown(order._id)} // Toggle on click
-                                                    >
-                                                        <BsThreeDotsVertical />
-                                                    </div>
-                                                    <ul
-                                                        tabIndex={0}
-                                                        className={`dropdown-content absolute right-0 mt-1 bg-base-100 rounded-box z-10 p-2 shadow space-y-2 ${activeDropdown === order._id ? '' : 'hidden'}`} // Show/hide based on activeDropdown
-                                                    >
-                                                        <li>
-                                                            <button className="btn btn-sm btn-accent text-white" onClick={() => toggleNoteModal()}>
-                                                                Details
-                                                            </button>
-                                                        </li>
-                                                        <li>
-                                                            <button onClick={() => toggleNoteModal(order._id)} className="btn btn-sm text-success text-xl">
-                                                                <FaEdit />
-                                                            </button>
-
-                                                        </li>
-                                                        <li>
-                                                            <Button color="primary">
-                                                                Open Modal
-                                                            </Button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                            </td>
-
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div> */}
                     </div>
                 </Container>
                 <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
