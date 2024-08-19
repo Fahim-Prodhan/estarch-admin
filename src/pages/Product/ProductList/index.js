@@ -11,6 +11,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import ProductDetailsModal from "./ProductDetailsModal"; // Import the modal component
 import "./productDetails.css"; // Import the CSS file
 import BarcodePrintModal from "./BarcodePrintModal";
+import { Link } from "react-router-dom";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -122,7 +123,7 @@ const Refund = () => {
                       Details
                     </button>
                   </li>
-                  <li><a className="btn btn-sm text-success text-xl"><FaEdit /></a></li>
+                  <li><Link to={`/ecommerce-edit-product/${item._id}`} className="btn btn-sm text-success text-xl"><FaEdit /></Link></li>
                   <li><a className="btn btn-sm text-error text-xl"><MdDeleteSweep /></a></li>
                   <li><button onClick={() => {
                     setSelectedProduct(item);

@@ -75,6 +75,7 @@ import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
 import ProductSerial from "../pages/Product/ProductSerial"
 import HomeElement from "../pages/Ecommerce/HomeElement"
 import HomeView from "../pages/Ecommerce/HomeView"
+import EditProduct from "../pages/Product/EditProduct"
 
 
 const userRoutes = [
@@ -111,6 +112,7 @@ const userRoutes = [
   // Product Routes
   { path: "/product-list", component: <ProductList/> },
   { path: "/ecommerce-add-product", component: <AddProduct/> },
+  { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
   { path: "/ecommerce-product-serial", component: <ProductSerial/> },
 
 
