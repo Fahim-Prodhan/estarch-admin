@@ -1,4 +1,3 @@
-// Refund.js
 import React, { useEffect, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
@@ -12,8 +11,8 @@ import ProductDetailsModal from "./ProductDetailsModal"; // Import the modal com
 import "./productDetails.css"; // Import the CSS file
 import BarcodePrintModal from "./BarcodePrintModal";
 import { Link } from "react-router-dom";
+import axios from "axios";
 // import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 const Refund = () => {
   document.title = "Estarch | Product List";
@@ -31,16 +30,37 @@ const Refund = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  useEffect(() => {
+  const updateSize = (p_id, s_id) => {
+    axios.put(`${baseUrl}/api/products/toggle-size-availability`, { "productId": p_id, "sizeDetailId": s_id })
+      .then(res => {
+        alert("success");
+        // Optionally refresh or update the data here
+      });
+  };
+
+  const updateOtherToggle = (p_id, name) => {
+    axios.put(`${baseUrl}/api/products/product/toggle/${p_id}/${name}`)
+      .then(res => {
+        // Refresh or update the data after successful update
+        console.log(res.data.message);
+        
+        alert(res.data.message);
+        // Fetch data again to reflect the changes
+        fetchData();
+      });
+  };
+
+  const fetchData = () => {
     fetch(`${baseUrl}/api/products/products`)
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         const formattedData = {
           columns: [
             { label: "Image", field: "image", sort: "asc", width: 150 },
             { label: "Product Info", field: "p_info", sort: "asc", width: 150 },
             { label: "SKU", field: "sku", sort: "asc", width: 100 },
-            { label: "Barcode", field: "barcode", sort: "asc", width: 150 },
+            { label: "Toggle-Size-Barcode-Stock", field: "barcode", sort: "asc", width: 150 },
             { label: "Others info", field: "others_info", sort: "asc", width: 300 },
             { label: "Action", field: "action", width: 100 },
           ],
@@ -53,7 +73,7 @@ const Refund = () => {
               </div>
             ),
             p_info: (
-              <div className="w-32 p-0">
+              <div className="w-44 p-0">
                 <p><span className="font-bold">Name:</span> <span>{item.productName}</span></p>
                 <p><span className="font-bold">Type:</span> <span>{item.selectedType}</span></p>
                 <p><span className="font-bold">Category:</span> <span>{item.selectedCategoryName}</span></p>
@@ -66,9 +86,9 @@ const Refund = () => {
               <div className="space-y-2">
                 {
                   item.sizeDetails.map(s =>
-                    <div className="flex justify-center gap-1">
-                      <input type="checkbox" className="toggle toggle-info" defaultChecked={parseInt(s.openingStock) > 0  ? true : false} />
-                      <p className="flex items-center gap-2 w-1/2"><span className="bg-base-300 px-2 rounded-md">{s.size}</span><FaArrowRightLong /><span className="text-success">{s.barcode}<FaArrowRightLong />{s.openingStock}</span></p>
+                    <div key={s._id} className="flex justify-center items-center gap-1">
+                      <input onClick={() => updateSize(item._id, s._id)} type="checkbox" className="toggle toggle-info toggle-sm" defaultChecked={s.available ? true : false} />
+                      <p className="flex items-center gap-2"><span className="bg-base-300 px-2 rounded-md">{s.size}</span><span className="text-success">{s.barcode} =</span><span>{s.openingStock}</span></p>
                     </div>
                   )
                 }
@@ -80,31 +100,31 @@ const Refund = () => {
                   <p className={`bg-${item.productStatus === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Status
                   </p>
-                  <input type="checkbox" className="toggle toggle-info" defaultChecked={item.productStatus === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "productStatus")} type="checkbox" className="toggle toggle-info" defaultChecked={item.productStatus === true ? true : false} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <p className={`bg-${item.posSuggestion === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Pos Suggestion
                   </p>
-                  <input type="checkbox" className="toggle toggle-info" defaultChecked={item.posSuggestion === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "posSuggestion")} type="checkbox" className="toggle toggle-info" defaultChecked={item.posSuggestion === true ? true : false} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <p className={`bg-${item.showSize === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Show Size
                   </p>
-                  <input type="checkbox" className="toggle toggle-info" defaultChecked={item.showSize === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "showSize")} type="checkbox" className="toggle toggle-info" defaultChecked={item.showSize === true ? true : false} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <p className={`bg-${item.featureProduct === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Feature
                   </p>
-                  <input type="checkbox" className="toggle toggle-info" defaultChecked={item.featureProduct === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "featureProduct")} type="checkbox" className="toggle toggle-info" defaultChecked={item.featureProduct === true ? true : false} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <p className={`bg-${item.freeDelevary === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
-                    Free Delivery.
+                    Free Delivery
                   </p>
-                  <input type="checkbox" className="toggle toggle-info" defaultChecked={item.freeDelevary === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "freeDelevary")} type="checkbox" className="toggle toggle-info" defaultChecked={item.freeDelevary === true ? true : false} />
                 </div>
               </div>
             ),
@@ -136,6 +156,10 @@ const Refund = () => {
         };
         setData(formattedData);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   return (

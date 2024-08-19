@@ -456,34 +456,9 @@ function EditProduct() {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Minible" breadcrumbItem="Add Product" />
+          <Breadcrumbs title="Minible" breadcrumbItem="Edit Product" />
           <div>
             <div className="p-6 bg-base-100 rounded-lg shadow-lg w-full">
-              <div className="bg-neutral-focus p-4 rounded-lg ">
-                <div className="border shadow-xl">
-                  <div className="bg-sky-950 text-white text-2xl py-5 px-4">
-                    <h2 className="text-2xl font-semibold text-white">Others</h2>
-                  </div>
-                  <div className="p-4 flex justify-evenly ">
-                    <div className="flex items-center justify-center">
-                      <input defaultChecked={freeDelevary} onChange={() => setFreeDelevary(!freeDelevary)} type="checkbox" className="toggle toggle-primary" />
-                      <label className="ml-3 text-sm font-medium text-gray-700">Free Delivery </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input defaultChecked={featureProduct} onChange={() => setFeatureProduct(!featureProduct)} type="checkbox" className="toggle toggle-primary" />
-                      <label className="ml-3 text-sm font-medium text-gray-700">Feature Product </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input defaultChecked={productStatus} onChange={() => setProductStatus(!productStatus)} type="checkbox" className="toggle toggle-primary" />
-                      <label className="ml-3 text-sm font-medium text-gray-700">Product Status </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input defaultChecked={posSuggestion} onChange={() => setPosSuggestion(!posSuggestion)} type="checkbox" className="toggle toggle-primary" />
-                      <label className="ml-3 text-sm font-medium text-gray-700">Pos Suggestion </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div className="bg-neutral-focus p-4 rounded-lg ">
                 <form className="space-y-4 border shadow-xl ">
                   <h1 className='bg-sky-950 text-white font-semibold text-2xl py-5 '><span className='mx-5'>Product Information</span></h1>
