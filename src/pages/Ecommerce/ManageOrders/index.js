@@ -1,9 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "reactstrap";
-
-
-
-//Import Breadcrumb
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { MdDelete } from "react-icons/md";
 import { IoMdAddCircle } from "react-icons/io";
@@ -11,58 +7,60 @@ import axios from "axios";
 import baseUrl from "../../../helpers/baseUrl";
 import { useParams } from "react-router";
 
-
-
-
-
-
 const ManageOrders = () => {
+    document.title = "Estarch | Manage Order";
+    const [orders, setOrders] = useState({});
+    const [barcode, setBarcode] = useState('');
+    const [error, setError] = useState('');
+    const { id } = useParams();
+    const [barcodeProduct, setBarcodeProduct] = useState(null);
+    const [product, setProduct] = useState([])
+    console.log(product);
+    useEffect(() => {
+        const fetchOrder = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/api/orders/order/${id}`);
+                setOrders(response.data);
+                setProduct(orders.cartItems)
+            } catch (error) {
+                console.error('Error fetching order:', error);
+            }
+        };
+        fetchOrder();
+    }, [id]);
 
-    document.title = "Estarch | Manage Order"
-    const [orders, setOrders] = useState([])
 
-    const {id} = useParams()
-    console.log(orders);
+    const handleBarcodeChange = async (e) => {
+        const barcode = e.target.value;
+        setBarcode(barcode);
 
-    useEffect(()=>{
-        axios.get(`${baseUrl}/api/orders/order/${id}`)
-        .then(res=>{
-            setOrders(res.data);
-        })
-    },[])
-
-    // Initial state with a product
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            name: "Premium Korean Style Polo (30006298) ( L )",
-            quantity: 1,
-            price: 980,
-        },
-    ]);
-
-    const handleQuantityChange = (index, increment) => {
-        const updatedProducts = [...products];
-        const newQuantity = updatedProducts[index].quantity + increment;
-
-        if (newQuantity >= 1) { // Ensure the minimum quantity is 1
-            updatedProducts[index].quantity = newQuantity;
-            setProducts(updatedProducts);
+        if (barcode) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/products/search/${barcode}`);
+                if (!response.ok) {
+                    throw new Error('Product not found');
+                }
+                const data = await response.json();
+                if (data) {
+                   console.log(data);
+               }
+            } catch (error) {
+                setError('Product not found');
+                setBarcodeProduct(null);
+            }
+        } else {
+            setBarcodeProduct(null);
+            setError('');
         }
     };
-
-    //   payment 
 
     const [rows, setRows] = useState([
         { paymentType: "Cash", paymentOption: "Mobile", amountReceived: "" },
     ]);
 
     const handleAddRow = (event) => {
-        event.preventDefault(); // Prevents the default form submission behavior
-        setRows([
-            ...rows,
-            { paymentType: "", paymentOption: "", amountReceived: "" },
-        ]);
+        event.preventDefault();
+        setRows([...rows, { paymentType: "", paymentOption: "", amountReceived: "" }]);
     };
 
     const handleDeleteRow = (index) => {
@@ -76,16 +74,27 @@ const ManageOrders = () => {
         setRows(updatedRows);
     };
 
+    const handleQuantityChange = (index, delta) => {
+        setOrders(prevOrders => {
+            const updatedCartItems = [...prevOrders.cartItems];
+            updatedCartItems[index].quantity = Math.max(updatedCartItems[index].quantity + delta, 1); // Ensure quantity is at least 1
+            return { ...prevOrders, cartItems: updatedCartItems };
+        });
+    };
 
+    const handleRemoveProduct = (index) => {
+        setOrders(prevOrders => ({
+            ...prevOrders,
+            cartItems: prevOrders.cartItems.filter((_, i) => i !== index)
+        }));
+    };
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Estarch" breadcrumbItem="Manage Order
-                    " />
+                    <Breadcrumbs title="Estarch" breadcrumbItem="Manage Order" />
 
-                    {/* Grid Here */}
-                    <div className="grid md:grid-cols-2 gap-2 ">
+                    <div className="grid md:grid-cols-2 gap-2">
                         <div className="p-4 border-2 rounded-lg">
                             <h2 className="text-xl font-bold mb-4">Customer Info</h2>
                             <div className="mb-4">
@@ -93,8 +102,7 @@ const ManageOrders = () => {
                                 <input
                                     type="text"
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.name}
-
+                                    defaultValue={orders?.name || ''}
                                 />
                             </div>
                             <div className="mb-4">
@@ -102,7 +110,7 @@ const ManageOrders = () => {
                                 <input
                                     type="text"
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.phone}
+                                    defaultValue={orders?.phone || ''}
                                 />
                             </div>
                             <div className="mb-4">
@@ -110,14 +118,14 @@ const ManageOrders = () => {
                                 <input
                                     type="text"
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.address}
+                                    defaultValue={orders?.address || ''}
                                 />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Customer Note</label>
                                 <textarea
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.orderNotes}
+                                    defaultValue={orders?.orderNotes || ''}
                                 />
                             </div>
                             <div className="mb-4">
@@ -133,7 +141,7 @@ const ManageOrders = () => {
                                 <input
                                     type="date"
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders.timestamp  }
+                                    defaultValue={orders.timestamp ? new Date(orders.timestamp).toISOString().split('T')[0] : ''}
                                 />
                             </div>
                         </div>
@@ -141,56 +149,79 @@ const ManageOrders = () => {
                             <h2 className="text-lg font-semibold mb-4">Product Info</h2>
                             <form className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Select Product</label>
-                                    <input type="text" className="w-full p-2 border-2 rounded" />
+                                    <label className="block text-sm font-medium mb-1">Select Product (by barcode)</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 border-2 rounded mb-2"
+                                        value={barcode}
+                                        onChange={handleBarcodeChange}
+                                        placeholder="Enter barcode..."
+                                    />
+
+                                    {error && <p className="text-red-500 mt-2">{error}</p>}
+
+                                    {barcodeProduct && (
+                                        <div className="mt-4 p-4 border-2 rounded flex items-center gap-4">
+                                            {barcodeProduct.images && barcodeProduct.images.length > 0 && (
+                                                <img
+                                                    src={barcodeProduct.images[0]}
+                                                    alt={barcodeProduct.productName}
+                                                    className="h-24 w-24 object-cover"
+                                                />
+                                            )}
+                                            <div className="flex flex-col">
+                                                <h2 className="text-lg font-medium">{barcodeProduct.productName}</h2>
+                                                {barcodeProduct.sizeDetails && barcodeProduct.sizeDetails.length > 0 && (
+                                                    <p><strong>Size:</strong> {barcodeProduct.sizeDetails[0].size}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* product list */}
+                                {/* Table and other form fields */}
                                 <div className="overflow-x-auto border-2">
                                     <table className="min-w-full table-auto border-collapse border border-gray-300">
                                         <thead className="bg-gray-600 text-white">
                                             <tr>
+                                                <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">Product</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Quantity</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Price</th>
+                                                <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Discount</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {orders?.cartItems?.map((product, index) => (
+                                            {product?.map((product, index) => (
                                                 <tr key={product.id}>
-                                                    <td className="border-b p-2">{product.title}<span>({product.size}) </span></td>
+                                                    <td className="border-b p-2">{product.SKU}</td>
+                                                    <td className="border-b p-2">{product.title}<span>({product.size})</span></td>
                                                     <td className="border-b p-2 text-center">
                                                         <div className="flex items-center justify-center">
                                                             <button
                                                                 type="button"
-                                                                onClick={() => handleQuantityChange(index, -1)}
                                                                 className="bg-gray-200 px-2"
-                                                            >
-                                                                -
-                                                            </button>
-                                                            <input
-                                                                type="number"
-                                                                value={product.quantity}
-                                                                readOnly
-                                                                className="w-12 text-center border mx-2"
-                                                            />
+                                                                onClick={() => handleQuantityChange(index, -1)}
+                                                            >-</button>
+                                                            <span className="mx-2">{product.quantity}</span>
                                                             <button
                                                                 type="button"
-                                                                onClick={() => handleQuantityChange(index, 1)}
                                                                 className="bg-gray-200 px-2"
-                                                            >
-                                                                +
-                                                            </button>
+                                                                onClick={() => handleQuantityChange(index, 1)}
+                                                            >+</button>
                                                         </div>
                                                     </td>
                                                     <td className="border-b p-2 text-center">{product.price}</td>
+                                                    <td className="border-b p-2 text-center">{product.discount}</td>
                                                     <td className="border-b p-2 text-center">
-                                                        <button type="button" className="text-red-500">🗑</button>
+                                                        <button onClick={() => handleRemoveProduct(index)}>
+                                                            <MdDelete className="text-red-500 cursor-pointer" />
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {/* Add more products here */}
+                                         
                                         </tbody>
                                     </table>
                                 </div>
@@ -203,7 +234,6 @@ const ManageOrders = () => {
                                         <label className="block text-sm font-medium mb-1">Order Source</label>
                                         <select className="w-full p-2 border-2 rounded">
                                             <option value="Software">{orders.serialId}</option>
-                                            {/* Add more sources here */}
                                         </select>
                                     </div>
                                 </div>
@@ -213,7 +243,7 @@ const ManageOrders = () => {
                                         <input
                                             type="text"
                                             className="w-full p-2 border-2 rounded bg-gray-100"
-                                            value={orders.totalAmount}
+                                            value={orders.totalAmount || ''}
                                             readOnly
                                         />
                                     </div>
@@ -222,12 +252,16 @@ const ManageOrders = () => {
                                         <input
                                             type="text"
                                             className="w-full p-2 border-2 rounded"
-                                            defaultValue={orders.discount}
+                                            defaultValue={orders.discount || ''}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium mb-1">Delivery Charge</label>
-                                        <input type="text" defaultValue={orders?.deliveryCharge} className="w-full p-2 border-2 rounded" />
+                                        <input
+                                            type="text"
+                                            defaultValue={orders?.deliveryCharge || ''}
+                                            className="w-full p-2 border-2 rounded"
+                                        />
                                     </div>
                                 </div>
                                 <div>
@@ -235,7 +269,7 @@ const ManageOrders = () => {
                                     <input
                                         type="text"
                                         className="w-full p-2 border-2 rounded bg-gray-100"
-                                        value={orders.grandTotal}
+                                        value={orders.grandTotal || ''}
                                         readOnly
                                     />
                                 </div>
@@ -270,7 +304,6 @@ const ManageOrders = () => {
                                                             <option value="Cash">Cash</option>
                                                             <option value="Card">Card</option>
                                                             <option value="Bank Transfer">Bank Transfer</option>
-                                                            {/* Add more payment types here */}
                                                         </select>
                                                     </td>
                                                     <td className="border border-gray-300 px-2 py-2">
@@ -283,7 +316,6 @@ const ManageOrders = () => {
                                                             <option value="Mobile">Mobile</option>
                                                             <option value="Internet Banking">Internet Banking</option>
                                                             <option value="PayPal">PayPal</option>
-                                                            {/* Add more payment options here */}
                                                         </select>
                                                     </td>
                                                     <td className="border border-gray-300 px-4 py-2">
@@ -338,7 +370,9 @@ const ManageOrders = () => {
                             </form>
                         </div>
                     </div>
-                    <div className="flex justify-center items-center my-4"><button className="btn btn-wide"> Update</button></div>
+                    <div className="flex justify-center items-center my-4">
+                        <button className="btn btn-wide">Update</button>
+                    </div>
                 </Container>
             </div>
         </React.Fragment>
