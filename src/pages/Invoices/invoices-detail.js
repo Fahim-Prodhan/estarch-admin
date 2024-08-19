@@ -88,13 +88,13 @@ const InvoiceDetail = () => {
                 <CardBody>
                   <div className="invoice-title">
                     <h4 className="float-end font-size-16">
-                      {order.invoice}
                       <Barcode
-                          className='w-44 -mt-5'
+                        className='w-44'
                         value={order.invoice}
-                        displayValue={false}
+                        displayValue={true}
                         lineColor="#00000"
                       />
+                      <p className="-mt-8 ml-2">{order.invoice}</p>
                     </h4>
                     <div className="mb-4">
                       <img src={logo} alt="logo" width={100} />

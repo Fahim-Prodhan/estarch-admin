@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import logo from '../../../assets/images/logo-dark.png';
 import './Barcode.css'; // Import the CSS file
+import Barcode from 'react-barcode';
 
 const BarcodeDisplay = () => {
   const [barcodeData, setBarcodeData] = useState(null);
@@ -21,11 +22,9 @@ const BarcodeDisplay = () => {
   }
 
   const { product, barcodeCounts } = barcodeData;
-  console.log(product);
 
   return (
     <div className="barcode-display-page bg-white">
-
       <div className="barcode-grid">
         {product.sizeDetails.map((sizeDetail, index) => {
           const count = barcodeCounts[sizeDetail.size] || 0;
@@ -34,27 +33,29 @@ const BarcodeDisplay = () => {
               {Array.from({ length: count }).map((_, i) => (
                 <div key={i} className="barcode-wrapper">
                   <div className="logo-and-text">
-                    <img className="logo" src={logo} alt="Logo" />
-                    <p className="product-info">
+                    <img className="logo mx-auto w-[60px] mt-1" src={logo} alt="Logo" />
+                    <p className="product-info text-[8px] text-center">
                       <span className="font-bold">{product.SKU}</span> ({sizeDetail.size})
                     </p>
                   </div>
-                  <img
-                    className="barcode-img"
-                    src={`https://barcode.tec-it.com/barcode.ashx?data=${sizeDetail.barcode}&code=Code128`}
-                    alt={`Barcode for ${sizeDetail.size}`}
+                  <Barcode
+                    className='barcode mx-auto h-[50px]'
+                    value={sizeDetail.barcode}
+                    displayValue={true}
+                    lineColor="#00000"
+                    height={75}     
                   />
-                  <p className="font-bold text-black price">Price: {sizeDetail.sellingPrice} ৳</p>
+                  <p className="font-bold text-black price text-center text-[9px] ">Price: {sizeDetail.regularPrice} ৳</p>
                 </div>
               ))}
             </React.Fragment>
           );
         })}
       </div>
-      <div className="text-center my-12">  
+      <div className="text-center">  
         <button className="print-button" onClick={handlePrint}>
-        Print
-      </button>
+          Print
+        </button>
       </div>
     </div>
   );

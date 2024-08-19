@@ -1,19 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rancho&display=swap');
 
-
 .barcode-grid{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    gap: 20px; /* Adjust the gap as needed */
+    padding: 0;
+    /* gap: 20px;  */
 
 }
-.logo {
-    width: 120px; /* Adjust logo size to fit */
-    height: auto;
-  }
+
   .print-button {
-    margin-bottom: 20px; /* Adjust margin as needed */
+    margin-top: 20px; /* Adjust margin as needed */
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
@@ -28,70 +25,34 @@
     text-align: center;
   }
 
-  .price{
-    font-family: "Lato", sans-serif;
-    text-align: center;
+@media print {
+  /* Prevents page break inside elements */
+  .barcode-wrapper, .barcode-grid, .barcode-display-page {
+    page-break-inside: avoid;
+    break-inside: avoid; /* for newer browsers */
   }
-  
-  @media print {
-    .print-button {
-      display: none; /* Hide the print button when printing */
-    }
-    .barcode-display-page {
-        padding:0 10px;
-        background-color: white;
-        margin: 0;
-      }
-      
-      .barcode-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        gap: 0px; /* Adjust the gap as needed */
-        margin-top: -0px;
 
-      }
-      
-      .barcode-wrapper {
-        width: 1in; /* 2 inches wide */
-        height: .5in; /* 1 inch tall */
-        padding: 0px;
-        /* gap: 10px; */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        /* box-sizing: border-box; */
-        page-break-inside:avoid;
-        text-align: center;
-      }
-      
-      .logo-and-text {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 0px; /* Adjust spacing between elements */
-      }
-      
-      .logo {
-        margin-top: 50px;
-        width: 60px; /* Adjust logo size to fit */
-        height: auto;
-      }
-      
-    
-      .barcode-img {
-        width: 100%; /* Fit the width of the container */
-        height: auto;
-      }
-      .price{
-        font-family: "Lato", sans-serif;
-        font-size: 8px;
-        font-weight: bolder;
-      }
-      .product-info{
-        font-size: 8px;
-      }
-      
-    
+  /* Adjust margins and padding to fit content within pages */
+  body, .barcode-display-page {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Adjust grid to avoid content spilling over to a new page */
+
+  /* Prevent printing of blank space on the last page */
+  .barcode-display-page {
+    height: auto;
+  }
+
+  /* Hide the print button during print */
+  .print-button {
+    display: none;
+    margin: 0;
+  }
 }
+
+  
+ 
