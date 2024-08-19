@@ -21,6 +21,7 @@ function AddProduct() {
   const [guideContent, setGuideContent] = useState('');
   const [discount, setDiscount] = useState({ type: 'Flat', amount: '' });
   const [regularPrice, setRegularPrice] = useState('');
+  const [wholeSale, setWholeSale] = useState('');
   const [salePrice, setSalePrice] = useState(regularPrice);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -210,6 +211,14 @@ function AddProduct() {
     updateAllSizeDetails('purchasePrice', price);
   };
 
+  const handleWholeSalePriceChange = (e) => {
+    const price = e.target.value;
+    setWholeSale(price);
+    updateAllSizeDetails('wholesalePrice', price);
+  };
+
+  console.log(wholeSale);
+
 
   const generateId = () => {
     return Math.floor(1000000 + Math.random() * 9000000).toString();
@@ -224,7 +233,7 @@ function AddProduct() {
         discountPercent: discount.type === 'Percentage' ? discount.amount : '00',
         discountAmount: discount.type === 'Flat' ? discount.amount : regularPrice * discount.amount / 100,
         salePrice: salePrice,
-        wholesalePrice: '00',
+        wholesalePrice: wholeSale,
         openingStock: '00',
         ospPrice: '00'
       };
@@ -622,6 +631,10 @@ function AddProduct() {
                   <div className="flex justify-center items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="stockAlert">Stock Alert</label>
                     <input type="text" id="stockAlert" className="input input-bordered w-[600px]" placeholder="stock alert number" />
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <label className="w-80 text-sm font-medium text-gray-700" htmlFor="regularPrice">Whole Sale Price<span className="text-red-500">*</span></label>
+                    <input type="text" id="regularPrice" className="input input-bordered w-[600px]" placeholder="Whole Sale Price" required value={wholeSale} onChange={handleWholeSalePriceChange} />
                   </div>
                   <div className="flex justify-center items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="regularPrice">Regular Price<span className="text-red-500">*</span></label>
