@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Card, CardBody, Col, Container, Row, Table } from "reactstrap";
-
+import Barcode from 'react-barcode';
 // Import Breadcrumb
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
@@ -42,7 +42,7 @@ const InvoiceDetail = () => {
   if (error) return <p>Error: {error}</p>;
   document.title = "Invoice Detail ";
 
-  
+
 
   // Print the Invoice
   const printInvoice = () => {
@@ -89,12 +89,18 @@ const InvoiceDetail = () => {
                   <div className="invoice-title">
                     <h4 className="float-end font-size-16">
                       {order.invoice}
+                      <Barcode
+                          className='w-44 -mt-5'
+                        value={order.invoice}
+                        displayValue={false}
+                        lineColor="#00000"
+                      />
                     </h4>
                     <div className="mb-4">
                       <img src={logo} alt="logo" width={100} />
                     </div>
                     <div className="text-muted">
-                      <p className="mb-1">19/A (Front gate of Masjid E Noor),Chowdhury Para<br/> Malibag,Dhaka-1219</p>
+                      <p className="mb-1">19/A (Front gate of Masjid E Noor),Chowdhury Para<br /> Malibag,Dhaka-1219</p>
                       <p className="mb-1"><i className="uil uil-envelope-alt me-1"></i> estarch247@gmail.com</p>
                       <p><i className="uil uil-phone me-1"></i> +8801781813939</p>
                     </div>
@@ -114,6 +120,7 @@ const InvoiceDetail = () => {
                         <div>
                           <h5 className="font-size-16 mb-1">Invoice No:</h5>
                           <p>{order.invoice}</p>
+
                         </div>
                         <div className="mt-4">
                           <h5 className="font-size-16 mb-1">Invoice Date:</h5>
@@ -142,7 +149,7 @@ const InvoiceDetail = () => {
                         <tbody>
                           {order.cartItems.map((item, key) => (
                             <tr key={key}>
-                              <td>{key+1}</td>
+                              <td>{key + 1}</td>
                               <td>
                                 <h5 className="font-size-15 mb-1">{item.title}</h5>
                                 <ul className="list-inline mb-0">
@@ -176,6 +183,14 @@ const InvoiceDetail = () => {
                           <tr>
                             <th colSpan="4" className="border-0 text-end">Total</th>
                             <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal}</h4></td>
+                          </tr>
+                          <tr>
+                            <th colSpan="4" className="border-0 text-end">Advance</th>
+                            <td className="border-0 text-end"><h4 className="m-0">{order.advanced}</h4></td>
+                          </tr>
+                          <tr>
+                            <th colSpan="4" className="border-0 text-end">Due Amount</th>
+                            <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal - order.advanced}</h4></td>
                           </tr>
                         </tbody>
                       </Table>

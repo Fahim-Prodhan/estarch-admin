@@ -84,7 +84,7 @@ const userRoutes = [
   { path: "/ecommerce-home-element", component: <HomeElement/> },
   { path: "/ecommerce-home-view", component: <HomeView/> },
   { path: "/ecommerce-orders", component: <EcommerceOrders/> },
-  { path: "/manage-orders", component: <EcommerceManageOrders/> },
+  { path: "/manage-orders/:id", component: <EcommerceManageOrders/> },
   { path: "/ecommerce-return", component: <EcommerceReturn/> },
   { path: "/ecommerce-add-category", component: <AddCategory/> },
   { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },

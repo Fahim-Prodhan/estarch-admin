@@ -23,8 +23,8 @@ const PosOrders = () => {
   const [filteredBrands, setFilteredBrands] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-  const [totalTk , setTotalTK] = useState(0)
-  const [totalPayable , setTotalPayable] = useState(0)
+  const [totalTk, setTotalTK] = useState(0)
+  const [totalPayable, setTotalPayable] = useState(0)
   const [userInfo, setUserInfo] = useState({
     phone: '',
     name: '',
@@ -65,12 +65,14 @@ const PosOrders = () => {
       console.error("Error fetching user data:", error);
     }
   };
-console.log(orderItems);
+  console.log(orderItems);
 
   const handleUserInfoChange = async (e) => {
     const { name, value } = e.target;
 
-    if (name === 'phone') {
+    if (name === 'phone' && value.length === 11) {
+      console.log(name, value.length);
+
       // Fetch user data when phone number changes
       await fetchUserData(value);
     }
@@ -139,7 +141,7 @@ console.log(orderItems);
     const response = await fetch(`${baseUrl}/api/products/products-for-pos?${query}`);
     const data = await response.json();
     console.log(data);
-    
+
     setProducts(data);
   };
 
@@ -164,13 +166,13 @@ console.log(orderItems);
     const { _id, price, discountPercent = 0, discountAmount = 0, ...sizeData } = selectedProduct.sizeDetails.find(
       (detail) => detail.size === size
     );
-    
-    
+
+
     // Calculate the after-discount price based on the discountPercent and price
-    const afterDiscount = discountAmount > 0 
-      ? price - discountAmount 
+    const afterDiscount = discountAmount > 0
+      ? price - discountAmount
       : price - (price * discountPercent) / 100;
-  
+
     // Add the selected product with the size, quantity, and discount information to the order items
     setOrderItems([
       ...orderItems,
@@ -184,12 +186,12 @@ console.log(orderItems);
         afterDiscount: afterDiscount > 0 ? afterDiscount : 0, // Ensure price doesn't go below 0
       }
     ]);
-  
+
     // Close the modal and reset the selected product
     setModalVisible(false);
     setSelectedProduct(null);
   };
-  
+
 
 
   const handleQuantityChange = (index, increment) => {
@@ -228,14 +230,14 @@ console.log(orderItems);
   };
 
   const handleTypeChange = (e) => {
-    
-      setDiscount((prevDiscount) => ({ ...prevDiscount, type: e.target.value }));
-    
+
+    setDiscount((prevDiscount) => ({ ...prevDiscount, type: e.target.value }));
+
   };
 
   const handleValueChange = (e) => {
-   
-      setDiscount((prevDiscount) => ({ ...prevDiscount, value: e.target.value }));
+
+    setDiscount((prevDiscount) => ({ ...prevDiscount, value: e.target.value }));
   };
 
   const calculateTotalItems = () => orderItems.reduce((total, item) => total + item.quantity, 0);
@@ -244,9 +246,9 @@ console.log(orderItems);
 
   const totalDiscount = discount.type === 'percentage' ? calculateTotalAmount() * discount.value / 100 : discount.value
 
-  useEffect(()=>{
+  useEffect(() => {
     setTotalTK(calculateTotalAmount() - totalDiscount)
-  },[calculateTotalAmount() , totalDiscount ,discount ])
+  }, [calculateTotalAmount(), totalDiscount, discount])
 
   return (
     <React.Fragment>
@@ -522,10 +524,12 @@ console.log(orderItems);
                 </p>
               </div>
 
-              <div className="bg-[#00a65a] w-2/12" onClick={handlePaymentClick}>
-                <p className="text-4xl font-bold py-4 text-white">
-                  Payment
-                </p>
+              <div className={` cursor-pointer w-2/12 ${userInfo.phone ? 'bg-[#00a65a]' : "bg-[#00a65b3f] "}`} >
+                <button disabled={!userInfo.phone} onClick={handlePaymentClick}>
+                  <p className="text-4xl font-bold py-4 text-white">
+                    Payment
+                  </p>
+                </button>
               </div>
             </div>
           </div>

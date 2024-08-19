@@ -5,6 +5,7 @@ import JoditEditor from 'jodit-react';
 import { fetchSku, fetchTypes } from "../../../utils/typeApi.js";
 import baseUrl from '../../../helpers/baseUrl';
 import { fetchSizes } from '../../../utils/sizeApi.js';
+import { useNavigate } from 'react-router-dom';
 
 function AddProduct() {
   document.title = " Estarch | Add Product"
@@ -44,7 +45,7 @@ function AddProduct() {
   const [products, setProducts] = useState([]);
   const [filteredProduct, setFilteredProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -76,11 +77,11 @@ function AddProduct() {
       SKU: product.SKU,
       product: product._id,
     };
-    
+
     // Make sure to spread the existing array inside an array literal
     setSelectedProduct([...selectedProduct, data]);
     console.log(selectedProduct);
-    
+
     // Clear the product value (assuming this is used to clear an input field)
     setProductValue('');
   };
@@ -385,7 +386,7 @@ function AddProduct() {
         selectedBrand,
         selectedType,
         charts: selectedSizeChart,
-        relatedProducts:selectedProduct
+        relatedProducts: selectedProduct
       };
       console.log(productData);
 
@@ -401,6 +402,8 @@ function AddProduct() {
 
       if (response.ok) {
         console.log('Product saved successfully:', result);
+        alert('Product saved successfully:');
+        navigate('/product-list');
       } else {
         console.error('Error saving product:', result);
       }
@@ -460,11 +463,14 @@ function AddProduct() {
                     <label className=" w-80 text-sm font-medium text-gray-700" htmlFor="category">Type</label>
                     <select onChange={(e) => setSelectedType(e.target.value)} id="Type" className="select select-bordered w-[600px]">
                       <option>Select a Type</option>
-                      {types?.map((type) => (
-                        <option key={type._id} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {types && types.length > 0 ? (
+                        types.map((type) => (
+                          <option key={type._id} value={type.name}>
+                            {type.name}
+                          </option>
+                        ))
+                      ) : null}
+
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
@@ -476,36 +482,55 @@ function AddProduct() {
                       className="select select-bordered w-[600px]"
                     >
                       <option value="">Select a category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat._id}>{cat.name}</option>
-                      ))}
+                      {categories && categories.length > 0 ? (
+                        categories.map((cat) => (
+                          <option key={cat.id} value={cat._id}>
+                            {cat.name}
+                          </option>
+                        ))
+                      ) : null}
+
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="sticker">Sub Category</label>
                     <select onChange={(e) => setSelectedSubCategory(e.target.value)} id="Sub Category" className="select select-bordered w-[600px]">
                       <option>Select a Sub Category</option>
-                      {subCategories?.map((subCat) => (
-                        <option key={subCat._id} value={subCat.name}>{subCat.name}</option>
-                      ))}
+                      {subCategories && subCategories.length > 0 ? (
+                        subCategories.map((subCat) => (
+                          <option key={subCat._id} value={subCat.name}>
+                            {subCat.name}
+                          </option>
+                        ))
+                      ) : null}
+
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="brand">Brand</label>
                     <select onChange={(e) => setSelectedBrand(e.target.value)} id="brand" className="select select-bordered w-[600px]">
                       <option>Select a brand</option>
-                      {brands.map((brand) => (
-                        <option key={brand.id} value={brand.name}>{brand.name}</option>
-                      ))}
+                      {brands && brands.length > 0 ? (
+                        brands.map((brand) => (
+                          <option key={brand.id} value={brand.name}>
+                            {brand.name}
+                          </option>
+                        ))
+                      ) : null}
+
                     </select>
                   </div>
                   <div className='flex justify-center items-center'>
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="brand">Size Chart</label>
                     <select onChange={(e) => setSelectedSizeChart(e.target.value)} id="brand" className="select select-bordered w-[600px]">
                       <option>Select a Size Chart</option>
-                      {sizeChart.map((brand) => (
-                        <option key={brand._id} value={brand._id}>{brand.title}</option>
-                      ))}
+                      {sizeChart && sizeChart.length > 0 ? (
+                        sizeChart.map((brand) => (
+                          <option key={brand._id} value={brand._id}>
+                            {brand.title}
+                          </option>
+                        ))
+                      ) : null}
                     </select>
                   </div>
 
@@ -802,7 +827,7 @@ function AddProduct() {
                           filteredProduct.map((product, index) => (
                             <div
                               key={index}
-                              onClick={()=> clickProduct(product)}
+                              onClick={() => clickProduct(product)}
                               className="cursor-pointer p-2 hover:bg-gray-200 text-black"
                             >
                               {product.productName}<span>({product.SKU})</span>
@@ -823,7 +848,7 @@ function AddProduct() {
                       >
                         <span>{product.name} ({product.SKU})</span>
                         <button
-                        onClick={()=> removeProduct(product.product)}
+                          onClick={() => removeProduct(product.product)}
                           className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                         >
                           &times;

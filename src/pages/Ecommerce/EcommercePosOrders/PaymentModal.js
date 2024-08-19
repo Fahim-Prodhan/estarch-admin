@@ -7,7 +7,6 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
   const [deliveryLocation, setDeliveryLocation] = useState('inside');
   const [orderNote, setOrderNote] = useState('');
   const [customerNote, setCustomerNote] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
   const [advancePayment, setAdvancePayment] = useState(0);
   const [orderSource, setOrderSource] = useState('Website');
 
@@ -24,13 +23,14 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
     name: userInfo.name,
     phone: userInfo.phone,
     deliveryCharge: getDeliveryAmount(),
-    address: `${userInfo.address}, ${selectedDistrict}`,
+    address: `${userInfo.address}`,
     orderNotes: orderNote,
     cartItems: orderItems.map(item => ({
       productId: item._id,
       title: item.productName,
       quantity: item.quantity,
       price: item.salePrice,
+      discountAmount:item.discountAmount ,
       size: item.size,
     })),
     paymentMethod: 'Cash on Delivery',
@@ -38,10 +38,9 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
     userId: null,
     discount: discountAmount,
     grandTotal: grandTotalAmount,
-    advanced: advancePayment,  // Store advance payment
-    dueAmount,  // Store calculated due amount
+    advanced: advancePayment,  
+    dueAmount,  
     note: customerNote,
-    district: selectedDistrict,
     area: deliveryLocation,
   };
 
@@ -82,13 +81,15 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
             <h2 className="text-2xl font-semibold mb-4">Payment Details</h2>
             <p className="mb-2"><strong>Name:</strong> {userInfo.name}</p>
             <p className="mb-2"><strong>Phone:</strong> {userInfo.phone}</p>
-            <p className="mb-4"><strong>Address:</strong> {userInfo.address}, {selectedDistrict}</p>
+            <p className="mb-4"><strong>Address:</strong> {userInfo.address}</p>
 
             <h3 className="text-xl font-semibold mb-2">Order List</h3>
             <table className="w-full mb-4 text-left border-collapse">
               <thead>
                 <tr>
                   <th className="border-b py-2">Product</th>
+                  <th className="border-b py-2">Regular Price</th>
+                  <th className="border-b py-2">Discount</th>
                   <th className="border-b py-2">Quantity</th>
                   <th className="border-b py-2">Price (TK)</th>
                 </tr>
@@ -97,6 +98,8 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
                 {orderItems.map((item, index) => (
                   <tr key={index}>
                     <td className="border-b py-2">{item.productName} ({item.size})</td>
+                    <td className="border-b py-2">{item.regularPrice}</td>
+                    <td className="border-b py-2">{item.discountAmount}</td>
                     <td className="border-b py-2">{item.quantity}</td>
                     <td className="border-b py-2">{item.salePrice * item.quantity}</td>
                   </tr>
@@ -121,27 +124,6 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
               >
                 <option value="inside">Inside Dhaka</option>
                 <option value="outside">Outside Dhaka</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-bold mb-2" htmlFor="district">District</label>
-              <select
-                className="w-full p-2 border rounded"
-                id="district"
-                name="district"
-                value={selectedDistrict}
-                onChange={(e) => setSelectedDistrict(e.target.value)}
-                required
-              >
-                <option value="">Select District</option>
-                <option value="Barisal">Barisal</option>
-                <option value="Chittagong">Chittagong</option>
-                <option value="Dhaka">Dhaka</option>
-                <option value="Khulna">Khulna</option>
-                <option value="Mymensingh">Mymensingh</option>
-                <option value="Rajshahi">Rajshahi</option>
-                <option value="Rangpur">Rangpur</option>
-                <option value="Sylhet">Sylhet</option>
               </select>
             </div>
             <div className="mb-4">
