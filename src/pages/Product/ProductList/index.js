@@ -121,7 +121,7 @@ const Refund = () => {
                   <p className={`bg-${item.freeDelevary === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Free Delivery
                   </p>
-                  <input onClick={() => updateOtherToggle(item._id, "freeDelivery")} type="checkbox" className="toggle toggle-info" defaultChecked={item.freeDelevary === true ? true : false} />
+                  <input onClick={() => updateOtherToggle(item._id, "freeDelevary")} type="checkbox" className="toggle toggle-info" defaultChecked={item.freeDelevary === true ? true : false} />
                 </div>
               </div>
             ),

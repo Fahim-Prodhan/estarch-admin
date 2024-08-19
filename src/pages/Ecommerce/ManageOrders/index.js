@@ -21,7 +21,6 @@ const ManageOrders = () => {
             try {
                 const response = await axios.get(`${baseUrl}/api/orders/order/${id}`);
                 setOrders(response.data);
-                setProduct(orders.cartItems)
             } catch (error) {
                 console.error('Error fetching order:', error);
             }
@@ -29,6 +28,7 @@ const ManageOrders = () => {
         fetchOrder();
     }, [id]);
 
+    console.log(orders.cartItems);
 
     const handleBarcodeChange = async (e) => {
         const barcode = e.target.value;
@@ -42,8 +42,8 @@ const ManageOrders = () => {
                 }
                 const data = await response.json();
                 if (data) {
-                   console.log(data);
-               }
+                    console.log("oder:",data);
+                }
             } catch (error) {
                 setError('Product not found');
                 setBarcodeProduct(null);
@@ -88,6 +88,7 @@ const ManageOrders = () => {
             cartItems: prevOrders.cartItems.filter((_, i) => i !== index)
         }));
     };
+    
     return (
         <React.Fragment>
             <div className="page-content">
@@ -193,9 +194,9 @@ const ManageOrders = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {product?.map((product, index) => (
-                                                <tr key={product.id}>
-                                                    <td className="border-b p-2">{product.SKU}</td>
+                                            {orders?.cartItems?.map((product, index) => (
+                                                <tr key={product._id}>
+                                                    <td className="border-b p-2">{product.productId.SKU}</td>
                                                     <td className="border-b p-2">{product.title}<span>({product.size})</span></td>
                                                     <td className="border-b p-2 text-center">
                                                         <div className="flex items-center justify-center">
@@ -221,15 +222,11 @@ const ManageOrders = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                         
+
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Ref. No</label>
-                                        <input type="text" className="w-full p-2 border-2 rounded" />
-                                    </div>
                                     <div>
                                         <label className="block text-sm font-medium mb-1">Order Source</label>
                                         <select className="w-full p-2 border-2 rounded">
@@ -277,16 +274,16 @@ const ManageOrders = () => {
                                     <table className="min-w-full table-auto border-collapse border border-gray-300">
                                         <thead className="bg-gray-600 text-white">
                                             <tr>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
+                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left font-medium">
                                                     Payment Type
                                                 </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
+                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left  font-medium">
                                                     Payment Option
                                                 </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
+                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left  font-medium">
                                                     Amount Received
                                                 </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
+                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left  font-medium">
                                                     Action
                                                 </th>
                                             </tr>
