@@ -14,14 +14,16 @@ const ManageOrders = () => {
     const [error, setError] = useState('');
     const { id } = useParams();
     const [barcodeProduct, setBarcodeProduct] = useState(null);
-    const [product, setProduct] = useState([])
-    console.log(product);
+    const [products, setProducts] = useState([]); // Renamed to products for clarity
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
                 const response = await axios.get(`${baseUrl}/api/orders/order/${id}`);
                 setOrders(response.data);
-                setProduct(orders.cartItems)
+                console.log(response.data);
+
+                setProducts(response.data.cartItems || []);
             } catch (error) {
                 console.error('Error fetching order:', error);
             }
@@ -29,21 +31,20 @@ const ManageOrders = () => {
         fetchOrder();
     }, [id]);
 
-
     const handleBarcodeChange = async (e) => {
         const barcode = e.target.value;
         setBarcode(barcode);
 
-        if (barcode) {
+        if (barcode.length === 7) {
             try {
-                const response = await fetch(`http://localhost:5000/api/products/search/${barcode}`);
+                const response = await fetch(`http://localhost:5000/api/products/product/barcode/${barcode}`);
                 if (!response.ok) {
                     throw new Error('Product not found');
                 }
                 const data = await response.json();
                 if (data) {
-                   console.log(data);
-               }
+                    setProducts([...products, data]);
+                }
             } catch (error) {
                 setError('Product not found');
                 setBarcodeProduct(null);
@@ -52,42 +53,38 @@ const ManageOrders = () => {
             setBarcodeProduct(null);
             setError('');
         }
-    };
-
-    const [rows, setRows] = useState([
-        { paymentType: "Cash", paymentOption: "Mobile", amountReceived: "" },
-    ]);
-
-    const handleAddRow = (event) => {
-        event.preventDefault();
-        setRows([...rows, { paymentType: "", paymentOption: "", amountReceived: "" }]);
-    };
-
-    const handleDeleteRow = (index) => {
-        setRows(rows.filter((_, rowIndex) => rowIndex !== index));
-    };
-
-    const handleInputChange = (index, event) => {
-        const { name, value } = event.target;
-        const updatedRows = [...rows];
-        updatedRows[index][name] = value;
-        setRows(updatedRows);
+        console.log(products);
     };
 
     const handleQuantityChange = (index, delta) => {
-        setOrders(prevOrders => {
-            const updatedCartItems = [...prevOrders.cartItems];
-            updatedCartItems[index].quantity = Math.max(updatedCartItems[index].quantity + delta, 1); // Ensure quantity is at least 1
-            return { ...prevOrders, cartItems: updatedCartItems };
+        setProducts(prevProducts => {
+            const updatedProducts = [...prevProducts];
+            updatedProducts[index].quantity = Math.max(updatedProducts[index].quantity + delta, 1); // Ensure quantity is at least 1
+            return updatedProducts;
         });
     };
 
     const handleRemoveProduct = (index) => {
-        setOrders(prevOrders => ({
-            ...prevOrders,
-            cartItems: prevOrders.cartItems.filter((_, i) => i !== index)
-        }));
+        setProducts(prevProducts => prevProducts.filter((_, i) => i !== index));
     };
+
+    const [delivery, setDelevary] = useState(0)
+    const [discount, setDiscount] = useState(0)
+    const [Advance, setAdvance] = useState(0)
+
+    const calculateTotalAmount = () => products.reduce((total, item) => total + item.price * item.quantity, 0);
+    const totalAmount = () => {
+        return calculateTotalAmount() + delivery - discount;
+    };
+    const dueAmount = ()=> {
+        return totalAmount() - Advance
+    }
+    useEffect(() => {
+        setDelevary(orders?.deliveryCharge)
+        setDiscount(orders?.discount)
+        setAdvance(orders?.advanced)
+    }, [orders]);
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -157,29 +154,8 @@ const ManageOrders = () => {
                                         onChange={handleBarcodeChange}
                                         placeholder="Enter barcode..."
                                     />
-
-                                    {error && <p className="text-red-500 mt-2">{error}</p>}
-
-                                    {barcodeProduct && (
-                                        <div className="mt-4 p-4 border-2 rounded flex items-center gap-4">
-                                            {barcodeProduct.images && barcodeProduct.images.length > 0 && (
-                                                <img
-                                                    src={barcodeProduct.images[0]}
-                                                    alt={barcodeProduct.productName}
-                                                    className="h-24 w-24 object-cover"
-                                                />
-                                            )}
-                                            <div className="flex flex-col">
-                                                <h2 className="text-lg font-medium">{barcodeProduct.productName}</h2>
-                                                {barcodeProduct.sizeDetails && barcodeProduct.sizeDetails.length > 0 && (
-                                                    <p><strong>Size:</strong> {barcodeProduct.sizeDetails[0].size}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
 
-                                {/* Table and other form fields */}
                                 <div className="overflow-x-auto border-2">
                                     <table className="min-w-full table-auto border-collapse border border-gray-300">
                                         <thead className="bg-gray-600 text-white">
@@ -188,190 +164,119 @@ const ManageOrders = () => {
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">Product</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Quantity</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Price</th>
-                                                <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Discount</th>
+                                                <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Total</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {product?.map((product, index) => (
-                                                <tr key={product.id}>
-                                                    <td className="border-b p-2">{product.SKU}</td>
-                                                    <td className="border-b p-2">{product.title}<span>({product.size})</span></td>
-                                                    <td className="border-b p-2 text-center">
-                                                        <div className="flex items-center justify-center">
+                                            {products.length > 0 ?
+                                                products.map((product, index) => (
+                                                    <tr key={product.id}>
+                                                        <td className="border-b p-2">{product.productId.SKU}</td>
+                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span></td>
+                                                        <td className="border-b p-2 text-center">
+                                                            <div className="flex items-center justify-center">
+                                                                <button
+                                                                    type="button"
+                                                                    className="bg-gray-200 px-2"
+                                                                    onClick={() => handleQuantityChange(index, -1)}
+                                                                    disabled={product.quantity <= 1}
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <span className="mx-2">{product.quantity}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bg-gray-200 px-2"
+                                                                    onClick={() => handleQuantityChange(index, 1)}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td className="border-b p-2 text-center">{product.price}</td>
+                                                        <td className="border-b p-2 text-center">{product.quantity * product.price}</td>
+                                                        <td className="border-b p-2 text-center">
                                                             <button
                                                                 type="button"
-                                                                className="bg-gray-200 px-2"
-                                                                onClick={() => handleQuantityChange(index, -1)}
-                                                            >-</button>
-                                                            <span className="mx-2">{product.quantity}</span>
-                                                            <button
-                                                                type="button"
-                                                                className="bg-gray-200 px-2"
-                                                                onClick={() => handleQuantityChange(index, 1)}
-                                                            >+</button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="border-b p-2 text-center">{product.price}</td>
-                                                    <td className="border-b p-2 text-center">{product.discount}</td>
-                                                    <td className="border-b p-2 text-center">
-                                                        <button onClick={() => handleRemoveProduct(index)}>
-                                                            <MdDelete className="text-red-500 cursor-pointer" />
-                                                        </button>
-                                                    </td>
+                                                                className="text-red-500"
+                                                                onClick={() => handleRemoveProduct(index)}
+                                                            >
+                                                                <MdDelete size={24} />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                                :
+                                                <tr>
+                                                    <td colSpan="6" className="text-center p-4">No products found</td>
                                                 </tr>
-                                            ))}
-                                         
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Ref. No</label>
-                                        <input type="text" className="w-full p-2 border-2 rounded" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Order Source</label>
-                                        <select className="w-full p-2 border-2 rounded">
-                                            <option value="Software">{orders.serialId}</option>
-                                        </select>
-                                    </div>
+                            </form>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Sub Total</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 border-2 rounded bg-gray-100"
+                                        value={calculateTotalAmount() || ''}
+                                        readOnly
+                                    />
                                 </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Sub Total</label>
-                                        <input
-                                            type="text"
-                                            className="w-full p-2 border-2 rounded bg-gray-100"
-                                            value={orders.totalAmount || ''}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Discount</label>
-                                        <input
-                                            type="text"
-                                            className="w-full p-2 border-2 rounded"
-                                            defaultValue={orders.discount || ''}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Delivery Charge</label>
-                                        <input
-                                            type="text"
-                                            defaultValue={orders?.deliveryCharge || ''}
-                                            className="w-full p-2 border-2 rounded"
-                                        />
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Discount</label>
+                                    <input
+                                        type="text"
+                                        onChange={(e) => setDelevary(e.target.value)}
+                                        className="w-full p-2 border-2 rounded"
+                                        value={discount}
+                                    />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Delivery Charge</label>
+                                    <input
+                                        type="text"
+                                        Value={delivery}
+                                        onChange={(e) => setDelevary(e.target.value)}
+                                        className="w-full p-2 border-2 rounded"
+                                    />
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Total</label>
                                     <input
                                         type="text"
                                         className="w-full p-2 border-2 rounded bg-gray-100"
-                                        value={orders.grandTotal || ''}
+                                        value={totalAmount()}
                                         readOnly
                                     />
                                 </div>
-                                <div className="overflow-x-auto border-2">
-                                    <table className="min-w-full table-auto border-collapse border border-gray-300">
-                                        <thead className="bg-gray-600 text-white">
-                                            <tr>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
-                                                    Payment Type
-                                                </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
-                                                    Payment Option
-                                                </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
-                                                    Amount Received
-                                                </th>
-                                                <th className="border text-xs border-gray-300 px-4 py-2 text-left text-sm font-medium">
-                                                    Action
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {rows.map((row, index) => (
-                                                <tr key={index}>
-                                                    <td className="border border-gray-300 px-2 py-2">
-                                                        <select
-                                                            name="paymentType"
-                                                            value={row.paymentType}
-                                                            onChange={(e) => handleInputChange(index, e)}
-                                                            className="w-full p-2 border-2 rounded"
-                                                        >
-                                                            <option value="Cash">Cash</option>
-                                                            <option value="Card">Card</option>
-                                                            <option value="Bank Transfer">Bank Transfer</option>
-                                                        </select>
-                                                    </td>
-                                                    <td className="border border-gray-300 px-2 py-2">
-                                                        <select
-                                                            name="paymentOption"
-                                                            value={row.paymentOption}
-                                                            onChange={(e) => handleInputChange(index, e)}
-                                                            className="w-full p-2 border-2 rounded"
-                                                        >
-                                                            <option value="Mobile">Mobile</option>
-                                                            <option value="Internet Banking">Internet Banking</option>
-                                                            <option value="PayPal">PayPal</option>
-                                                        </select>
-                                                    </td>
-                                                    <td className="border border-gray-300 px-4 py-2">
-                                                        <input
-                                                            type="text"
-                                                            name="amountReceived"
-                                                            value={row.amountReceived}
-                                                            onChange={(e) => handleInputChange(index, e)}
-                                                            className="w-full p-2 border-2 rounded"
-                                                        />
-                                                    </td>
-                                                    <td className="border border-gray-300 px-4 py-2 text-center flex gap-1 justify-center">
-                                                        <button
-                                                            onClick={() => handleDeleteRow(index)}
-                                                            className="bg-red-500 text-white px-2 py-2 rounded"
-                                                        >
-                                                            <MdDelete />
-                                                        </button>
-                                                        <button
-                                                            onClick={handleAddRow}
-                                                            className="bg-blue-500 text-white px-2 py-2 rounded"
-                                                        >
-                                                            <IoMdAddCircle />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Advance</label>
+                                    <input
+                                        type="text"
+                                        value={Advance}
+                                        onChange={(e) => setAdvance(e.target.value)}
+                                        className="w-full p-2 border-2 rounded"
+                                    />
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Paid Amount</label>
-                                        <input
-                                            type="text"
-                                            className="w-full p-2 border-2 rounded bg-gray-100"
-                                            value="2900"
-                                            readOnly
-                                        />
-                                    </div>
+                                <div className="grid grid-cols-1 gap-3">
                                     <div>
                                         <label className="block text-sm font-medium mb-1">Due Amount</label>
                                         <input
                                             type="text"
                                             className="w-full p-2 border-2 rounded bg-gray-100"
-                                            value="2900"
+                                            value={dueAmount()}
                                             readOnly
                                         />
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex justify-center items-center my-4">
-                        <button className="btn btn-wide">Update</button>
+
                     </div>
                 </Container>
             </div>
