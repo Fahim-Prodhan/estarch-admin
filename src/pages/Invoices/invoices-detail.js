@@ -91,7 +91,7 @@ const InvoiceDetail = () => {
                       <Barcode
                         className='w-44'
                         value={order.invoice}
-                        displayValue={true}
+                        displayValue={false}
                         lineColor="#00000"
                       />
                       <p className="-mt-8 ml-2">{order.invoice}</p>

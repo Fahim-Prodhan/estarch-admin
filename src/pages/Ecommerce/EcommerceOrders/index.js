@@ -9,6 +9,8 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import NoteModal from './NoteModal';
 import TrackingModal from './TrackingModal';
 import { MDBDataTable } from 'mdbreact';
+import { CgProfile } from "react-icons/cg";
+import { FaPhoneAlt } from "react-icons/fa";
 
 
 
@@ -35,6 +37,7 @@ const Orders = () => {
         const formattedData = {
             columns: [
                 { label: "Serial", field: "serial", sort: "asc", width: 150 },
+                { label: "Info", field: "info", sort: "asc", width: 150 },
                 { label: "Total Bill", field: "total_bill", sort: "asc", width: 270 },
                 { label: "Product", field: "product", sort: "asc", width: 200 },
                 { label: "Status", field: "status", sort: "asc", width: 50 },
@@ -42,15 +45,16 @@ const Orders = () => {
                 { label: "Create", field: "create", width: 100 },
                 { label: "Action", field: "action", width: 100 },
             ],
-            rows: filteredOrders.map(item => ({
-                serial: (
-                    <div className='w-36'>
+            rows: filteredOrders.map((item,index )=> ({
+                serial:<p>{index+1}</p>,
+                info: (
+                    <div className='w-36 space-y-1'>
                         <p className="font-bold">{item.serialId}</p>
                         <p>{item.invoice}</p>
                         <p>{item.date}</p>
-                        <p>{item.name}</p>
-                        <p>{item.address}</p>
-                        <p>{item.phone}</p>
+                        <p className='flex items-center gap-1'><span><CgProfile /></span><span className='font-semibold'>{item.name}</span></p>
+                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
+                        <p className='flex items-center gap-1'><span><FaPhoneAlt /></span><span className='font-semibold'>{item.phone}</span></p>
                         <p className="text-red-500">{item.orderNotes}</p>
                     </div>
                 ),
@@ -107,9 +111,18 @@ const Orders = () => {
                     </select>
                 ),
                 create: (
-                    <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl" >
-                        <FaRegEye />
-                    </button>
+                    <div className='space-y-1'>
+                        <div className='text-center'>
+                            <a href={`/invoice/${item._id}`} className="btn btn-sm bg-green-100 text-green-700">
+                                Print
+                            </a>
+                        </div>
+                        <div className='text-center'>
+                            <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl" >
+                                <FaRegEye />
+                            </button>
+                        </div>
+                    </div>
                 ),
                 action: (
                     <div className="dropdown dropdown-top dropdown-end">
@@ -122,12 +135,7 @@ const Orders = () => {
                                 </a>
 
                             </li>
-                            <li>
-                                <a href={`/invoice/${item._id}`} className="btn btn-sm text-success text-base">
-                                    Print
-                                </a>
-
-                            </li>
+                           
                         </ul>
                     </div>
                 ),
