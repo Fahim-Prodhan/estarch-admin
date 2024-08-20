@@ -60,7 +60,7 @@ const Orders = () => {
                 ),
                 total_bill: (
                     <div className='md:w-full w-36'>
-                        <p className='text-right'>Total Bill: {item.totalAmount} TK</p>
+                        <p className='text-right'>Total Bill: {item.totalAmount + item.discount} TK</p>
                         <p className='text-right'>Delivery Charge: {item.deliveryCharge} TK</p>
                         <p className='text-right'>Discount: {item.discount} TK</p>
                         <hr />
@@ -120,6 +120,11 @@ const Orders = () => {
                         <div className='text-center'>
                             <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl" >
                                 <FaRegEye />
+                            </button>
+                        </div>
+                        <div className='text-center'>
+                            <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 btn btn-xs" >
+                               Add Note
                             </button>
                         </div>
                     </div>

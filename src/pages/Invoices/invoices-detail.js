@@ -156,14 +156,14 @@ const InvoiceDetail = () => {
                                   <li className="list-inline-item">Size : <span className="fw-medium">{item.size}</span></li>
                                 </ul>
                               </td>
-                              <td>{item.price}</td>
+                              <td>{item.price + item.discountAmount}</td>
                               <td>{item.quantity}</td>
-                              <td className="text-end">{item.price}</td>
+                              <td className="text-end">{(item.price + item.discountAmount )* item.quantity }</td>
                             </tr>
                           ))}
                           <tr>
                             <th colSpan="4" className="text-end">Sub Total</th>
-                            <td className="text-end">{order.totalAmount}</td>
+                            <td className="text-end">{order.totalAmount + order.discount}</td>
                           </tr>
                           <tr>
                             <th colSpan="4" className="border-0 text-end">

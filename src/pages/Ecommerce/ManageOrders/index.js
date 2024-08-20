@@ -12,9 +12,14 @@ const ManageOrders = () => {
     const [orders, setOrders] = useState({});
     const [barcode, setBarcode] = useState('');
     const [error, setError] = useState('');
-    const { id } = useParams();
     const [barcodeProduct, setBarcodeProduct] = useState(null);
     const [products, setProducts] = useState([]); // Renamed to products for clarity
+    const [delivery, setDelevary] = useState(0)
+    const [discount, setDiscount] = useState(0)
+    const [Advance, setAdvance] = useState(0)
+    const [adminDiscount, setAdminDiscount] = useState(0)
+    const { id } = useParams();
+    console.log(orders);
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -30,6 +35,18 @@ const ManageOrders = () => {
         };
         fetchOrder();
     }, [id]);
+
+
+    const updateDiscount = discount + parseInt(adminDiscount)
+
+    // Update order
+    const UpdateOrder = () => {
+        console.log(updateDiscount);
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { cartItems: products, advanced: Advance, discount: updateDiscount, totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+            .then(res => {
+                alert("ok")
+            })
+    }
 
     const handleBarcodeChange = async (e) => {
         const barcode = e.target.value;
@@ -68,22 +85,28 @@ const ManageOrders = () => {
         setProducts(prevProducts => prevProducts.filter((_, i) => i !== index));
     };
 
-    const [delivery, setDelevary] = useState(0)
-    const [discount, setDiscount] = useState(0)
-    const [Advance, setAdvance] = useState(0)
+
 
     const calculateTotalAmount = () => products.reduce((total, item) => total + item.price * item.quantity, 0);
     const totalAmount = () => {
-        return calculateTotalAmount() + delivery - discount;
+        return (calculateTotalAmount() + parseInt(delivery)) - adminDiscount;
     };
-    const dueAmount = ()=> {
+    const dueAmount = () => {
         return totalAmount() - Advance
     }
     useEffect(() => {
         setDelevary(orders?.deliveryCharge)
-        setDiscount(orders?.discount)
+
+        const totalDiscount = products.reduce((accumulator, item) => {
+            return accumulator + (item.discountAmount * item.quantity || 0);
+        }, 0);
+        setDiscount(totalDiscount)
         setAdvance(orders?.advanced)
     }, [orders]);
+
+    console.log(discount);
+    console.log(products)
+
 
     return (
         <React.Fragment>
@@ -136,9 +159,9 @@ const ManageOrders = () => {
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Order Date</label>
                                 <input
-                                    type="date"
+                                    type="text"
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders.timestamp ? new Date(orders.timestamp).toISOString().split('T')[0] : ''}
+                                    defaultValue={orders.createdAt}
                                 />
                             </div>
                         </div>
@@ -163,7 +186,7 @@ const ManageOrders = () => {
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">Product</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Quantity</th>
-                                                <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Price</th>
+                                                <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Discount</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Total</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Action</th>
                                             </tr>
@@ -194,7 +217,7 @@ const ManageOrders = () => {
                                                                 </button>
                                                             </div>
                                                         </td>
-                                                        <td className="border-b p-2 text-center">{product.price}</td>
+                                                        <td className="border-b p-2 text-center">{product.quantity * product?.discountAmount}</td>
                                                         <td className="border-b p-2 text-center">{product.quantity * product.price}</td>
                                                         <td className="border-b p-2 text-center">
                                                             <button
@@ -220,25 +243,25 @@ const ManageOrders = () => {
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Sub Total</label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         className="w-full p-2 border-2 rounded bg-gray-100"
                                         value={calculateTotalAmount() || ''}
                                         readOnly
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Discount</label>
+                                    <label className="block text-sm font-medium mb-1">Admin Discount</label>
                                     <input
-                                        type="text"
-                                        onChange={(e) => setDelevary(e.target.value)}
+                                        type="number"
+                                        onChange={(e) => setAdminDiscount(e.target.value)}
                                         className="w-full p-2 border-2 rounded"
-                                        value={discount}
+                                        value={adminDiscount}
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Delivery Charge</label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         Value={delivery}
                                         onChange={(e) => setDelevary(e.target.value)}
                                         className="w-full p-2 border-2 rounded"
@@ -276,7 +299,9 @@ const ManageOrders = () => {
                                 </div>
                             </div>
                         </div>
-
+                    </div>
+                    <div className="text-center">
+                        <button onClick={() => UpdateOrder()} className="btn btn-sm my-3 btn-error text-white">Update</button>
                     </div>
                 </Container>
             </div>
