@@ -208,7 +208,7 @@ function AddProduct() {
     const price = e.target.value;
     setRegularPrice(price);
     setSalePrice(price);
-    updateAllSizeDetails('purchasePrice', price);
+    updateAllSizeDetails('regularPrice', price);
   };
 
   const handleWholeSalePriceChange = (e) => {
@@ -273,27 +273,37 @@ function AddProduct() {
       ...discount,
       type
     });
-    setSizeDetails(sizeDetails.map(detail => ({
-      ...detail,
-      discountPercent: type === 'Percentage' ? discount.amount : detail.discountPercent,
-      discountAmount: type === 'Flat' ? discount.amount : detail.discountAmount,
-      afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type, amount: discount.amount })
-    })));
+    // setSizeDetails(sizeDetails.map(detail => ({
+    //   ...detail,
+    //   discountPercent: type === 'Percentage' ? discount.amount : detail.discountPercent,
+    //   discountAmount: type === 'Flat' ? discount.amount : detail.discountAmount,
+    //   afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type, amount: discount.amount })
+    // })));
   };
 
   const handleAmountChange = (e) => {
-    const amount = e.target.value;
+    const amount = parseFloat(e.target.value); 
     setDiscount({
       ...discount,
       amount
     });
-    setSizeDetails(sizeDetails.map(detail => ({
-      ...detail,
-      discountPercent: discount.type === 'Percentage' ? amount : detail.discountPercent,
-      discountAmount: discount.type === 'Flat' ? amount : detail.discountAmount,
-      afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
-    })));
 
+    setSizeDetails(sizeDetails.map(detail => {
+      let discountAmount = 0;
+
+      if (discount.type === 'Percentage') {
+        discountAmount = (detail.regularPrice * (amount / 100)).toFixed(2); 
+      } else if (discount.type === 'Flat') {
+        discountAmount = (amount/regularPrice * 100).toFixed(2); 
+      }
+
+      return {
+        ...detail,
+        discountPercent: discount.type === 'Percentage' ? amount : discountAmount,
+        discountAmount: discount.type === 'Flat' ? amount : discountAmount,
+        afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
+      };
+    }));
   };
 
   const handleSalePriceChange = (e) => {
@@ -328,8 +338,7 @@ function AddProduct() {
   );
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0]
-    console.log(file);
+    const file = e.target.files[0];
     const uploadedImages = [];
     setLoading(true);
     const formData = new FormData();
@@ -397,7 +406,6 @@ function AddProduct() {
         charts: selectedSizeChart,
         relatedProducts: selectedProduct
       };
-      console.log(productData);
 
       const response = await fetch(`${baseUrl}/api/products/products`, {
         method: 'POST',
@@ -655,7 +663,7 @@ function AddProduct() {
                         <option value="Percentage">Percentage</option>
                       </select>
                       <input
-                        type="text"
+                        type="number"
                         id="discountAmount"
                         className="input input-bordered w-full"
                         placeholder="Discount Amount"
@@ -679,7 +687,7 @@ function AddProduct() {
 
                             onChange={(e) => setSelectedSizeType(e.target.value)}
                           >
-                            <option value="" disabled>Select Size Type</option>
+                            <option value="" >Select Size Type</option>
                             {sizeTypes.map((type) => (
                               <option key={type._id} value={type.sizeType.name}>
                                 {type.sizeType.name}

@@ -54,7 +54,7 @@ const ManageOrders = () => {
 
         if (barcode.length === 7) {
             try {
-                const response = await fetch(`http://localhost:5000/api/products/product/barcode/${barcode}`);
+                const response = await fetch(`${baseUrl}/api/products/product/barcode/${barcode}`);
                 if (!response.ok) {
                     throw new Error('Product not found');
                 }
@@ -196,8 +196,11 @@ const ManageOrders = () => {
                                                 products.map((product, index) => (
                                                     <tr key={product.id}>
                                                         <td className="border-b p-2">{product.productId.SKU}</td>
-                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span></td>
-                                                        <td className="border-b p-2 text-center">
+                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span> {product.productId.sizeDetails.map((p, index)=>(
+                                                            p.size === product.size ? <span>({p.barcode}) </span> : null
+                                                        ))}</td>
+                                                        
+                                                        <td className="border-b p-2 text-center"> 
                                                             <div className="flex items-center justify-center">
                                                                 <button
                                                                     type="button"

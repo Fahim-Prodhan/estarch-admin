@@ -3,7 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import baseUrl from "../../../helpers/baseUrl";
 import { AuthContext } from "../../../utils/context/AuthProvider";
 
-const NoteModal = ({ isOpen, toggle, orderId }) => {
+const NoteModal = ({isOpen,  toggle, orderId }) => {
+
     console.log('Received Order ID in NoteModal:', orderId);
     const { authUser } = useContext(AuthContext);
     const [note, setNote] = useState('');

@@ -24,13 +24,21 @@ const Orders = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
-    const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [trackingModalOpen, setTrackingModalOpen] = useState(false);
     const [trackingOrderId, setTrackingOrderId] = useState(null);
     const [data, setData] = useState({ columns: [], rows: [] })
+    const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
+    const toggleNoteModal = () => {
+        setIsNoteModalOpen(!isNoteModalOpen);
+    };
+
+    const openNoteModal = (orderId) => {
+        setSelectedOrderId(orderId);
+        setIsNoteModalOpen(true);
+    };
 
     useEffect(() => {
         // Simulate fetching data from an API or static JSON file
@@ -45,16 +53,16 @@ const Orders = () => {
                 { label: "Create", field: "create", width: 100 },
                 { label: "Action", field: "action", width: 100 },
             ],
-            rows: filteredOrders.map((item,index )=> ({
-                serial:<p>{index+1}</p>,
+            rows: filteredOrders.map((item, index) => ({
+                serial: <p>{index + 1}</p>,
                 info: (
                     <div className='w-36 space-y-1'>
                         <p className="font-bold">{item.serialId}</p>
                         <p>{item.invoice}</p>
                         <p>{item.date}</p>
                         <p className='flex items-center gap-1'><span><CgProfile /></span><span className='font-semibold'>{item.name}</span></p>
-                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
                         <p className='flex items-center gap-1'><span><FaPhoneAlt /></span><span className='font-semibold'>{item.phone}</span></p>
+                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
                         <p className="text-red-500">{item.orderNotes}</p>
                     </div>
                 ),
@@ -123,9 +131,10 @@ const Orders = () => {
                             </button>
                         </div>
                         <div className='text-center'>
-                            <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 btn btn-xs" >
-                               Add Note
+                            <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs" >
+                                Add Note
                             </button>
+                            <NoteModal />
                         </div>
                     </div>
                 ),
@@ -140,7 +149,7 @@ const Orders = () => {
                                 </a>
 
                             </li>
-                           
+
                         </ul>
                     </div>
                 ),
@@ -156,15 +165,6 @@ const Orders = () => {
     };
 
 
-    const toggleNoteModal = (orderId) => {
-        if (isNoteModalOpen) {
-            setIsNoteModalOpen(false);
-            setSelectedOrderId(null);
-        } else {
-            setIsNoteModalOpen(true);
-            setSelectedOrderId(orderId);
-        }
-    };
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -282,8 +282,10 @@ const Orders = () => {
             const statusMatches = status ? (order.lastStatus && order.lastStatus.name === status) : true;
             const courierMatches = courier ? (order.courier === courier) : true;
             const dateMatches = date ? new Date(order.createdAt).toISOString().startsWith(date) : true;
-            const searchTermMatches = searchTerm ? order.invoice.toLowerCase().includes(searchTerm.toLowerCase()) : true;
-
+            const searchTermMatches = searchTerm
+                ? order.invoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.phone.toLowerCase().includes(searchTerm.toLowerCase())
+                : true;
             return statusMatches && courierMatches && dateMatches && searchTermMatches;
         });
 
@@ -459,7 +461,13 @@ const Orders = () => {
                             </Col>
                         </Row>
                     </div>
+
                 </Container>
+                <NoteModal
+                    isOpen={isNoteModalOpen}
+                    toggle={toggleNoteModal}
+                    orderId={selectedOrderId}
+                />
                 <ViewOrderProduct isOpen={isModalOpen} toggle={toggleModal} order={selectedOrder} />
                 {selectedOrderId && (
                     <NoteModal

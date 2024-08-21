@@ -10,14 +10,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 function EditProduct() {
   document.title = " Estarch | Add Product"
   const [dataProduct, setDataProduct] = useState({});
-  const {id} = useParams()
+  const { id } = useParams()
   useEffect(() => {
     const fetchProductsData = async () => {
       try {
         const response = await fetch(`${baseUrl}/api/products/products/product/${id}`);
         const data = await response.json();
         console.log(data);
-        
+
         setDataProduct(data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -35,9 +35,9 @@ function EditProduct() {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
   const [guideContent, setGuideContent] = useState('');
-  const [discount, setDiscount] = useState(dataProduct?.discount || { type: '', amount: null });
-  const [regularPrice, setRegularPrice] = useState(dataProduct?.regularPrice || '');
-  const [salePrice, setSalePrice] = useState(dataProduct?.salePrice || '');
+  const [discount, setDiscount] = useState({ type: '', amount: null });
+  const [regularPrice, setRegularPrice] = useState('');
+  const [salePrice, setSalePrice] = useState('');
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [productValue, setProductValue] = useState("");
@@ -65,30 +65,34 @@ function EditProduct() {
 
   useEffect(() => {
     if (dataProduct) {
-        setRegularPrice(dataProduct?.regularPrice || '');
-        setSalePrice(dataProduct?.salePrice || '');
-        setImages(dataProduct?.images || [])
-        setShowSize(dataProduct?.showSize || false)
-        setSelectedSizes(dataProduct?.selectedSizes ||[])
-        setSizeDetails(dataProduct?.sizeDetails ||[])
-        setSelectedProduct(dataProduct?.relatedProducts ||[])
-        setContent(dataProduct?.content || ' ')
-        setGuideContent(dataProduct?.guideContent || ' ')
-        setProductName(dataProduct?.productName || ' ')
-        setSelectedType(dataProduct?.selectedType || '')
-        setSelectedCategory(dataProduct?.selectedCategory || '')
-        setSelectedSubCategory(dataProduct?.selectedSubCategory || '')
-        setSelectedSizeChart(dataProduct?.charts || '')
-        setSelectedBrand(dataProduct?.selectedBrand || '')
-        setPosSuggestion(dataProduct?.posSuggestion || false)
-        setProductStatus(dataProduct?.productStatus || false)
-        setFeatureProduct(dataProduct?.featureProduct || false)
-        setFreeDelevary(dataProduct?.freeDelevary || false)
-        setSKU(dataProduct?.SKU || '')
-        
+      setRegularPrice(dataProduct?.regularPrice || '');
+      setSalePrice(dataProduct?.salePrice || '');
+      setImages(dataProduct?.images || [])
+      setShowSize(dataProduct?.showSize || false)
+      setSelectedSizes(dataProduct?.selectedSizes || [])
+      setSizeDetails(dataProduct?.sizeDetails || [])
+      setSelectedProduct(dataProduct?.relatedProducts || [])
+      setContent(dataProduct?.content || ' ')
+      setGuideContent(dataProduct?.guideContent || ' ')
+      setProductName(dataProduct?.productName || ' ')
+      setSelectedType(dataProduct?.selectedType || '')
+      setSelectedCategory(dataProduct?.selectedCategory || '')
+      setSelectedSubCategory(dataProduct?.selectedSubCategory || '')
+      setSelectedSizeChart(dataProduct?.charts?._id || '')
+      setSelectedBrand(dataProduct?.selectedBrand || '')
+      setPosSuggestion(dataProduct?.posSuggestion || false)
+      setProductStatus(dataProduct?.productStatus || false)
+      setFeatureProduct(dataProduct?.featureProduct || false)
+      setFreeDelevary(dataProduct?.freeDelevary || false)
+      setSKU(dataProduct?.SKU || '')
+      setDiscount(dataProduct?.discount || { type: '', amount: null })
+      setSalePrice(dataProduct?.salePrice || '')
+      setSelectedCategoryName(dataProduct?.selectedCategoryName || '')
+      console.log(dataProduct);
+
     }
-}, [dataProduct]);
-  
+  }, [dataProduct]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -155,9 +159,11 @@ function EditProduct() {
   useEffect(() => {
     fetchCharts();
   }, []);
+
   useEffect(() => {
     const discountAmount = calculateAfterDiscount(regularPrice, discount)
     setSalePrice(discountAmount)
+    updateAllSizeDetails('salePrice', discountAmount);
   }, [discount, regularPrice]);
 
   const fetchCharts = async () => {
@@ -237,9 +243,9 @@ function EditProduct() {
   }, [selectedCategory]);
   const handleRegularPriceChange = (e) => {
     const price = e.target.value;
+    updateAllSizeDetails('regularPrice', price);
     setRegularPrice(price);
     setSalePrice(price);
-    updateAllSizeDetails('purchasePrice', price);
   };
 
 
@@ -296,28 +302,40 @@ function EditProduct() {
       ...discount,
       type
     });
-    setSizeDetails(sizeDetails.map(detail => ({
-      ...detail,
-      discountPercent: type === 'Percentage' ? discount.amount : detail.discountPercent,
-      discountAmount: type === 'Flat' ? discount.amount : detail.discountAmount,
-      afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type, amount: discount.amount })
-    })));
+    // setSizeDetails(sizeDetails.map(detail => ({
+    //   ...detail,
+    //   discountPercent: type === 'Percentage' ? discount.amount : detail.discountPercent,
+    //   discountAmount: type === 'Flat' ? discount.amount : detail.discountAmount,
+    //   afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type, amount: discount.amount })
+    // })));
   };
 
   const handleAmountChange = (e) => {
-    const amount = e.target.value;
+    const amount = parseFloat(e.target.value); 
     setDiscount({
       ...discount,
       amount
     });
-    setSizeDetails(sizeDetails.map(detail => ({
-      ...detail,
-      discountPercent: discount.type === 'Percentage' ? amount : detail.discountPercent,
-      discountAmount: discount.type === 'Flat' ? amount : detail.discountAmount,
-      afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
-    })));
 
+    setSizeDetails(sizeDetails.map(detail => {
+      let discountAmount = 0;
+
+      if (discount.type === 'Percentage') {
+        discountAmount = (detail.regularPrice * (amount / 100)).toFixed(2); 
+      } else if (discount.type === 'Flat') {
+        discountAmount = (amount/regularPrice * 100).toFixed(2); 
+      }
+
+      return {
+        ...detail,
+        discountPercent: discount.type === 'Percentage' ? amount : discountAmount,
+        discountAmount: discount.type === 'Flat' ? amount : discountAmount,
+        afterDiscount: calculateAfterDiscount(detail.sellingPrice, { type: discount.type, amount })
+      };
+    }));
   };
+
+
 
   const handleSalePriceChange = (e) => {
     const price = e.target.value;
@@ -532,9 +550,9 @@ function EditProduct() {
                     <select value={selectedSizeChart} onChange={(e) => setSelectedSizeChart(e.target.value)} id="brand" className="select select-bordered w-[600px]">
                       <option>Select a Size Chart</option>
                       {sizeChart && sizeChart.length > 0 ? (
-                        sizeChart.map((brand) => (
-                          <option key={brand._id} value={brand._id}>
-                            {brand.title}
+                        sizeChart.map((chart) => (
+                          <option key={chart._id} value={chart._id}>
+                            {chart.title}
                           </option>
                         ))
                       ) : null}
@@ -649,7 +667,7 @@ function EditProduct() {
                         <option value="Percentage">Percentage</option>
                       </select>
                       <input
-                        type="text"
+                        type="number"
                         id="discountAmount"
                         className="input input-bordered w-full"
                         placeholder="Discount Amount"

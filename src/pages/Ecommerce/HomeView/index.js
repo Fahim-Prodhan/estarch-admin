@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import baseUrl from '../../../helpers/baseUrl';
 
 const HomeView = () => {
    // State variables for each toggle option
@@ -24,7 +25,7 @@ const HomeView = () => {
      // Fetch the initial states from the backend when the component mounts
      const fetchToggleStates = async () => {
        try {
-         const response = await fetch('http://localhost:5000/api/toggle/toggleStates');
+         const response = await fetch('/api/toggle/toggleStates');
          if (!response.ok) throw new Error('Network response was not ok');
          const data = await response.json();
          
@@ -55,7 +56,7 @@ const HomeView = () => {
    const handleToggleChange = async (toggleName, value) => {
      setLoading(true);
      try {
-       const response = await fetch('http://localhost:5000/api/toggle/toggleStates', {
+       const response = await fetch(`${baseUrl}/api/toggle/toggleStates`, {
          method: 'POST',
          headers: {
            'Content-Type': 'application/json',
@@ -66,7 +67,7 @@ const HomeView = () => {
        if (!response.ok) throw new Error('Network response was not ok');
  
        // Fetch updated states after the change
-       const updatedResponse = await fetch('http://localhost:5000/api/toggle/toggleStates');
+       const updatedResponse = await fetch(`${baseUrl}/api/toggle/toggleStates`);
        const updatedData = await updatedResponse.json();
  
        // Update all toggle states
@@ -95,7 +96,7 @@ const HomeView = () => {
    const handleSave = async () => {
      setLoading(true);
      try {
-       const response = await fetch('http://localhost:5000/api/toggle/toggleStates', {
+       const response = await fetch(`${baseUrl}/api/toggle/toggleStates`, {
          method: 'POST',
          headers: {
            'Content-Type': 'application/json',
@@ -121,7 +122,7 @@ const HomeView = () => {
        if (!response.ok) throw new Error('Network response was not ok');
        
        // Optionally fetch updated states after saving
-       const updatedResponse = await fetch('http://localhost:5000/api/toggle/toggleStates');
+       const updatedResponse = await fetch(`${baseUrl}/api/toggle/toggleStates`);
        const updatedData = await updatedResponse.json();
  
        // Update all toggle states
