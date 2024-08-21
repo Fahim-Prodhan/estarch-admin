@@ -53,8 +53,8 @@ const Orders = () => {
                         <p>{item.invoice}</p>
                         <p>{item.date}</p>
                         <p className='flex items-center gap-1'><span><CgProfile /></span><span className='font-semibold'>{item.name}</span></p>
-                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
                         <p className='flex items-center gap-1'><span><FaPhoneAlt /></span><span className='font-semibold'>{item.phone}</span></p>
+                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
                         <p className="text-red-500">{item.orderNotes}</p>
                     </div>
                 ),
