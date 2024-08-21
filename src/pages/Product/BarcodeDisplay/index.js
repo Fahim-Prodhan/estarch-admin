@@ -39,7 +39,7 @@ const BarcodeDisplay = () => {
                     </p>
                   </div>
                   <Barcode
-                    className='barcode mx-auto h-[40px]'
+                    className='barcode mx-auto h-[50px]'
                     value={sizeDetail.barcode}
                     displayValue={true}
                     lineColor="#00000"
