@@ -35,6 +35,7 @@ const Refund = () => {
       .then(res => {
         alert("success");
         // Optionally refresh or update the data here
+        fetchData()
       });
   };
 
