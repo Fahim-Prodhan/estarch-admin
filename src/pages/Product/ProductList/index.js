@@ -108,23 +108,23 @@ const Refund = () => {
                   </p>
                   <input  type="checkbox" className="toggle toggle-info" checked={item.posSuggestion !== true ? false : true} />
                 </div>
-                <div className="flex flex-wrap gap-2 cursor-pointer">
+                <div onClick={() => updateOtherToggle(item._id, "showSize")} className="flex flex-wrap gap-2 cursor-pointer">
                   <p className={`bg-${item.showSize === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Show Size
                   </p>
-                  <input onClick={() => updateOtherToggle(item._id, "showSize")} type="checkbox" className="toggle toggle-info" checked={item.showSize === true ? true : false} />
+                  <input  type="checkbox" className="toggle toggle-info" checked={item.showSize === true ? true : false} />
                 </div>
-                <div className="flex flex-wrap gap-2 cursor-pointer">
+                <div onClick={() => updateOtherToggle(item._id, "featureProduct")} className="flex flex-wrap gap-2 cursor-pointer">
                   <p className={`bg-${item.featureProduct === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Feature
                   </p>
-                  <input onClick={() => updateOtherToggle(item._id, "featureProduct")} type="checkbox" className="toggle toggle-info" checked={item.featureProduct === true ? true : false} />
+                  <input  type="checkbox" className="toggle toggle-info" checked={item.featureProduct === true ? true : false} />
                 </div>
-                <div className="flex flex-wrap gap-2 cursor-pointer">
+                <div onClick={() => updateOtherToggle(item._id, "freeDelevary")} className="flex flex-wrap gap-2 cursor-pointer">
                   <p className={`bg-${item.freeDelevary === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
                     Free Delivery
                   </p>
-                  <input onClick={() => updateOtherToggle(item._id, "freeDelevary")} type="checkbox" className="toggle toggle-info" checked={item.freeDelevary === true ? true : false} />
+                  <input  type="checkbox" className="toggle toggle-info" checked={item.freeDelevary === true ? true : false} />
                 </div>
               </div>
             ),
