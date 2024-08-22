@@ -168,7 +168,7 @@ const InvoiceDetail = () => {
                           <tr>
                             <th colSpan="4" className="border-0 text-end">
                               Discount :</th>
-                            <td className="border-0 text-end">- {order.discount}</td>
+                            <td className="border-0 text-end">- {order.discount + order.adminDiscount}</td>
                           </tr>
                           <tr>
                             <th colSpan="4" className="border-0 text-end">

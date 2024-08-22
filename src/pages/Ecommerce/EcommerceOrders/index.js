@@ -71,6 +71,7 @@ const Orders = () => {
                         <p className='text-right'>Total Bill: {item.totalAmount + item.discount} TK</p>
                         <p className='text-right'>Delivery Charge: {item.deliveryCharge} TK</p>
                         <p className='text-right'>Discount: {item.discount} TK</p>
+                        <p className='text-right'>Admin Discount: {item.adminDiscount} TK</p>
                         <hr />
                         <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
                         <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>

@@ -34,7 +34,7 @@ const BarcodeDisplay = () => {
                 <div key={i} className="barcode-wrapper">
                   <div className="logo-and-text">
                     <img className="logo mx-auto w-[60px] mt-1" src={logo} alt="Logo" />
-                    <p className="font-extrabold font_share product-info text-[10px] text-center  text-black relative z-10">
+                    <p className="font-extrabold font_share product-info text-[10px] text-center  text-black relative  z-10">
                       <span className="font-extrabold">{product.SKU}</span> ({sizeDetail.size})
                     </p>
                   </div>
@@ -43,7 +43,7 @@ const BarcodeDisplay = () => {
                     value={sizeDetail.barcode}
                     displayValue={true}
                     lineColor="#00000"
-                    height={55}     
+                    height={60}     
                   />
                   {/* <p className="font-semibold  text-black price text-center text-[11px] font-mono  relative bottom-1">{sizeDetail.barcode}</p> */}
                   <p className="font-bold font_share text-black price text-center text-[12px] -mt-[px]">Price: {sizeDetail.regularPrice} ৳</p>

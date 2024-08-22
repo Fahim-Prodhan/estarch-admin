@@ -42,7 +42,7 @@ const ManageOrders = () => {
     // Update order
     const UpdateOrder = () => {
         console.log(updateDiscount);
-        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { cartItems: products, advanced: Advance, discount: updateDiscount, totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { cartItems: products, advanced: Advance, discount: calculateTotalDiscount(),adminDiscount:parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
             .then(res => {
                 alert("ok")
             })
@@ -88,12 +88,17 @@ const ManageOrders = () => {
 
 
     const calculateTotalAmount = () => products.reduce((total, item) => total + item.price * item.quantity, 0);
+    const calculateTotalDiscount = () => products.reduce((total, item) => total + item.discountAmount * item.quantity, 0);
+  
     const totalAmount = () => {
         return (calculateTotalAmount() + parseInt(delivery)) - adminDiscount;
     };
+
     const dueAmount = () => {
         return totalAmount() - Advance
     }
+
+
     useEffect(() => {
         setDelevary(orders?.deliveryCharge)
 
@@ -102,6 +107,7 @@ const ManageOrders = () => {
         }, 0);
         setDiscount(totalDiscount)
         setAdvance(orders?.advanced)
+        setAdminDiscount(orders?.adminDiscount)
     }, [orders]);
 
     console.log(discount);
