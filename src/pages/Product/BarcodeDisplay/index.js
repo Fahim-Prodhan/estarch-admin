@@ -33,20 +33,20 @@ const BarcodeDisplay = () => {
               {Array.from({ length: count }).map((_, i) => (
                 <div key={i} className="barcode-wrapper">
                   <div className="logo-and-text">
-                    <img className="logo mx-auto w-[70px] mt-1" src={logo} alt="Logo" />
-                    <p className="font-extrabold font_share product-info text-[11px] text-center -mb-[3px] text-black">
+                    <img className="logo mx-auto w-[60px] mt-1" src={logo} alt="Logo" />
+                    <p className="font-extrabold font_share product-info text-[10px] text-center  text-black relative top-1 z-10">
                       <span className="font-extrabold">{product.SKU}</span> ({sizeDetail.size})
                     </p>
                   </div>
                   <Barcode
-                    className='barcode mx-auto h-[40px]'
+                    className='barcode mx-auto h-[50px]'
                     value={sizeDetail.barcode}
-                    displayValue={false}
+                    displayValue={true}
                     lineColor="#00000"
-                    height={40}     
+                    height={70}     
                   />
-                  <p className="font-semibold  text-black price text-center text-[12px] font-mono -mt-[3px]">{sizeDetail.barcode}</p>
-                  <p className="font-bold font_share text-black price text-center text-[12px] -mt-1">Price: {sizeDetail.regularPrice} ৳</p>
+                  {/* <p className="font-semibold  text-black price text-center text-[11px] font-mono  relative bottom-1">{sizeDetail.barcode}</p> */}
+                  <p className="font-bold font_share text-black price text-center text-[12px] -mt-[px]">Price: {sizeDetail.regularPrice} ৳</p>
                 </div>
               ))}
             </React.Fragment>
