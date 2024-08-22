@@ -43,7 +43,7 @@ const BarcodeDisplay = () => {
                     value={sizeDetail.barcode}
                     displayValue={true}
                     lineColor="#00000"
-                    height={60}     
+                    height={55}     
                   />
                   {/* <p className="font-semibold  text-black price text-center text-[11px] font-mono  relative bottom-1">{sizeDetail.barcode}</p> */}
                   <p className="font-bold font_share text-black price text-center text-[12px] -mt-[px]">Price: {sizeDetail.regularPrice} ৳</p>

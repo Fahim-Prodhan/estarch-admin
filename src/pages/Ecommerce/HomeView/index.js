@@ -25,7 +25,7 @@ const HomeView = () => {
      // Fetch the initial states from the backend when the component mounts
      const fetchToggleStates = async () => {
        try {
-         const response = await fetch('/api/toggle/toggleStates');
+         const response = await fetch(`${baseUrl}/api/toggle/toggleStates`);
          if (!response.ok) throw new Error('Network response was not ok');
          const data = await response.json();
          

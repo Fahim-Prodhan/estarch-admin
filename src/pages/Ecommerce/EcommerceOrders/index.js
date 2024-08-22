@@ -94,17 +94,17 @@ const Orders = () => {
                     >
                         <option value="new">New</option>
                         <option value="pending">Pending</option>
-                        <option value="confirm">Confirm</option>
-                        <option value="processing">Processing</option>
                         <option value="pendingPayment">Pending Payment</option>
+                        <option value="confirm">Confirm</option>
                         <option value="hold">Hold</option>
+                        <option value="processing">Processing</option>
                         <option value="sendToCourier">Sent to Courier</option>
                         <option value="courierProcessing">Courier Processing</option>
+                        <option value="delivered">Delivered</option>
                         <option value="return">Return</option>
                         <option value="exchange">Return Exchange</option>
                         <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                         <option value="exchange">Exchange</option>
-                        <option value="delivered">Delivered</option>
                         <option value="cancel">Cancel</option>
                     </select>
                 ),
@@ -397,17 +397,17 @@ const Orders = () => {
                                 >
                                     <option value="new">New</option>
                                     <option value="pending">Pending</option>
-                                    <option value="confirm">Confirm</option>
-                                    <option value="processing">Processing</option>
                                     <option value="pendingPayment">Pending Payment</option>
+                                    <option value="confirm">Confirm</option>
                                     <option value="hold">Hold</option>
+                                    <option value="processing">Processing</option>
                                     <option value="sendToCourier">Sent to Courier</option>
                                     <option value="courierProcessing">Courier Processing</option>
+                                    <option value="delivered">Delivered</option>
                                     <option value="return">Return</option>
                                     <option value="exchange">Return Exchange</option>
                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                     <option value="exchange">Exchange</option>
-                                    <option value="delivered">Delivered</option>
                                     <option value="cancel">Cancel</option>
                                 </select>
 
