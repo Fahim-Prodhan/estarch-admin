@@ -69,7 +69,7 @@ const Refund = () => {
             image: (
               <div className="w-12 flex justify-center">
                 <div className="flex justify-center">
-                  <img className="" src={item.images[0]} alt={item.name} />
+                  <img className="" src={`${baseUrl}/${item.images[0]}`} alt={item.name} />
                 </div>
               </div>
             ),
