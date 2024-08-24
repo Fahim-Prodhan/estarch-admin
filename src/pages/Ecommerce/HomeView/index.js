@@ -217,6 +217,28 @@ const HomeView = () => {
           />
         </div>
         <div className="flex items-center justify-between">
+          <span>Extra Section 1</span>
+          <span>
+            <select name="" id="">
+              <option value="">Category</option>
+              <option value="">Subcategory</option>
+            </select>
+          </span>
+          <span>
+            <select name="" id="">
+              <option value="">Category</option>
+              <option value="">Subcategory</option>
+            </select>
+          </span>
+          <input
+            type="checkbox"
+            checked={webBestDeal}
+            onChange={(e) => handleToggleChange('webBestDeal', e.target.checked)}
+            className="toggle toggle-primary"
+          />
+        
+        </div>
+        <div className="flex items-center justify-between">
           <span>Newsletter</span>
           <input
             type="checkbox"
