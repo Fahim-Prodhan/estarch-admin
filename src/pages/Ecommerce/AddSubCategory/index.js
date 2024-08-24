@@ -73,7 +73,7 @@ const AddSubCategory = () => {
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('image', file);
 
         setIsLoading(true);
 
@@ -129,7 +129,7 @@ const AddSubCategory = () => {
                                         <td className="py-3 px-6 text-left">{subCategory.category ? subCategory.category.name : 'N/A'}</td>
                                         <td className="py-3 px-6 text-left">
                                             {subCategory.image && (
-                                                <img src={subCategory.image} alt={subCategory.name} className="h-12 w-12 object-cover" />
+                                                <img src={`${baseUrl}/${subCategory.image}`} alt={subCategory.name} className="h-12 w-12 object-cover" />
                                             )}
                                         </td> {/* Display image */}
                                         <td className="py-3 px-6 text-center">
@@ -179,7 +179,7 @@ const AddSubCategory = () => {
                 />
                 {newImage ? (
                    <div className="relative mt-2 w-36 h-36">
-                        <img src={newImage} alt="Category" className="h-36 w-36 object-cover" />
+                        <img src={`${baseUrl}/${newImage}`} alt="Category" className="h-36 w-36 object-cover" />
                         <button
                             className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
                             onClick={handleRemoveImage}

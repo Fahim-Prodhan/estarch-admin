@@ -82,8 +82,6 @@ function AddProduct() {
     // Make sure to spread the existing array inside an array literal
     setSelectedProduct([...selectedProduct, data]);
     console.log(selectedProduct);
-
-    // Clear the product value (assuming this is used to clear an input field)
     setProductValue('');
   };
   const removeProduct = (id) => {

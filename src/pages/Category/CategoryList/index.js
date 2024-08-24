@@ -4,7 +4,7 @@ import { MDBDataTable } from "mdbreact"
 import Breadcrumbs from "../../../components/Common/Breadcrumb"
 import { FaEdit } from "react-icons/fa"
 import { MdDeleteSweep } from "react-icons/md"
-import pro_img from "../../../assets/images/product/img-1.png" // Assuming the image is the same for all rows
+ // Assuming the image is the same for all rows
 import "../../../assets/scss/datatables.scss" // Ensure you have the appropriate styles
 
 const CategoryList = () => {
