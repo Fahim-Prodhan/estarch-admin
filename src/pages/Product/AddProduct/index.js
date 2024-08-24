@@ -82,8 +82,6 @@ function AddProduct() {
     // Make sure to spread the existing array inside an array literal
     setSelectedProduct([...selectedProduct, data]);
     console.log(selectedProduct);
-
-    // Clear the product value (assuming this is used to clear an input field)
     setProductValue('');
   };
   const removeProduct = (id) => {
@@ -282,7 +280,7 @@ function AddProduct() {
   };
 
   const handleAmountChange = (e) => {
-    const amount = parseFloat(e.target.value); 
+    const amount = parseFloat(e.target.value);
     setDiscount({
       ...discount,
       amount
@@ -292,9 +290,9 @@ function AddProduct() {
       let discountAmount = 0;
 
       if (discount.type === 'Percentage') {
-        discountAmount = (detail.regularPrice * (amount / 100)).toFixed(2); 
+        discountAmount = (detail.regularPrice * (amount / 100)).toFixed(2);
       } else if (discount.type === 'Flat') {
-        discountAmount = (amount/regularPrice * 100).toFixed(2); 
+        discountAmount = (amount / regularPrice * 100).toFixed(2);
       }
 
       return {
@@ -338,11 +336,12 @@ function AddProduct() {
   );
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    const uploadedImages = [];
+    const file = e.target.files[0]; // Select the first (and only) file
+    const uploadedImages = []; // Temporary array for new uploads
     setLoading(true);
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
 
     try {
       const response = await fetch(`${baseUrl}/upload`, {
@@ -353,7 +352,8 @@ function AddProduct() {
       if (response.ok) {
         const result = await response.json();
         console.log(result.file);
-        uploadedImages.push(result.file);
+        uploadedImages.push(result.file); // Add the uploaded file to the list
+        
       } else {
         console.error('Upload failed:', response.statusText);
       }
@@ -361,10 +361,12 @@ function AddProduct() {
       console.error('Upload error:', error);
     }
 
-
+    // Update the state with the new image appended to existing images
     setImages(prevImages => [...prevImages, ...uploadedImages]);
     setLoading(false);
   };
+
+
   const handleRemoveImage = (index) => {
     setImages(images.filter((_, i) => i !== index));
   };
@@ -582,22 +584,25 @@ function AddProduct() {
                   <div className="flex flex-col items-center">
                     <label className="w-80 text-sm font-medium text-gray-700" htmlFor="productImage">Product Images</label>
                     <div className="w-[600px]">
-                      <label htmlFor="productImage" className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer">
+                      <label
+                        htmlFor="productImage"
+                        className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer"
+                      >
                         <span className="text-gray-400">+</span>
                       </label>
                       <input
                         type="file"
                         id="productImage"
-                        multiple
-                        onChange={handleImageChange}
+                        onChange={handleImageChange} // Handle single image upload at a time
                         className="hidden"
                       />
+
                       {loading && <p>Loading...</p>}
                       <div className="mt-4 flex flex-wrap">
                         {images.map((imageUrl, index) => (
                           <div key={index} className="relative m-2">
                             <img
-                              src={imageUrl}
+                              src={`${baseUrl}/${imageUrl}`}
                               alt={`Uploaded ${index}`}
                               className="w-32 h-32 object-cover rounded-md"
                             />

@@ -17,8 +17,6 @@ const AddCategory = () => {
     useEffect(() => {
         const getCategories = async () => {
             const data = await fetchCategories();
-            console.log(data);
-            
             setCategories(data);
         };
         getCategories();
@@ -43,8 +41,6 @@ const AddCategory = () => {
     };
 
     const handleSaveCategory = async () => {
-        console.log(newCategory.name, newCategory.type, newCategory.image);
-        
         if (editingCategory) {
             await updateCategory(editingCategory._id, newCategory.name, newCategory.type, newCategory.image);
         } else {
@@ -63,29 +59,42 @@ const AddCategory = () => {
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
+        if (!file) {
+            console.error('No file selected');
+            return;
+        }
         const formData = new FormData();
-        formData.append('file', file);
-
+        console.log(formData);
+        formData.append('image', file);
+    
         setIsLoading(true);
-
+    
         try {
             const response = await fetch(`${baseUrl}/upload`, {
                 method: 'POST',
                 body: formData,
             });
-
-            if (response.ok) {
-                const result = await response.json();
+    
+            if (!response.ok) {
+                console.error('Image upload failed:', response.statusText);
+                return;
+            }
+    
+            const result = await response.json();
+            console.log('Upload result:', result);
+            if (result.file) {
                 setNewCategory({ ...newCategory, image: result.file });
             } else {
-                console.error('Upload failed:', response.statusText);
+                console.error('Image upload did not return a file path');
             }
         } catch (error) {
-            console.error('Upload error:', error);
+            console.error('Error uploading image:', error);
         } finally {
             setIsLoading(false);
         }
     };
+    
+
 
     const handleRemoveImage = () => {
         setNewCategory({ ...newCategory, image: '' });
@@ -118,13 +127,17 @@ const AddCategory = () => {
                                     <tr key={category._id}>
                                         <td className="border border-gray-300 p-2">{index + 1}</td>
                                         <td className="border border-gray-300 p-2">{category.name}</td>
-                                        {
-                                           category?.type && <td className="border border-gray-300 p-2">{category.type.name}</td>
-                                        }
+                                        {category?.type && <td className="border border-gray-300 p-2">{category.type.name}</td>}
                                         <td className="border border-gray-300 p-2">
-                                            {category.image && <img src={category.image} alt={category.name} className="h-16 w-16 object-cover" />}
+                                            {category.image && (
+                                                <img
+                                                    src={`${baseUrl}/${category.image}`}
+                                                    alt={category.name}
+                                                    className="h-16 w-16 object-cover"
+                                                />
+                                            )}
                                         </td>
-                                        
+
                                         <td className="border border-gray-300 p-2">
                                             <button
                                                 className="bg-blue-500 text-white p-2 rounded mr-2"
@@ -173,8 +186,8 @@ const AddCategory = () => {
                     ))}
                 </select>
                 {newCategory?.image ? (
-                   <div className="relative mt-2 w-36 h-36">
-                        <img src={newCategory.image} alt="Category" className="h-36 w-36 object-cover" />
+                    <div className="relative mt-2 w-36 h-36">
+                        <img src={`${baseUrl}/${newCategory.image}`} alt="Category" className="h-36 w-36 object-cover" />
                         <button
                             className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
                             onClick={handleRemoveImage}
@@ -182,20 +195,21 @@ const AddCategory = () => {
                             X
                         </button>
                     </div>
-                ) : <>
+                ) : (
+                    <>
                         <label htmlFor="productImage" className="flex justify-center items-center border border-dashed border-gray-300 p-10 cursor-pointer">
-                        <span className="text-gray-400">+</span>
-                      </label>
-                      <input
-                        type="file"
-                        id="productImage"
-                        multiple
-                        onChange={handleImageChange}
-                        className="hidden"
-                        disabled={isLoading}
-                      />
+                            <span className="text-gray-400">+</span>
+                        </label>
+                        <input
+                            type="file"
+                            id="productImage"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            disabled={isLoading}
+                        />
                         {isLoading && <p className="mt-2">Uploading...</p>}
-                    </>}
+                    </>
+                )}
             </Modal>
         </React.Fragment>
     );

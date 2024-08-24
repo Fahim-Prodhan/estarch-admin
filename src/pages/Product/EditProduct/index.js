@@ -374,7 +374,7 @@ function EditProduct() {
     const uploadedImages = [];
     setLoading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
 
     try {
       const response = await fetch(`${baseUrl}/upload`, {
@@ -605,7 +605,7 @@ function EditProduct() {
                         {images.map((imageUrl, index) => (
                           <div key={index} className="relative m-2">
                             <img
-                              src={imageUrl}
+                              src={`${baseUrl}/${imageUrl}`}
                               alt={`Uploaded ${index}`}
                               className="w-32 h-32 object-cover rounded-md"
                             />

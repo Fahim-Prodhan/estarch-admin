@@ -4,7 +4,7 @@ import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { fetchTypes, createType, updateType, deleteType } from "../../../utils/typeApi.js";
 import Modal from '../../../components/Common/Modal.js';
 import baseUrl from '../../../helpers/baseUrl.js';
-import JoditEditor from 'jodit-react';
+
 const AddType = () => {
     const [types, setTypes] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -29,9 +29,9 @@ const AddType = () => {
 
     const handleEditType = (type) => {
         setEditingType(type);
-        setNewType(type.name);
-        setNewImage(null);
+        setNewType(type.name);     
         setModalOpen(true);
+        setNewImage(null);
     };
 
     const handleSaveType = async () => {
@@ -55,7 +55,7 @@ const AddType = () => {
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('image', file);
 
         setIsLoading(true);
 
@@ -110,7 +110,7 @@ const AddType = () => {
                                         <td className="border border-gray-300 p-2">{index + 1}</td>
                                         <td className="border border-gray-300 p-2">
                                             {type.image ? (
-                                                <img src={type.image} alt={type.name} className="w-16 h-16 object-cover" />
+                                                <img src={`${baseUrl}/${type.image}`} alt={type.name} className="w-16 h-16 object-cover" />
                                             ) : (
                                                 <span>No Image</span>
                                             )}
@@ -153,7 +153,7 @@ const AddType = () => {
                 />
                 {newImage ? (
                     <div className="relative mt-2 w-36 h-36">
-                        <img src={newImage} alt="Category" className="h-36 w-36 object-cover" />
+                        <img src={`${baseUrl}/${newImage}`} alt="Category" className="h-36 w-36 object-cover" />
                         <button
                             className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
                             onClick={handleRemoveImage}
