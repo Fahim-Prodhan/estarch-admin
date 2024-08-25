@@ -47,8 +47,9 @@ const ViewOrderProduct = ({ isOpen, toggle, order }) => {
                     <div className="product-details">
                         <button className="back-button mb-4" onClick={handleBackToList}>Back to List</button>
                         <div>
-                            <img className='w-36 mx-auto' src={selectedProduct.images[0]} alt={selectedProduct.productName} />
+                            <img className='w-36 mx-auto' src={`${baseUrl}/${selectedProduct.images[0]}`} alt={selectedProduct.productName} />
                             <h2 className='text-2xl font-bold text-center'>{selectedProduct.productName}</h2>
+                            <h2 className='font-semibold text-center'>SKU: {selectedProduct.SKU}</h2>
                             <p className='text-lg'>{selectedProduct.description}</p>
                             <p className='text-lg font-semibold'>Price: {selectedProduct.salePrice} Taka</p>
                             <p className='text-lg font-semibold'>Ordered Quantity: {order.cartItems.find(item => item.productId === selectedProduct._id).quantity}</p>
@@ -64,10 +65,10 @@ const ViewOrderProduct = ({ isOpen, toggle, order }) => {
                                         <p><span className='font-bold'>Opening Stock: </span><span className='text-error'>{s.openingStock} </span></p>
                                         <p><span className='font-bold'>Purchase Price: </span><span className='text-gray-500'>{s.purchasePrice} TK.</span></p>
                                         <p><span className='font-bold'>Selling Price: </span><span className='text-gray-500'>{s.sellingPrice} TK.</span></p>
-                                        <p><span className='font-bold'>Discount Percentage: </span><span className='text-gray-500'>{s.discountPercent} TK.</span></p>
+                                        <p><span className='font-bold'>Discount %: </span><span className='text-gray-500'>{s.discountPercent} %</span></p>
                                         <p><span className='font-bold'>Discount Flat: </span><span className='text-gray-500'>{s.discountAmount} TK.</span></p>
                                         <p><span className='font-bold'>After Flat: </span><span className='text-gray-500'>{s.afterDiscount} TK.</span></p>
-                                        <p><span className='font-bold'>Hole Sale: </span><span className='text-gray-500'>{s.wholesalePrice} TK.</span></p>
+                                        <p><span className='font-bold'>Whole Sale: </span><span className='text-gray-500'>{s.wholesalePrice} TK.</span></p>
                                         <p><span className='font-bold'>OSP Sale: </span><span className='text-gray-500'>{s.ospPrice} TK.</span></p>
                                     </div>
                                 )
@@ -79,7 +80,7 @@ const ViewOrderProduct = ({ isOpen, toggle, order }) => {
                         {products.map(p => (
                             <div key={p._id} onClick={() => handleProductClick(p)} className="cursor-pointer shadow-lg p-4 rounded-md">
                                 <div className='h-[180px]'>
-                                    <img src={p.images[0]} alt={p.productName} />
+                                    <img src={`${baseUrl}/${p.images[0]}`} alt={p.productName} />
                                     <p className='font-bold'>{p.productName}</p>
                                 </div>
                             </div>
