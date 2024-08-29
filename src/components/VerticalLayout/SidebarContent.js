@@ -207,38 +207,32 @@ const SidebarContent = props => {
             </li>
 
             {/* Purchase */}
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Purchase")}</span>
               </Link>
               <ul className="sub-menu">
+               
                 <li>
-                  <Link to="/create-purchase">
-                    {props.t("Create Purchase")}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/purchase-list">{props.t("Purchase List")} </Link>
+                  <Link to="/add-purchase">{props.t("Add Purchase")} </Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
             {/* Supply */}
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Supply")}</span>
               </Link>
               <ul className="sub-menu">
+             
                 <li>
-                  <Link to="/add-supply">{props.t("Add Supply")}</Link>
-                </li>
-                <li>
-                  <Link to="/supply-list">{props.t("Supply List")} </Link>
+                  <Link to="/add-supplier">{props.t("Add Supplier")} </Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
             {/* Expense */}
             {/* <li>

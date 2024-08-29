@@ -19,12 +19,10 @@ import EcommerceManageOrders from "../pages/Ecommerce/ManageOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
 
 // Purchase Pages
-import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
-import PurchaseList from "../pages/Purchase/PurchaseList/index"
+
 
 // supply pages
-import AddSupply from "../pages/Supply/AddSupply/index"
-import SupplyList from "../pages/Supply/SupplyList/index"
+
 
 // Expense Pages
 import ExpenseHead from "../pages/Expense/ExpenseHead/index"
@@ -78,6 +76,8 @@ import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
 import HomeElement from "../pages/Ecommerce/HomeElement"
 import HomeView from "../pages/Ecommerce/HomeView"
 import EditProduct from "../pages/Product/EditProduct"
+import AddSupplier from "../pages/Supply/addSupplier"
+import AddPurchase from "../pages/Purchase/AddPurchase"
 
 
 const userRoutes = [
@@ -99,12 +99,11 @@ const userRoutes = [
 
 
   // Purchase Routes
-  { path: "/create-purchase", component: <PurchaseCreate/> },
-  { path: "/purchase-list", component: <PurchaseList/> },
+  { path: "/add-purchase", component: <AddPurchase/> },
 
   // supply Routes
-  { path: "/add-supply", component: <AddSupply/> },
-  { path: "/supply-list", component: <SupplyList/> },
+ 
+  { path: "/add-supplier",component: <AddSupplier/> },
   
   // Expense Routes
   { path: "/expense-head", component: <ExpenseHead/> },
