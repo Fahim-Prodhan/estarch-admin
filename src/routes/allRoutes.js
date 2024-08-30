@@ -32,6 +32,9 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 // Product Page
 import ProductList from '../pages/Product/ProductList/index'
 import AddProduct from "../pages/Product/AddProduct/index"
+import ProductSerial from "../pages/Product/ProductSerial/index"
+import CategorySerial from "../pages/Product/CategorySerial/index"
+import SubcategorySerial from "../pages/Product/SubcategorySerial/index"
 
 
 // Category Pages
@@ -70,7 +73,6 @@ import AddSize from "../pages/Ecommerce/AddSize"
 import InvoicesDetail from "../pages/Invoices/invoices-detail"
 import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
 import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
-import ProductSerial from "../pages/Product/ProductSerial"
 import HomeElement from "../pages/Ecommerce/HomeElement"
 import HomeView from "../pages/Ecommerce/HomeView"
 import EditProduct from "../pages/Product/EditProduct"
@@ -115,6 +117,8 @@ const userRoutes = [
   { path: "/ecommerce-add-product", component: <AddProduct/> },
   { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
   { path: "/ecommerce-product-serial", component: <ProductSerial/> },
+  { path: "/ecommerce-category-serial", component: <CategorySerial/> },
+  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
 
 
   

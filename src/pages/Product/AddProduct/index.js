@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 function AddProduct() {
   document.title = " Estarch | Add Product"
-  const [showSize, setShowSize] = useState(false);
+  const [showSize, setShowSize] = useState(true);
   const [freeDelevary, setFreeDelevary] = useState(false);
   const [featureProduct, setFeatureProduct] = useState(false);
   const [productStatus, setProductStatus] = useState(false);
