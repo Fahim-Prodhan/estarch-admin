@@ -42,7 +42,7 @@ const InvoiceDetail = () => {
   if (error) return <p>Error: {error}</p>;
   document.title = "Invoice Detail ";
 
-
+//7401564
 
   // Print the Invoice
   const printInvoice = () => {

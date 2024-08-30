@@ -19,7 +19,6 @@ const AddPurchase = () => {
         date: '',
         note: ''
     });
-
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
@@ -34,7 +33,6 @@ const AddPurchase = () => {
         };
         fetchSuppliers();
     }, []);
-
     const handleSaveSupplier = async () => {
         try {
             const response = await axios.post('http://localhost:5000/api/suppliers', newSupplier);
@@ -55,49 +53,181 @@ const AddPurchase = () => {
             console.error('Error saving supplier:', error);
         }
     };
-
-
-
     const [totalAmount, setTotalAmount] = useState(0);
     const [due, setDue] = useState(0);
-
-
-
-    const handleAmountChange = (index, value) => {
-        const newPaymentTypes = [...paymentTypes];
-        newPaymentTypes[index].amount = Number(value);
-        setPaymentTypes(newPaymentTypes);
-        updateDue(newPaymentTypes);
-    };
-
-    const updateDue = (newPaymentTypes) => {
-        const totalPaid = newPaymentTypes.reduce((sum, pt) => sum + pt.amount, 0);
-        setDue(totalAmount - totalPaid);
-    };
-
-
-    const [paymentTypes, setPaymentTypes] = useState([{ type: 'Cash', isOpen: true }]);
-
+    const [paymentTypes, setPaymentTypes] = useState([
+        { type: 'Cash', isOpen: true, amount: '' },
+    ]);
     const handlePaymentTypeChange = (index, value) => {
-        const newPaymentTypes = [...paymentTypes];
-        newPaymentTypes[index].type = value;
-        setPaymentTypes(newPaymentTypes);
+        const updatedPaymentTypes = [...paymentTypes];
+        updatedPaymentTypes[index].type = value;
+        setPaymentTypes(updatedPaymentTypes);
     };
-
+    const handlePaymentAmountChange = (index, value) => {
+        const updatedPaymentTypes = [...paymentTypes];
+        updatedPaymentTypes[index].amount = value;
+        setPaymentTypes(updatedPaymentTypes);
+    };
     const addPaymentType = () => {
-        setPaymentTypes([...paymentTypes, { type: 'Cash', isOpen: true }]);
+        setPaymentTypes([...paymentTypes, { type: 'Cash', isOpen: true, amount: '' }]);
     };
-
     const removePaymentType = (index) => {
-        const newPaymentTypes = paymentTypes.filter((_, i) => i !== index);
-        setPaymentTypes(newPaymentTypes);
+        const updatedPaymentTypes = paymentTypes.filter((_, i) => i !== index);
+        setPaymentTypes(updatedPaymentTypes);
+    };
+    const [barcode, setBarcode] = useState('');
+    const [products, setProducts] = useState([]);
+    const [isMultiple, setIsMultiple] = useState(false);
+    const [isAdding, setIsAdding] = useState(true);
+    
+    useEffect(() => {
+        const fetchProductByBarcode = async (barcode) => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/products/product/barcode/${barcode}`);
+                const data = await response.json();
+    
+                if (data && data.productId) {
+                    const sizeDetail = data.productId.sizeDetails.find(detail => detail.barcode === barcode);
+                    const newProduct = {
+                        ...data.productId,
+                        sizeDetail,
+                        quantity: data.quantity || 1,
+                        purchasePrice: sizeDetail ? sizeDetail.purchasePrice : 0,
+                        subtotal: (sizeDetail ? sizeDetail.purchasePrice : 0) * (data.quantity || 1),
+                        total: (sizeDetail ? sizeDetail.salePrice : 0) * (data.quantity || 1),
+                    };
+    
+                    // If adding multiple products
+                    if (isMultiple) {
+                        setProducts(prevProducts => {
+                            // Check if the product already exists
+                            const existingProductIndex = prevProducts.findIndex(product => product.SKU === newProduct.SKU);
+                            if (existingProductIndex >= 0) {
+                                const updatedProducts = [...prevProducts];
+                                updatedProducts[existingProductIndex] = newProduct; // Update the existing product
+                                return updatedProducts;
+                            } else {
+                                return [...prevProducts, newProduct];
+                            }
+                        });
+                    } else {
+                        // Single product mode
+                        if (!products.some(product => product.SKU === newProduct.SKU)) {
+                            setProducts(prevProducts => [...prevProducts, newProduct]);
+                        }
+                        setBarcode(''); // Clear the barcode input
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            }
+        };
+    
+        if (barcode.trim() && isAdding) {
+            fetchProductByBarcode(barcode.trim());
+        }
+    }, [barcode, isAdding, isMultiple]);
+    
+    const handleInputChange = (e) => {
+        setBarcode(e.target.value);
+    };
+    
+    const handleCheckboxChange = () => {
+        setIsMultiple(prev => !prev);
+        if (!isMultiple) {
+            setIsAdding(true);
+            setBarcode('');
+        } else {
+            setIsAdding(false);
+        }
+    };
+    
+    const handleFinalize = () => {
+        setIsAdding(false);
+        setIsMultiple(false);
+    };
+    
+    const handleQuantityChange = (index, newQuantity) => {
+        if (newQuantity < 1) return;
+        setProducts(products.map((product, i) => i === index ? {
+            ...product,
+            quantity: newQuantity,
+            subtotal: newQuantity * product.purchasePrice,
+            total: newQuantity * product.sizeDetail.salePrice,
+        } : product));
+    };
+    const handlePurchasePriceChange = (index, newPurchasePrice) => {
+        setProducts(products.map((product, i) => i === index ? {
+            ...product,
+            purchasePrice: newPurchasePrice,
+            subtotal: product.quantity * newPurchasePrice,
+            total: product.quantity * product.sizeDetail.salePrice,
+        } : product));
+    };
+    const handleDelete = (index) => {
+        setProducts(products.filter((_, i) => i !== index));
+    };
+    const incrementQuantity = (index) => {
+        handleQuantityChange(index, products[index].quantity + 1);
+    };
+    const decrementQuantity = (index) => {
+        handleQuantityChange(index, products[index].quantity - 1);
+    };
+    const [totalQuantity, setTotalQuantity] = useState(0);
+    useEffect(() => {
+        const totalProductAmount = products?.reduce((sum, product) => sum + (product.subtotal || 0), 0);
+        const totalProductQuantity = products?.reduce((sum, product) => sum + (product.quantity || 0), 0);
+        const totalPaymentAmount = paymentTypes.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+        const dueAmount = totalProductAmount - totalPaymentAmount;
+
+        setDue(dueAmount);
+        setTotalAmount(totalProductAmount); // Update totalAmount
+        setTotalQuantity(totalProductQuantity); // Update totalQuantity
+    }, [products, paymentTypes]);
+
+    const [reference, setReference] = useState('');
+    const [note, setNote] = useState('');
+    const preparePurchaseData = () => {
+        const items = products.map((product) => ({
+            product: product._id,
+            quantity: product.quantity,
+            purchasePrice: product.purchasePrice,
+            subtotal: product.subtotal,
+            total: product.total,
+            _id: product._id,
+        }));
+
+        const paymentTypesData = paymentTypes.map((payment) => ({
+            type: payment.type,
+            amount: payment.amount,
+            _id: payment._id,
+        }));
+
+        return {
+            supplier: suppliers.find(supplier => supplier.name === selectedSupplier)._id,
+            invoiceNo,
+            purchaseDate: new Date().toISOString(),
+            reference,
+            note,
+            items,
+            paymentTypes: paymentTypesData,
+            totalAmount,
+            totalQuantity,
+            due,
+        };
     };
 
-    const toggleSection = (index) => {
-        const newPaymentTypes = [...paymentTypes];
-        newPaymentTypes[index].isOpen = !newPaymentTypes[index].isOpen;
-        setPaymentTypes(newPaymentTypes);
+    const handleBuy = async () => {
+        const purchaseData = preparePurchaseData();
+        try {
+            const response = await axios.post('http://localhost:5000/api/purchase', purchaseData);
+            console.log('Purchase successful:', response.data);
+            // Handle successful response (e.g., show a success message, reset form, etc.)
+        } catch (error) {
+            console.error('Error making purchase:', error);
+        }
     };
+    const [invoiceNo, setInvoiceNo] = useState(`INV-${Date.now()}`);
     return (
         <React.Fragment>
             <div className="page-content">
@@ -147,7 +277,7 @@ const AddPurchase = () => {
                                     <input
                                         type="text"
                                         className="w-full mt-1 p-2 border rounded "
-                                        value="IN-1071724869734"
+                                        value={invoiceNo}
                                         readOnly
                                     />
                                 </div>
@@ -164,7 +294,8 @@ const AddPurchase = () => {
                                     <input
                                         type="text"
                                         placeholder="Reference"
-                                        className="w-full mt-1 p-2 border rounded "
+                                        value={reference}
+                                        onChange={(e) => setReference(e.target.value)}
                                     />
                                 </div>
                                 <div className="mt-4">
@@ -179,99 +310,189 @@ const AddPurchase = () => {
                                 <label className="block text-gray-700">Note</label>
                                 <textarea
                                     placeholder="Note"
-                                    className="w-full mt-1 p-2 border rounded h-20 "
-                                ></textarea>
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                />
                             </div>
                         </div>
                         <div className="bg-white shadow-md rounded-lg p-6 mt-6">
-                            <div className="flex items-center mx-48">
+                            <div className="flex items-center mx-48 mb-4">
                                 <input
                                     type="checkbox"
                                     className="mr-2"
                                     id="multiple"
+                                    checked={isMultiple}
+                                    onChange={handleCheckboxChange}
                                 />
-                                <label htmlFor="multiple" className="text-gray-700 mr-4">Multiple</label>
+                                <label htmlFor="multiple" className="text-gray-700 mr-4"></label>
                                 <input
                                     type="text"
                                     placeholder="Enter Product Name/Sku/scan barcode"
                                     className="w-full p-2 border rounded"
+                                    value={barcode}
+                                    onChange={handleInputChange}
                                 />
+                                {isMultiple && (
+                                    <button
+                                        onClick={handleFinalize}
+                                        className="ml-4 p-2 bg-blue-500 text-white rounded"
+                                    >
+                                        Finalize
+                                    </button>
+                                )}
                             </div>
                             <table className="w-full mt-4 border-collapse">
                                 <thead>
                                     <tr className="bg-green-500 text-white">
-                                        <th className="p-2 border">SL No</th>
-                                        <th className="p-2 border">Product Name</th>
-                                        <th className="p-2 border">Quantity</th>
-                                        <th className="p-2 border">Purchase Price</th>
-                                        <th className="p-2 border">Subtotal</th>
-                                        <th className="p-2 border">Total</th>
-                                        <th className="p-2 border">Delete</th>
+                                        <th className="p-2 border text-center">SL No</th>
+                                        <th className="p-2 border text-center">Product Name</th>
+                                        <th className="p-2 border text-center">Quantity</th>
+                                        <th className="p-2 border text-center">Purchase Price</th>
+                                        <th className="p-2 border text-center">Subtotal</th>
+                                        <th className="p-2 border text-center">Total</th>
+                                        <th className="p-2 border text-center">Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {products.map((product, index) => (
+                                        <tr key={product.SKU}>
+                                            <td className="p-2 border text-center">{index + 1}</td>
+                                            <td className="p-2 border text-center">
+                                                {product.productName}
+                                                <br />
+                                                <span>Barcode: {product.sizeDetail?.barcode} ({product.sizeDetail?.size || 'N/A'})</span>
+                                            </td>
+                                            <td className="p-2 border text-center">
+                                                <div className="flex items-center justify-center">
+                                                    <button
+                                                        onClick={() => decrementQuantity(index)}
+                                                        className="p-2 bg-gray-300 text-black rounded-l"
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <input
+                                                        type="number"
+                                                        value={product.quantity}
+                                                        onChange={(e) => handleQuantityChange(index, Number(e.target.value))}
+                                                        className="w-16 p-1 border-t border-b text-center"
+                                                        min="1"
+                                                    />
+                                                    <button
+                                                        onClick={() => incrementQuantity(index)}
+                                                        className="p-2 bg-gray-300 text-black rounded-r"
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td className="p-2 border text-center">
+                                                <input
+                                                    type="number"
+                                                    value={product.purchasePrice}
+                                                    onChange={(e) => handlePurchasePriceChange(index, Number(e.target.value))}
+                                                    className="w-full p-1 border rounded"
+                                                    min="0"
+                                                />
+                                            </td>
+                                            <td className="p-2 border text-center">{product.subtotal}</td>
+                                            <td className="p-2 border text-center">{product.subtotal}</td>
+                                            <td className="p-2 border text-center">
+                                                <button
+                                                    onClick={() => handleDelete(index)}
+                                                    className="p-2 bg-red-500 text-white rounded"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
-
                         </div>
-                        <div className="container mx-auto p-4 flex justify-end">
-                            <div className="w-1/3">
+                        <div className="container  p-4 flex justify-end">
+                            <div className="w-1/2 p-4 border rounded-lg bg-white shadow-md">
                                 <div className="mb-4">
-                                    <label>Item Count</label>
-                                    <input type="text" className="form-control" value="0" readOnly />
+                                    <label className="block font-medium mb-1">Total Quantity</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={totalQuantity}
+                                        readOnly
+                                    />
                                 </div>
                                 <div className="mb-4">
-                                    <label>Total Amount</label>
+                                    <label className="block font-medium mb-1">Total Amount</label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         value={totalAmount}
-                                        onChange={(e) => setTotalAmount(Number(e.target.value))}
+                                        readOnly
                                     />
                                 </div>
                                 <div className="mb-4">
-                                    <label>Payment Type</label>
+                                    <label className="block font-medium mb-1">Payment Type</label>
                                     <div>
-                                        {paymentTypes.map((payment, index) => (
-                                            <div key={index} className="mb-4">
+                                        {paymentTypes.map((payment, paymentIndex) => (
+                                            <div key={paymentIndex} className="mb-4">
                                                 <div className="flex items-center mb-2">
                                                     <select
                                                         className="form-select"
                                                         value={payment.type}
-                                                        onChange={(e) => handlePaymentTypeChange(index, e.target.value)}
+                                                        onChange={(e) => handlePaymentTypeChange(paymentIndex, e.target.value)}
                                                         disabled={!payment.isOpen}
                                                     >
                                                         <option value="Cash">Cash</option>
                                                         <option value="Card">Card</option>
                                                         <option value="Online">Online</option>
                                                     </select>
-                                                    <button className="btn btn-success" onClick={addPaymentType}>
-                                                        Add Payment Type
+                                                    <button
+                                                        className="btn btn-success ml-2"
+                                                        onClick={addPaymentType}
+                                                    >
+                                                        +
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger ml-2"
+                                                        onClick={() => removePaymentType(paymentIndex)}
+                                                    >
+                                                        -
                                                     </button>
                                                 </div>
                                                 {payment.isOpen && (
                                                     <div className='flex gap-5'>
-                                                        <input className="form-control" />
-                                                        <input className="form-control" />
+                                                        <input
+                                                            className="form-control bg-gray-200"
+                                                            readOnly
+                                                            value={payment.type}
+                                                        />
+                                                        <input
+                                                            className="form-control"
+                                                            placeholder="Amount"
+                                                            value={payment.amount}
+                                                            onChange={(e) => handlePaymentAmountChange(paymentIndex, e.target.value)}
+                                                        />
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
-
                                     </div>
                                 </div>
-
                                 <div className="mb-4">
-                                    <label>Due</label>
-                                    <input type="text" className="form-control" value={due} readOnly />
+                                    <label className="block font-medium mb-1">Due</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={due}
+                                        readOnly
+                                    />
                                 </div>
-                                <button className="btn btn-primary w-full">Buy</button>
+                                <button onClick={handleBuy} className="btn btn-primary w-full">Buy</button>
                             </div>
                         </div>
+
+
                     </div>
                 </Container>
-
-                {/* Modal Component */}
                 {isModalOpen && (
                     <Modal
                         isOpen={isModalOpen}

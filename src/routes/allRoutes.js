@@ -76,6 +76,7 @@ import HomeView from "../pages/Ecommerce/HomeView"
 import EditProduct from "../pages/Product/EditProduct"
 import AddSupplier from "../pages/Supply/addSupplier"
 import AddPurchase from "../pages/Purchase/AddPurchase"
+import PurchaseList from "../pages/Product/PurchaseList"
 
 
 const userRoutes = [
@@ -98,6 +99,7 @@ const userRoutes = [
 
   // Purchase Routes
   { path: "/add-purchase", component: <AddPurchase/> },
+  { path: "/purchase-list", component: <PurchaseList/> },
 
   // supply Routes
  
