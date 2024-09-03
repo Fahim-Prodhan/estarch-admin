@@ -10,19 +10,15 @@ function CategoryProductSerial() {
     const [categories, setCategories] = useState([]);
     const [CategoryName, SetCategoryName] = useState(null);
 
-    console.log(products);
-    
-
-
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(`${baseUrl}/api/categories/categories`);
+            setCategories(response.data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/api/categories/categories`);
-                setCategories(response.data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
         fetchCategories();
     }, []);
 
@@ -31,13 +27,14 @@ function CategoryProductSerial() {
         SetCategoryName(e.target.value);
     };
 
+    // Fetch the products from the API when the component mounts
+    const fetchProducts = async () => {
+        const response = await fetch( `${baseUrl}/api/products/products/category-status-on/products/${encodeURIComponent(CategoryName)}`);
+        const data = await response.json();
+        setProducts(data);
+    };
+
     useEffect(() => {
-        // Fetch the products from the API when the component mounts
-        const fetchProducts = async () => {
-            const response = await fetch( `${baseUrl}/api/products/products/category-status-on/products/${encodeURIComponent(CategoryName)}`);
-            const data = await response.json();
-            setProducts(data);
-        };
         fetchProducts();
     }, [CategoryName]);
 
@@ -94,7 +91,9 @@ function CategoryProductSerial() {
 
             const result = await response.json();
             if (response.ok) {
-                console.log('Serial numbers updated successfully', result);
+                alert(result.message)
+                fetchCategories();
+                fetchProducts();
             } else {
                 console.error('Failed to update serial numbers', result);
             }

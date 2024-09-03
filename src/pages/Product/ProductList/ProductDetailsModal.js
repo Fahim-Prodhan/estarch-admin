@@ -5,6 +5,9 @@ import { FaArrowRightLong } from 'react-icons/fa6';
 const ProductDetailsModal = ({ isOpen, toggle, product }) => {
   if (!isOpen) return null;
 
+  console.log(product);
+  
+
   return (
     <div className="modal-overlay" onClick={toggle}>
       <div className="modal-content mt-24 overflow-y-scroll" onClick={(e) => e.stopPropagation()}>
@@ -60,18 +63,17 @@ const ProductDetailsModal = ({ isOpen, toggle, product }) => {
                 <div className='grid grid-cols-3'>
                   {
                     product.sizeDetails.map(s =>
-                      <div>
+                      <div key={s._id}>
                         <p className='text-[17px] font-bold flex items-center gap-2 mt-2'>Size  <FaArrowRightLong />  {s.size}</p>
                         <hr />
                         <p><span className='font-bold'>Barcode: </span><span className='text-success'>{s.barcode}</span></p>
-                        <p><span className='font-bold'>Opening Stock: </span><span className='text-error'>{s.openingStock} </span></p>
+                        <p><span className='font-bold'>Stock: </span><span className='text-error'>{s.openingStock} </span></p>
                         <p><span className='font-bold'>Purchase Price: </span><span className='text-gray-500'>{s.purchasePrice} TK.</span></p>
-                        <p><span className='font-bold'>Selling Price: </span><span className='text-gray-500'>{s.sellingPrice} TK.</span></p>
-                        <p><span className='font-bold'>Discount Percentage: </span><span className='text-gray-500'>{s.discountPercent} TK.</span></p>
+                        <p><span className='font-bold'>Regular Price: </span><span className='text-gray-500'>{s.regularPrice} TK.</span></p>
+                        <p><span className='font-bold'>Selling Price: </span><span className='text-gray-500'>{s.salePrice} TK.</span></p>
+                        <p><span className='font-bold'>Discount Percentage: </span><span className='text-gray-500'>{s.discountPercent} %</span></p>
                         <p><span className='font-bold'>Discount Flat: </span><span className='text-gray-500'>{s.discountAmount} TK.</span></p>
-                        <p><span className='font-bold'>After Flat: </span><span className='text-gray-500'>{s.afterDiscount} TK.</span></p>
-                        <p><span className='font-bold'>Hole Sale: </span><span className='text-gray-500'>{s.wholesalePrice} TK.</span></p>
-                        <p><span className='font-bold'>OSP Sale: </span><span className='text-gray-500'>{s.ospPrice} TK.</span></p>
+                        <p><span className='font-bold'>Whole Sale: </span><span className='text-gray-500'>{s.wholesalePrice} TK.</span></p>
                       </div>
                     )
                   }

@@ -691,7 +691,7 @@ function EditProduct() {
 
                             onChange={(e) => setSelectedSizeType(e.target.value)}
                           >
-                            <option value="" disabled>Select Size Type</option>
+                            <option value="" >Select Size Type</option>
                             {sizeTypes.map((type) => (
                               <option key={type._id} value={type.sizeType.name}>
                                 {type.sizeType.name}

@@ -10,34 +10,30 @@ function SubcategoryProductSerial() {
     const [subcategories, setSubcategories] = useState([]);
     const [subcategoryName, SetSubcategoryName] = useState(null);
 
-    console.log(products);
-    
-
-
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(`${baseUrl}/api/categories/subcategories`);
+            setSubcategories(response.data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/api/categories/subcategories`);
-                setSubcategories(response.data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
         fetchCategories();
     }, []);
 
-     // Sort
-     const handleSubcategoryNameChange = (e) => {
+    // Sort
+    const handleSubcategoryNameChange = (e) => {
         SetSubcategoryName(e.target.value);
     };
-
-    useEffect(() => {
-        // Fetch the products from the API when the component mounts
-        const fetchProducts = async () => {
-            const response = await fetch( `${baseUrl}/api/products/products/subcategory-status-on/products/${encodeURIComponent(subcategoryName)}`);
+const fetchProducts = async () => {
+            const response = await fetch(`${baseUrl}/api/products/products/subcategory-status-on/products/${encodeURIComponent(subcategoryName)}`);
             const data = await response.json();
             setProducts(data.products);
         };
+    useEffect(() => {
+        // Fetch the products from the API when the component mounts
+        
         fetchProducts();
     }, [subcategoryName]);
 
@@ -94,7 +90,10 @@ function SubcategoryProductSerial() {
 
             const result = await response.json();
             if (response.ok) {
-                alert('Serial numbers updated successfully', result);
+                alert(result.message);
+                fetchCategories();
+                fetchProducts();
+
             } else {
                 console.error('Failed to update serial numbers', result);
             }
@@ -104,7 +103,7 @@ function SubcategoryProductSerial() {
     };
 
 
-    
+
 
     return (
         <React.Fragment>
@@ -115,7 +114,7 @@ function SubcategoryProductSerial() {
                         <div className="container mx-auto">
                             <div className="flex justify-between items-center mb-5">
                                 <h1 className="text-2xl font-semibold">Manage Product Serial</h1>
-                                <select value={subcategoryName}  onChange={handleSubcategoryNameChange} className='select select-bordered select-sm' id="">
+                                <select value={subcategoryName} onChange={handleSubcategoryNameChange} className='select select-bordered select-sm' id="">
                                     <option value="">Select Subcategory Name</option>
                                     {subcategories.map(item => (
                                         <option key={item._id} value={item.name}>

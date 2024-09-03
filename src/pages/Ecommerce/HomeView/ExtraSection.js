@@ -118,12 +118,11 @@ function ExtraSection() {
         <div className="space-y-6">
             {/* Extra Section 1 */}
             <div className="p-4 bg-white shadow rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Extra Section 1</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Extra Section 1</h3>
+                <div className="space-y-2">
                     {/* Category Type */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryType1" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.type1 || "Select Category Type"}
                         </label>
                         <select
                             name="categoryType1"
@@ -141,7 +140,6 @@ function ExtraSection() {
                     {/* Category Name */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryName1" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.name1 || `Select ${categoryType1 === "Category" ? "Category" : "Subcategory"} Name`}
                         </label>
                         <select
                             name="categoryName1"
@@ -187,12 +185,11 @@ function ExtraSection() {
 
             {/* Extra Section 2 */}
             <div className="p-4 bg-white shadow rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Extra Section 2</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg font-semibold ">Extra Section 2</h3>
+                <div className="space-y-2">
                     {/* Category Type */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryType2" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.type2 || "Select Category Type"}
                         </label>
                         <select
                             name="categoryType2"
@@ -210,7 +207,6 @@ function ExtraSection() {
                     {/* Category Name */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryName2" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.name2 || `Select ${categoryType2 === "Category" ? "Category" : "Subcategory"} Name`}
                         </label>
                         <select
                             name="categoryName2"
@@ -256,12 +252,11 @@ function ExtraSection() {
 
             {/* Extra Section 3 */}
             <div className="p-4 bg-white shadow rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Extra Section 3</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Extra Section 3</h3>
+                <div className="space-y-2">
                     {/* Category Type */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryType3" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.type3 || "Select Category Type"}
                         </label>
                         <select
                             name="categoryType3"
@@ -279,7 +274,6 @@ function ExtraSection() {
                     {/* Category Name */}
                     <div className="flex flex-col space-y-2">
                         <label htmlFor="categoryName3" className="text-gray-700 font-medium italic">
-                            Current: {extraSectionInfo?.name3 || `Select ${categoryType3 === "Category" ? "Category" : "Subcategory"} Name`}
                         </label>
                         <select
                             name="categoryName3"

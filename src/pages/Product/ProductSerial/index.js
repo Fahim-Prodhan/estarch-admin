@@ -6,14 +6,14 @@ import baseUrl from '../../../helpers/baseUrl';
 function ProductSerial() {
     const [products, setProducts] = useState([]);
     const [serialNumbers, setSerialNumbers] = useState({});
-
-    useEffect(() => {
-        // Fetch the products from the API when the component mounts
+// Fetch the products from the API when the component mounts
         const fetchProducts = async () => {
             const response = await fetch(`${baseUrl}/api/products/status-on-products`);
             const data = await response.json();
             setProducts(data);
         };
+    useEffect(() => {
+        
         fetchProducts();
     }, []);
 
@@ -28,8 +28,8 @@ function ProductSerial() {
         const serialNoSet = new Set();
 
         for (const product of products) {
-            const serialNo = serialNumbers[product._id] !== undefined 
-                ? serialNumbers[product._id] 
+            const serialNo = serialNumbers[product._id] !== undefined
+                ? serialNumbers[product._id]
                 : product.serialNo || 0;
 
             if (serialNo > 0) {
@@ -52,8 +52,8 @@ function ProductSerial() {
 
         const serializedProducts = products.map(product => ({
             productId: product._id,
-            serialNo: serialNumbers[product._id] !== undefined 
-                ? serialNumbers[product._id] 
+            serialNo: serialNumbers[product._id] !== undefined
+                ? serialNumbers[product._id]
                 : product.serialNo || 0
         }));
 
@@ -70,7 +70,8 @@ function ProductSerial() {
 
             const result = await response.json();
             if (response.ok) {
-                console.log('Serial numbers updated successfully', result);
+                alert(result.message);
+                fetchProducts()
             } else {
                 console.error('Failed to update serial numbers', result);
             }

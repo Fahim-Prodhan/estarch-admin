@@ -4,8 +4,6 @@ import baseUrl from "../../../helpers/baseUrl";
 import { AuthContext } from "../../../utils/context/AuthProvider";
 
 const NoteModal = ({isOpen,  toggle, orderId }) => {
-
-    console.log('Received Order ID in NoteModal:', orderId);
     const { authUser } = useContext(AuthContext);
     const [note, setNote] = useState('');
     const [notes, setNotes] = useState([]);
@@ -15,7 +13,6 @@ const NoteModal = ({isOpen,  toggle, orderId }) => {
             const fetchNotes = async () => {
                 try {
                     const response = await axios.get(`${baseUrl}/api/orders/orders/notes/${orderId}`);
-                    console.log('Fetched notes response:', response.data);
                     setNotes(response.data.notes || []);
                 } catch (error) {
                     console.error('Error fetching notes:', error);

@@ -15,6 +15,7 @@ import { FaPhoneAlt } from "react-icons/fa";
 
 
 
+
 const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
@@ -27,9 +28,46 @@ const Orders = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [trackingModalOpen, setTrackingModalOpen] = useState(false);
     const [trackingOrderId, setTrackingOrderId] = useState(null);
-    const [data, setData] = useState({ columns: [], rows: [] })
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit, setLimit] = useState(10)
+    console.log(limit);
+
+
+    const pageRange = 2;
+
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const startPage = Math.max(1, currentPage - pageRange);
+        const endPage = Math.min(totalPages, currentPage + pageRange);
+
+        if (startPage > 1) {
+            pageNumbers.push(1);
+            if (startPage > 2) pageNumbers.push('...');
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) pageNumbers.push('...');
+            pageNumbers.push(totalPages);
+        }
+
+        return pageNumbers;
+    };
+
+
+    const onPageChange = (page) => {
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        setCurrentPage(page);
+    };
+
 
     const toggleNoteModal = () => {
         setIsNoteModalOpen(!isNoteModalOpen);
@@ -40,125 +78,6 @@ const Orders = () => {
         setIsNoteModalOpen(true);
     };
 
-    useEffect(() => {
-        // Simulate fetching data from an API or static JSON file
-        const formattedData = {
-            columns: [
-                { label: "Serial", field: "serial", sort: "asc", width: 150 },
-                { label: "Info", field: "info", sort: "asc", width: 150 },
-                { label: "Total Bill", field: "total_bill", sort: "asc", width: 270 },
-                { label: "Product", field: "product", sort: "asc", width: 200 },
-                { label: "Status", field: "status", sort: "asc", width: 50 },
-                { label: "Courier", field: "courier", sort: "asc", width: 100 },
-                { label: "Create", field: "create", width: 100 },
-                { label: "Action", field: "action", width: 100 },
-            ],
-            rows: filteredOrders.map((item, index) => ({
-                serial: <p>{index + 1}</p>,
-                info: (
-                    <div className='w-36 space-y-1'>
-                        <p className="font-bold">{item.serialId}</p>
-                        <p>{item.invoice}</p>
-                        <p>{item.date}</p>
-                        <p className='flex items-center gap-1'><span><CgProfile /></span><span className='font-semibold'>{item.name}</span></p>
-                        <p className='flex items-center gap-1'><span><FaPhoneAlt /></span><span className='font-semibold'>{item.phone}</span></p>
-                        <p className='flex  gap-1 italic'><span className=''>{item.address}</span></p>
-                        <p className="text-red-500">{item.orderNotes}</p>
-                    </div>
-                ),
-                total_bill: (
-                    <div className='md:w-full w-36'>
-                        <p className='text-right'>Total Bill: {item.totalAmount + item.discount} TK</p>
-                        <p className='text-right'>Delivery Charge: {item.deliveryCharge} TK</p>
-                        <p className='text-right'>Discount: {item.discount} TK</p>
-                        <p className='text-right'>Admin Discount: {item.adminDiscount} TK</p>
-                        <hr />
-                        <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
-                        <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>
-                        <p className='text-right'>Available: {item.grandTotal - item.advanced} TK</p>
-                    </div>
-                ),
-                product: (
-
-                    <button onClick={() => {
-                        setSelectedOrder(item);
-                        toggleModal();
-                    }} className="btn btn-sm btn-error text-white w-36">View Product</button>
-
-                ),
-                status: (
-                    <select
-                        className="select select-bordered w-36"
-                        value={item.status[item.status.length - 1]?.name || 'new'}  // Ensure the latest status is displayed
-                        onChange={(e) => handleStatusChange(item._id, e.target.value)}  // Call the function on change
-                    >
-                        <option value="new">New</option>
-                        <option value="pending">Pending</option>
-                        <option value="pendingPayment">Pending Payment</option>
-                        <option value="confirm">Confirm</option>
-                        <option value="hold">Hold</option>
-                        <option value="processing">Processing</option>
-                        <option value="sendToCourier">Sent to Courier</option>
-                        <option value="courierProcessing">Courier Processing</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="return">Return</option>
-                        <option value="exchange">Return Exchange</option>
-                        <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
-                        <option value="exchange">Exchange</option>
-                        <option value="cancel">Cancel</option>
-                    </select>
-                ),
-                courier: (
-                    <select
-                        className="select select-bordered w-36"
-                        value={item.courier}
-                        onChange={(e) => handleCourierChange(item._id, e.target.value)}
-                    >
-                        <option value="courier">Courier</option>
-                        <option value="user1">User1</option>
-                        <option value="user2">User2</option>
-                    </select>
-                ),
-                create: (
-                    <div className='space-y-1'>
-                        <div className='text-center'>
-                            <a href={`/invoice/${item._id}`} className="btn btn-sm bg-green-100 text-green-700">
-                                Print
-                            </a>
-                        </div>
-                        <div className='text-center'>
-                            <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl" >
-                                <FaRegEye />
-                            </button>
-                        </div>
-                        <div className='text-center'>
-                            <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs" >
-                                Add Note
-                            </button>
-                            <NoteModal />
-                        </div>
-                    </div>
-                ),
-                action: (
-                    <div className="dropdown dropdown-top dropdown-end">
-                        <div tabIndex={0} role="button" className="btn btn-sm m-1"><BsThreeDotsVertical />
-                        </div>
-                        <ul tabIndex={0} className="dropdown-content space-y-3 menu bg-base-100 rounded-box z-[1] p-2 shadow">
-                            <li>
-                                <a href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl">
-                                    <FaEdit />
-                                </a>
-
-                            </li>
-
-                        </ul>
-                    </div>
-                ),
-            })),
-        }
-        setData(formattedData)
-    }, [filteredOrders])
-    // console.log(data);
 
     const handleTrackingOpenModal = (orderId) => {
         setTrackingOrderId(orderId);
@@ -170,69 +89,87 @@ const Orders = () => {
         setIsModalOpen(!isModalOpen);
     };
 
-    const toggleDropdown = (orderId) => {
-        setActiveDropdown(activeDropdown === orderId ? null : orderId);
-    };
 
     useEffect(() => {
-        const loadOrders = async () => {
-            const initialOrders = await fetchOrders();
-            setOrders(initialOrders);
-            setFilteredOrders(initialOrders);
+        const loadOrders = async (page = 1) => {
+            const { orders, totalPages, currentPage } = await fetchOrders(page, limit);
+            setOrders(orders);
+            setFilteredOrders(orders)
+            setTotalPages(totalPages);
+            setCurrentPage(currentPage);
         };
-        loadOrders();
-    }, []);
+        loadOrders(currentPage);
+    }, [currentPage, limit]);
 
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (page = 1, limit = 10) => {
         try {
-            const response = await axios.get(`${baseUrl}/api/orders`);
+            const response = await axios.get(`${baseUrl}/api/orders`, {
+                params: { page, limit }
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching orders:', error);
-            return [];
+            return {
+                orders: [],
+                totalOrders: 0,
+                totalPages: 1,
+                currentPage: 1
+            };
         }
     };
 
+
     const handleStatusChange = async (orderId, newStatus) => {
+        // Optimistically update the UI
+        const previousOrders = [...orders];
+        setOrders((prevOrders) =>
+            prevOrders.map((order) => {
+                // Check if 'status' is defined and has elements
+                if (order?._id === orderId && Array.isArray(order.status)) {
+                    const updatedStatus = [...order.status, { name: newStatus }];
+                    return { ...order, status: updatedStatus };
+                }
+                return order;
+            })
+        );
+
         try {
             const userId = JSON.parse(localStorage.getItem('userId'));
-            const data = {
-                status: newStatus,
-                userId
-            };
+            const data = { status: newStatus, userId };
 
             // Send a PATCH request to the server to update the status
             const response = await fetch(`${baseUrl}/api/orders/status/${orderId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
 
-            // Check if the response is successful
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to update order status');
             }
 
-            // Update UI with the new order data
+            // Update the state with the confirmed data from the server
             const updatedOrder = await response.json();
 
-            // Find and update the order in the state (assuming you have state management here)
-            setOrders((prevOrders) =>
-                prevOrders.map((order) =>
-                    order._id === updatedOrder._id ? updatedOrder : order
-                )
-            );
 
             // Optionally, show a success message
             alert('Order status updated successfully');
+
+            const loadOrders = async (page = 1) => {
+                const { orders, totalPages, currentPage } = await fetchOrders(page, limit);
+                setOrders(orders);
+                setFilteredOrders(orders)
+                setTotalPages(totalPages);
+                setCurrentPage(currentPage);
+            };
+            loadOrders(currentPage);
         } catch (error) {
-            // Handle errors (unauthenticated, server issues, etc.)
+            // Rollback the UI if there's an error
+            setOrders(previousOrders);
             console.error(error);
-            alert(error.message);
+            alert(error.message || 'An error occurred while updating the order status');
         }
     };
 
@@ -279,7 +216,7 @@ const Orders = () => {
 
 
     const filterOrders = (orders, status, courier, date, searchTerm) => {
-        const filtered = orders.filter(order => {
+        const filtered = orders?.filter(order => {
             const statusMatches = status ? (order.lastStatus && order.lastStatus.name === status) : true;
             const courierMatches = courier ? (order.courier === courier) : true;
             const dateMatches = date ? new Date(order.createdAt).toISOString().startsWith(date) : true;
@@ -302,10 +239,13 @@ const Orders = () => {
 
 
     const getStatusCount = (orders, status) => {
-        return orders.filter(order =>
+        return orders?.filter(order =>
             order.lastStatus.name === status
         ).length;
     };
+
+    console.log(orders);
+
 
 
     return (
@@ -452,11 +392,264 @@ const Orders = () => {
                         </div>
 
 
-                        <Row>
+                        <Row className='mt-4'>
                             <Col className="col-12">
                                 <Card>
                                     <CardBody>
-                                        <MDBDataTable responsive bordered data={data} />
+                                        <div className='flex justify-between items-center '>
+                                            <select
+                                                onChange={(e) => setLimit(e.target.value)}
+                                                name="" id="" className='w-12'>
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="150">150</option>
+                                            </select>
+
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="table border-collapse border-2 border-gray-100">
+                                                {/* head */}
+                                                <thead>
+                                                    <tr>
+                                                        <th className="border-2 border-gray-100">Serial</th>
+                                                        <th className="border-2 border-gray-100">Info</th>
+                                                        <th className="border-2 border-gray-100">Total Bill</th>
+                                                        <th className="border-2 border-gray-100">Product</th>
+                                                        <th className="border-2 border-gray-100">Status</th>
+                                                        <th className="border-2 border-gray-100">Create</th>
+                                                        <th className="border-2 border-gray-100">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredOrders?.map((item, index) => (
+                                                        <tr key={item._id}>
+                                                            <td className="border-2 border-gray-100">{index + 1}</td>
+                                                            <td className="border-2 border-gray-100">
+                                                                <div className="space-y-1">
+                                                                    <p className="font-bold">
+                                                                        {`${('0' + new Date(item.createdAt).getDate()).slice(-2)}-${('0' + (new Date(item.createdAt).getMonth() + 1)).slice(-2)}-${new Date(item.createdAt).getFullYear().toString().slice(-2)}, ${new Date(item.createdAt).getHours() % 12 || 12}:${('0' + new Date(item.createdAt).getMinutes()).slice(-2)} ${new Date(item.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
+                                                                    </p>
+                                                                    <p className="font-bold text-error">{item.serialId}</p>
+                                                                    <p>{item.invoice}</p>
+                                                                    <p>{item.date}</p>
+                                                                    <p className="flex items-center gap-1">
+                                                                        <span><CgProfile /></span>
+                                                                        <span className="font-semibold">{item.name}</span>
+                                                                    </p>
+                                                                    <p className="flex items-center gap-1">
+                                                                        <span><FaPhoneAlt /></span>
+                                                                        <span className="font-semibold">{item.phone}</span>
+                                                                    </p>
+                                                                    <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
+                                                                    <p className="text-red-500">{item.orderNotes}</p>
+                                                                </div>
+                                                            </td>
+                                                            <td className="border-2 border-gray-100">
+                                                                <div className="">
+                                                                    <p className="text-right">Total Bill: {item.totalAmount + item.discount} TK</p>
+                                                                    <p className="text-right">Delivery Charge: {item.deliveryCharge} TK</p>
+                                                                    <p className="text-right">Discount: {item.discount} TK</p>
+                                                                    <p className="text-right">Admin Discount: {item.adminDiscount} TK</p>
+                                                                    <hr />
+                                                                    <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
+                                                                    <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>
+                                                                    <p className="text-right">Available: {item.grandTotal - item.advanced} TK</p>
+                                                                </div>
+                                                            </td>
+                                                            <td className=" flex gap-2 items-end">
+                                                                {item?.cartItems?.slice(0, 2).map(c => {
+                                                                    const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
+                                                                    return (
+                                                                        <div key={c?._id} className="shadow-md rounded-md w-40 h-[310px]">
+                                                                            <div className="px-2">
+                                                                                <div className="relative">
+                                                                                    <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
+                                                                                    <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
+                                                                                </div>
+                                                                                <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>
+                                                                                <p className="">
+                                                                                    <span className="font-semibold">SKU:</span> {c?.productId?.SKU}
+                                                                                </p>
+                                                                                <p className="">
+                                                                                    <span className="font-semibold">Quantity:</span> {c?.quantity}
+                                                                                </p>
+                                                                                {sizeDetail && (
+                                                                                    <>
+                                                                                        <p className="">
+                                                                                            <span className="font-semibold">Size:</span> <span className="italic">{sizeDetail.barcode}</span> ({sizeDetail.size})
+                                                                                        </p>
+                                                                                        <p className="">
+                                                                                            <span className="font-semibold">Stock:</span> {sizeDetail.openingStock}
+                                                                                        </p>
+                                                                                    </>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                                {item.cartItems.length > 2 && (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSelectedOrder(item);
+                                                                            toggleModal();
+                                                                        }}
+                                                                        className="btn btn-sm btn-primary text-white"
+                                                                    >
+                                                                        ...more {item.cartItems.length - 2}+
+                                                                    </button>
+                                                                )}
+                                                            </td>
+                                                            <td className="border-2 border-gray-100">
+                                                                <div className="space-y-2">
+                                                                    <div>
+                                                                        <select
+                                                                            className={`select select-bordered w-28 ${item?.status[item?.status?.length - 1]?.name === 'confirm'
+                                                                                ? 'bg-green-100 text-green-700'
+                                                                                : item?.status[item?.status?.length - 1]?.name === 'cancel'
+                                                                                    ? 'bg-red-100 text-red-700'
+                                                                                    : item?.status[item?.status?.length - 1]?.name === 'processing'
+                                                                                        ? 'bg-yellow-100 text-yellow-700'
+                                                                                        : item?.status[item?.status.length - 1]?.name === 'sendToCourier'
+                                                                                            ? 'bg-sky-100 text-sky-700'
+                                                                                            : ''
+                                                                                }`}
+                                                                            value={item?.status[item?.status?.length - 1]?.name || 'new'}
+                                                                            onChange={(e) => handleStatusChange(item?._id, e.target.value)}
+                                                                        >
+                                                                            <option value="new">New</option>
+                                                                            <option value="pending">Pending</option>
+                                                                            <option value="pendingPayment">Pending Payment</option>
+                                                                            <option value="confirm">Confirm</option>
+                                                                            <option value="hold">Hold</option>
+                                                                            <option value="processing">Processing</option>
+                                                                            <option value="sendToCourier">Sent to Courier</option>
+                                                                            <option value="courierProcessing">Courier Processing</option>
+                                                                            <option value="delivered">Delivered</option>
+                                                                            <option value="return">Return</option>
+                                                                            <option value="exchange">Return Exchange</option>
+                                                                            <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                                                            <option value="exchange">Exchange</option>
+                                                                            <option value="cancel">Cancel</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <select
+                                                                            className="select select-bordered w-28"
+                                                                            value={item.courier}
+                                                                            onChange={(e) => handleCourierChange(item._id, e.target.value)}
+                                                                        >
+                                                                            <option value="courier">Courier</option>
+                                                                            <option value="user1">User1</option>
+                                                                            <option value="user2">User2</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="border-2 border-gray-100">
+                                                                <div className="space-y-1">
+                                                                    <div className="text-center">
+                                                                        <a href={`/invoice/${item._id}`} className="btn btn-sm bg-green-100 text-green-700">
+                                                                            Print
+                                                                        </a>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl">
+                                                                            <FaRegEye />
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs">
+                                                                            Add Note
+                                                                        </button>
+                                                                        <NoteModal />
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="border-2 border-gray-100">
+                                                                <div className="dropdown dropdown-top dropdown-end">
+                                                                    <div tabIndex={0} role="button" className="btn btn-sm m-1"><BsThreeDotsVertical /></div>
+                                                                    <ul tabIndex={0} className="dropdown-content space-y-3 menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                                                                        <li>
+                                                                            <a href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl">
+                                                                                <FaEdit />
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* <div className="flex justify-center mt-4">
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className={`px-4 py-2 mr-2 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-gray-200'}`}
+                                            >
+                                                Previous
+                                            </button>
+                                            {[...Array(totalPages)].map((_, i) => {
+                                                const pageNumber = i + 1;
+                                                return (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => handlePageChange(pageNumber)}
+                                                        className={`px-4 py-2 rounded mx-1 ${pageNumber === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                                    >
+                                                        {pageNumber}
+                                                    </button>
+                                                );
+                                            })}
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                                className={`px-4 py-2 ml-2 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-gray-200'}`}
+                                            >
+                                                Next
+                                            </button>
+                                        </div> */}
+                                        <div className="flex justify-center mt-4">
+                                            <button
+                                                onClick={() => onPageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className={`px-4 py-2 mr-2 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-gray-200'}`}
+                                            >
+                                                Prev
+                                            </button>
+
+                                            {getPageNumbers().map((pageNumber, index) => {
+                                                if (pageNumber === '...') {
+                                                    return (
+                                                        <span key={index} className="px-4 py-2 mx-1 text-gray-500">
+                                                            ...
+                                                        </span>
+                                                    );
+                                                }
+                                                return (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => onPageChange(pageNumber)}
+                                                        className={`px-4 py-2 rounded mx-1 ${pageNumber === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                                    >
+                                                        {pageNumber}
+                                                    </button>
+                                                );
+                                            })}
+
+                                            <button
+                                                onClick={() => onPageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                                className={`px-4 py-2 ml-2 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-gray-200'}`}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+
                                     </CardBody>
                                 </Card>
                             </Col>
