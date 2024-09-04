@@ -31,6 +31,8 @@ const InvoiceDetail = () => {
       }
     };
 
+    window.print()
+
     fetchOrder(); // Call the fetch function
 
     // Optional cleanup function if needed

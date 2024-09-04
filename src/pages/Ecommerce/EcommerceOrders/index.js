@@ -12,20 +12,13 @@ import { MDBDataTable } from 'mdbreact';
 import { CgProfile } from "react-icons/cg";
 import { FaPhoneAlt } from "react-icons/fa";
 
-
-
-
-
 const Orders = () => {
     const [orders, setOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState([]);
     const [statusFilter, setStatusFilter] = useState('');
     const [courierFilter, setCourierFilter] = useState('');
     const [dateFilter, setDateFilter] = useState('');
-    const [activeDropdown, setActiveDropdown] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
     const [trackingModalOpen, setTrackingModalOpen] = useState(false);
     const [trackingOrderId, setTrackingOrderId] = useState(null);
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
@@ -33,8 +26,9 @@ const Orders = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit, setLimit] = useState(10)
-    console.log(limit);
-
+    const [count, setCount] = useState(1)
+    const [search, setSearch] = useState('')
+    const [orderObject, setOrderObject] = useState(null)
 
     const pageRange = 2;
 
@@ -90,34 +84,37 @@ const Orders = () => {
     };
 
 
-    useEffect(() => {
-        const loadOrders = async (page = 1) => {
-            const { orders, totalPages, currentPage } = await fetchOrders(page, limit);
-            setOrders(orders);
-            setFilteredOrders(orders)
-            setTotalPages(totalPages);
-            setCurrentPage(currentPage);
-        };
-        loadOrders(currentPage);
-    }, [currentPage, limit]);
+    const fetchData = () => {   
+        fetch(`${baseUrl}/api/orders?page=${currentPage}&size=${limit}&search=${search}&date=${dateFilter}&status=${statusFilter}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            setOrders(data.orders);
+            setCount(data.totalProducts)
+            setCurrentPage(data.currentPage)
+            setTotalPages(data.totalPages)
+            
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      };
 
-
-    const fetchOrders = async (page = 1, limit = 10) => {
-        try {
-            const response = await axios.get(`${baseUrl}/api/orders`, {
-                params: { page, limit }
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            return {
-                orders: [],
-                totalOrders: 0,
-                totalPages: 1,
-                currentPage: 1
-            };
-        }
-    };
+      const fetchCount = ()=>{
+        axios.get(`${baseUrl}/api/orders/status-count`).
+        then(res=>{
+            setOrderObject(res.data)
+        })
+      }
+    
+      useEffect(() => {
+        fetchCount()
+        fetchData();
+      }, [limit, search,currentPage,dateFilter,statusFilter]);
 
 
     const handleStatusChange = async (orderId, newStatus) => {
@@ -156,15 +153,9 @@ const Orders = () => {
 
             // Optionally, show a success message
             alert('Order status updated successfully');
+            fetchData()
+            fetchCount()
 
-            const loadOrders = async (page = 1) => {
-                const { orders, totalPages, currentPage } = await fetchOrders(page, limit);
-                setOrders(orders);
-                setFilteredOrders(orders)
-                setTotalPages(totalPages);
-                setCurrentPage(currentPage);
-            };
-            loadOrders(currentPage);
         } catch (error) {
             // Rollback the UI if there's an error
             setOrders(previousOrders);
@@ -187,7 +178,6 @@ const Orders = () => {
         try {
             await axios.patch(`${baseUrl}/api/orders/${orderId}/courier`, { courier: newCourier });
             setOrders(updatedOrders);
-            filterOrders(updatedOrders, statusFilter, courierFilter, dateFilter);
         } catch (error) {
             console.error('Error updating courier:', error);
         }
@@ -196,55 +186,23 @@ const Orders = () => {
 
     const handleFilterByStatus = (status) => {
         setStatusFilter(status);
-        filterOrders(orders, status, courierFilter, dateFilter, searchTerm);
     };
 
     const handleFilterByCourier = (courier) => {
         setCourierFilter(courier);
-        filterOrders(orders, statusFilter, courier, dateFilter, searchTerm);
     };
 
     const handleFilterByDate = (date) => {
         setDateFilter(date);
-        filterOrders(orders, statusFilter, courierFilter, date, searchTerm);
-    };
-
-    const handleSearchTermChange = (searchTerm) => {
-        setSearchTerm(searchTerm);
-        filterOrders(orders, statusFilter, courierFilter, dateFilter, searchTerm);
     };
 
 
-    const filterOrders = (orders, status, courier, date, searchTerm) => {
-        const filtered = orders?.filter(order => {
-            const statusMatches = status ? (order.lastStatus && order.lastStatus.name === status) : true;
-            const courierMatches = courier ? (order.courier === courier) : true;
-            const dateMatches = date ? new Date(order.createdAt).toISOString().startsWith(date) : true;
-            const searchTermMatches = searchTerm
-                ? order.invoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.phone.toLowerCase().includes(searchTerm.toLowerCase())
-                : true;
-            return statusMatches && courierMatches && dateMatches && searchTermMatches;
-        });
-
-        setFilteredOrders(filtered);
-    };
-
-
-    useEffect(() => {
-        filterOrders(orders, statusFilter, courierFilter, dateFilter, searchTerm);
-    }, [orders, statusFilter, courierFilter, dateFilter, searchTerm]);
-
-
-
-
-    const getStatusCount = (orders, status) => {
-        return orders?.filter(order =>
-            order.lastStatus.name === status
-        ).length;
-    };
-
-    console.log(orders);
+const updatePrint = id =>{
+    axios.put(`${baseUrl}/api/orders/update-print/${id}`)
+    .then(res=>{
+       
+    })
+}
 
 
 
@@ -254,75 +212,79 @@ const Orders = () => {
                 <Container>
                     {/* Status Summary Cards */}
                     <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-6">
-                        <div className="shadow-md text-center py-2 bg-[#ff7e3e1d]" onClick={() => handleFilterByStatus('new')}>
-                            <p className="text-2xl font-bold text-[#FF7F3E]">{getStatusCount(orders, 'new')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff7e3e1d]" onClick={() => handleFilterByStatus('new')}>
+                            <p className="text-2xl font-bold text-[#FF7F3E]">{orderObject?.new_orders}</p>
                             <p className="font-semibold text-[#FF7F3E]">New Order</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#af47d223]" onClick={() => handleFilterByStatus('pending')}>
-                            <p className="text-2xl font-bold text-[#AF47D2]">{getStatusCount(orders, 'pending')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#af47d223]" onClick={() => handleFilterByStatus('pending')}>
+                            <p className="text-2xl font-bold text-[#AF47D2]">{orderObject?.pending}</p>
                             <p className="font-semibold text-[#AF47D2]">Pending</p>
                         </div>
 
 
 
-                        <div className="shadow-md text-center py-2 bg-[#1b424225]" onClick={() => handleFilterByStatus('pendingPayment')}>
-                            <p className="text-2xl font-bold text-[#1B4242]">{getStatusCount(orders, 'pendingPayment')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#1b424225]" onClick={() => handleFilterByStatus('pendingPayment')}>
+                            <p className="text-2xl font-bold text-[#1B4242]">{orderObject?.pendingPayment}</p>
                             <p className="font-semibold text-[#1B4242]">Pending Payment</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#40a57821]" onClick={() => handleFilterByStatus('confirm')}>
-                            <p className="text-2xl font-bold text-[#40A578]">{getStatusCount(orders, 'confirm')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821]" onClick={() => handleFilterByStatus('confirm')}>
+                            <p className="text-2xl font-bold text-[#40A578]">{orderObject?.confirm}</p>
                             <p className="font-semibold text-[#40A578]">Confirm</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#ff204d2a]" onClick={() => handleFilterByStatus('hold')}>
-                            <p className="text-2xl font-bold text-[#FF204E]">{getStatusCount(orders, 'hold')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff204d2a]" onClick={() => handleFilterByStatus('hold')}>
+                            <p className="text-2xl font-bold text-[#FF204E]">{orderObject?.hold}</p>
                             <p className="font-semibold text-[#FF204E]">Hold</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#ff3ea523]" onClick={() => handleFilterByStatus('processing')}>
-                            <p className="text-2xl font-bold text-[#FF3EA5]">{getStatusCount(orders, 'processing')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff3ea523]" onClick={() => handleFilterByStatus('processing')}>
+                            <p className="text-2xl font-bold text-[#FF3EA5]">{orderObject?.processing}</p>
                             <p className="font-semibold text-[#FF3EA5]">Processing</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#620c9f21]" onClick={() => handleFilterByStatus('sendToCourier')}>
-                            <p className="text-2xl font-bold text-[#610C9F]">{getStatusCount(orders, 'sendToCourier')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#620c9f21]" onClick={() => handleFilterByStatus('sendToCourier')}>
+                            <p className="text-2xl font-bold text-[#610C9F]">{orderObject?.sendToCourier}</p>
                             <p className="font-semibold text-[#610C9F]">Sent to Courier</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#fa58b616]" onClick={() => handleFilterByStatus('courierProcessing')}>
-                            <p className="text-2xl font-bold text-[#FA58B6]">{getStatusCount(orders, 'courierProcessing')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#fa58b616]" onClick={() => handleFilterByStatus('courierProcessing')}>
+                            <p className="text-2xl font-bold text-[#FA58B6]">{orderObject?.courierProcessing}</p>
                             <p className="font-semibold text-[#FA58B6]">Courier Processing</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('delivered')}>
-                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'delivered')}</p>
-                            <p className="font-semibold text-[#8B9A46]">Delivered</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#4dc57b2d]" onClick={() => handleFilterByStatus('delivered')}>
+                            <p className="text-2xl font-bold text-[#4dc57b]">{orderObject?.delivered}</p>
+                            <p className="font-semibold text-[#4dc57b]">Delivered</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('partialReturn')}>
-                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'partialReturn')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('partialReturn')}>
+                            <p className="text-2xl font-bold text-[#8B9A46]">{orderObject?.partialReturn}</p>
                             <p className="font-semibold text-[#8B9A46]">Partial Return</p>
                         </div>
-                        <div className="shadow-md text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('returnWithDeliveryCharge')}>
-                            <p className="text-2xl font-bold text-[#C84B31]">{getStatusCount(orders, 'returnWithDeliveryCharge')}</p>
-                            <p className="font-semibold text-[#C84B31]">Return With DeliveryCharge</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#87c83127]" onClick={() => handleFilterByStatus('returnWithDeliveryCharge')}>
+                            <p className="text-2xl font-bold text-[#87c831]">{orderObject?.returnWithDeliveryCharge}</p>
+                            <p className="font-semibold text-[#87c831]">Return With Delivery Charge</p>
                         </div>
-                        <div className="shadow-md text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('return')}>
-                            <p className="text-2xl font-bold text-[#C84B31]">{getStatusCount(orders, 'return')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#c84a312a]" onClick={() => handleFilterByStatus('return')}>
+                            <p className="text-2xl font-bold text-[#C84B31]">{orderObject?.return_delivery}</p>
                             <p className="font-semibold text-[#C84B31]">Return</p>
                         </div>
 
 
-                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('exchange')}>
-                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'exchange')}</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('exchange')}>
+                            <p className="text-2xl font-bold text-[#8B9A46]">{orderObject?.exchange}</p>
                             <p className="font-semibold text-[#8B9A46]">Return Exchange</p>
                         </div>
 
-                        <div className="shadow-md text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('cancel')}>
-                            <p className="text-2xl font-bold text-[#8B9A46]">{getStatusCount(orders, 'cancel')}</p>
-                            <p className="font-semibold text-[#8B9A46]">Cancel</p>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#d5535320]" onClick={() => handleFilterByStatus('cancel')}>
+                            <p className="text-2xl font-bold text-[#d55353]">{orderObject?.cancel}</p>
+                            <p className="font-semibold text-[#d55353]">Cancel</p>
+                        </div>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#46829a2c]" onClick={() => handleFilterByStatus('doubleOrderCancel')}>
+                            <p className="text-2xl font-bold text-[#46829a]">{orderObject?.doubleOrderCancel}</p>
+                            <p className="font-semibold text-[#46829a]">Double Order Cancel</p>
                         </div>
                     </div>
 
@@ -349,6 +311,7 @@ const Orders = () => {
                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                     <option value="exchange">Exchange</option>
                                     <option value="cancel">Cancel</option>
+                                    <option value="doubleOrderCancel">Double Order Cancel</option>
                                 </select>
 
                                 <select
@@ -372,10 +335,9 @@ const Orders = () => {
 
                             <input
                                 type="text"
-                                placeholder="Search by Invoice No"
+                                placeholder="Search by Invoice No or Phone"
                                 className="input input-bordered w-full max-w-xs"
-                                value={searchTerm}
-                                onChange={(e) => handleSearchTermChange(e.target.value)}
+                                onChange={(e) => {setSearch(e.target.value); setCurrentPage(1)}}
                             />
 
                             <div className="flex gap-6 md:mr-4">
@@ -390,7 +352,6 @@ const Orders = () => {
                                 </button>
                             </div>
                         </div>
-
 
                         <Row className='mt-4'>
                             <Col className="col-12">
@@ -423,7 +384,7 @@ const Orders = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {filteredOrders?.map((item, index) => (
+                                                    {orders?.map((item, index) => (
                                                         <tr key={item._id}>
                                                             <td className="border-2 border-gray-100">{index + 1}</td>
                                                             <td className="border-2 border-gray-100">
@@ -462,7 +423,7 @@ const Orders = () => {
                                                                 {item?.cartItems?.slice(0, 2).map(c => {
                                                                     const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
                                                                     return (
-                                                                        <div key={c?._id} className="shadow-md rounded-md w-40 h-[310px]">
+                                                                        <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 h-[310px]">
                                                                             <div className="px-2">
                                                                                 <div className="relative">
                                                                                     <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
@@ -509,6 +470,8 @@ const Orders = () => {
                                                                                 ? 'bg-green-100 text-green-700'
                                                                                 : item?.status[item?.status?.length - 1]?.name === 'cancel'
                                                                                     ? 'bg-red-100 text-red-700'
+                                                                                : item?.status[item?.status?.length - 1]?.name === 'doubleOrderCancel'
+                                                                                    ? 'bg-red-100 text-red-700'
                                                                                     : item?.status[item?.status?.length - 1]?.name === 'processing'
                                                                                         ? 'bg-yellow-100 text-yellow-700'
                                                                                         : item?.status[item?.status.length - 1]?.name === 'sendToCourier'
@@ -532,6 +495,7 @@ const Orders = () => {
                                                                             <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                                                             <option value="exchange">Exchange</option>
                                                                             <option value="cancel">Cancel</option>
+                                                                            <option value="doubleOrderCancel">Double Order Cancel</option>
                                                                         </select>
                                                                     </div>
 
@@ -551,7 +515,7 @@ const Orders = () => {
                                                             <td className="border-2 border-gray-100">
                                                                 <div className="space-y-1">
                                                                     <div className="text-center">
-                                                                        <a href={`/invoice/${item._id}`} className="btn btn-sm bg-green-100 text-green-700">
+                                                                        <a onClick={()=>updatePrint(item._id)} href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint?'red-500': 'green-500'}`}>
                                                                             Print
                                                                         </a>
                                                                     </div>
