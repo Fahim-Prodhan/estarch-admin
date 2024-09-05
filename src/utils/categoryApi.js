@@ -6,6 +6,53 @@ export const fetchCategories = async () => {
     const response = await fetch(`${API_BASE_URL}/categories`);
     return response.json();
 };
+// categoryApi.js
+// utils/categoryApi.js
+
+export const toggleCategoryStatus = async (id, isActive) => {
+    try {
+        const response = await fetch(`${baseUrl}/api/categories/categories/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ active: !isActive }), // Toggle the status
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to toggle category status');
+        }
+
+        const updatedCategory = await response.json();
+        return updatedCategory;
+    } catch (error) {
+        console.error('Error toggling category status:', error);
+        throw error;
+    }
+};
+
+// utils/subCategoryApi.js
+
+// categoryApi.js
+export const toggleSubCategoryStatus = async (id, active) => {
+    const response = await fetch(`${baseUrl}/api/categories/subcategories/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ active }), // Send the `active` status
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update status');
+    }
+
+    const updatedSubCategory = await response.json();
+    return updatedSubCategory;
+};
+
+
+
 
 export const createCategory = async ( name, type, image ) => {
     console.log( name, type, image);

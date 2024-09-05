@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
-import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../../../utils/categoryApi.js";
+import { fetchCategories, createCategory, updateCategory, toggleCategoryStatus } from "../../../utils/categoryApi.js";
 import { fetchTypes } from "../../../utils/typeApi.js";
 import Modal from '../../../components/Common/Modal.js';
 import baseUrl from '../../../helpers/baseUrl';
@@ -51,12 +51,6 @@ const AddCategory = () => {
         setCategories(data);
     };
 
-    const handleDeleteCategory = async (id) => {
-        await deleteCategory(id);
-        const data = await fetchCategories();
-        setCategories(data);
-    };
-
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (!file) {
@@ -64,24 +58,22 @@ const AddCategory = () => {
             return;
         }
         const formData = new FormData();
-        console.log(formData);
         formData.append('image', file);
-    
+
         setIsLoading(true);
-    
+
         try {
             const response = await fetch(`${baseUrl}/upload`, {
                 method: 'POST',
                 body: formData,
             });
-    
+
             if (!response.ok) {
                 console.error('Image upload failed:', response.statusText);
                 return;
             }
-    
+
             const result = await response.json();
-            console.log('Upload result:', result);
             if (result.file) {
                 setNewCategory({ ...newCategory, image: result.file });
             } else {
@@ -93,11 +85,21 @@ const AddCategory = () => {
             setIsLoading(false);
         }
     };
-    
-
 
     const handleRemoveImage = () => {
         setNewCategory({ ...newCategory, image: '' });
+    };
+
+    const handleToggleStatus = async (id, isActive) => {
+        try {
+            const updatedCategory = await toggleCategoryStatus(id, isActive);
+            const updatedCategories = categories.map(category =>
+                category._id === updatedCategory._id ? updatedCategory : category
+            );
+            setCategories(updatedCategories);
+        } catch (error) {
+            console.error('Error toggling status:', error);
+        }
     };
 
     return (
@@ -129,13 +131,19 @@ const AddCategory = () => {
                                         <td className="border border-gray-300 p-2">{category.name}</td>
                                         {category?.type && <td className="border border-gray-300 p-2">{category.type.name}</td>}
                                         <td className="border border-gray-300 p-2">
-                                            {category.image && (
+                                            <div className="relative">
                                                 <img
                                                     src={`${baseUrl}/${category.image}`}
                                                     alt={category.name}
-                                                    className="h-16 w-16 object-cover"
+                                                    className={`w-16 h-16 object-cover transition-all duration-300 ${!category.active ? 'grayscale opacity-50' : ''
+                                                        }`}
                                                 />
-                                            )}
+                                                {!category.active && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
+                                                        <span className="text-sm">Disabled</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
 
                                         <td className="border border-gray-300 p-2">
@@ -145,12 +153,12 @@ const AddCategory = () => {
                                             >
                                                 Edit
                                             </button>
-                                            <button
-                                                className="bg-red-500 text-white p-2 rounded"
-                                                onClick={() => handleDeleteCategory(category._id)}
-                                            >
-                                                Delete
-                                            </button>
+                                            <input
+                                                type="checkbox"
+                                                checked={category.active}
+                                                onChange={() => handleToggleStatus(category._id, category.active)}
+                                                className="toggle toggle-primary transition-all duration-300"
+                                            />
                                         </td>
                                     </tr>
                                 ))}
