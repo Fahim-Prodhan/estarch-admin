@@ -211,6 +211,8 @@ const PurchaseList = () => {
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}
                 title="Purchase Details"
+                showSave={false}
+                showCancel={false}            // Hide Save button
             >
                 {selectedPurchase ? (
                     <div className="p-4">
@@ -280,6 +282,7 @@ const PurchaseList = () => {
                     <p>No purchase details available.</p>
                 )}
             </Modal>
+
         </React.Fragment>
     );
 };

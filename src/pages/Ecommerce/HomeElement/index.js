@@ -135,7 +135,7 @@ const HomeElement = () => {
                 const newVideo = await response.json();
                 setVideos([...videos, newVideo]);
             }
-    
+
             closeVideoModal();
         } catch (error) {
             console.error('Error uploading video:', error);
@@ -196,20 +196,20 @@ const HomeElement = () => {
         setEditingVideoId(null);
         setVideoLink('');
     };
- 
+
     useEffect(() => {
         const fetchHomeImageData = async () => {
-          try {
-            const response = await fetch(`${baseUrl}/api/home-image?showAll=true`);
-            const data = await response.json();
-            setHomeImages(data);
-          } catch (error) {
-            console.error('Error fetching home image data:', error);
-          }
+            try {
+                const response = await fetch(`${baseUrl}/api/home-image?showAll=true`);
+                const data = await response.json();
+                setHomeImages(data);
+            } catch (error) {
+                console.error('Error fetching home image data:', error);
+            }
         };
-      
+
         fetchHomeImageData();
-      }, []);
+    }, []);
     const handleHomeImageSelect = (e) => {
         const files = Array.from(e.target.files);
         setSelectedHomeImages(files);
@@ -279,7 +279,7 @@ const HomeElement = () => {
             openHomeImageModal();
         }
     };
- 
+
     const handleHomeImageToggleActive = async (id, currentStatus) => {
         try {
             const response = await fetch(`${baseUrl}/api/home-image/${id}/status`, {
@@ -289,7 +289,7 @@ const HomeElement = () => {
                 },
                 body: JSON.stringify({ active: !currentStatus }),
             });
-    
+
             if (response.ok) {
                 const updatedHomeImage = await response.json();
                 setHomeImages(homeImages.map(homeImage =>
@@ -302,7 +302,7 @@ const HomeElement = () => {
             console.error('Error updating home image status:', error);
         }
     };
-    
+
     const openCarouselModal = (carouselId = null) => {
         setEditingCarouselId(carouselId);
         if (carouselId) {
@@ -340,17 +340,17 @@ const HomeElement = () => {
     // }, []);
     useEffect(() => {
         const fetchCarousels = async () => {
-          try {
-            const response = await fetch(`${baseUrl}/api/carosul?showAll=true`);
-            const data = await response.json();
-            setCarouselImages(data);
-          } catch (error) {
-            console.error('Error fetching carousels:', error);
-          }
+            try {
+                const response = await fetch(`${baseUrl}/api/carosul?showAll=true`);
+                const data = await response.json();
+                setCarouselImages(data);
+            } catch (error) {
+                console.error('Error fetching carousels:', error);
+            }
         };
-    
+
         fetchCarousels();
-      }, []);
+    }, []);
     const handleImageSelect = (e) => {
         const files = Array.from(e.target.files);
         setSelectedImages(files);
@@ -518,16 +518,16 @@ const HomeElement = () => {
 
                         <div className="bg-white shadow-md rounded-md overflow-hidden">
                             <div className='flex justify-center mt-10'>
-                            <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 "
-                                onClick={() =>
+                                <button
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 "
+                                    onClick={() =>
 
-                                    openVideoModal()
-                                }
-                            >
-                                Add Video +
-                            </button>
-                           </div>
+                                        openVideoModal()
+                                    }
+                                >
+                                    Add Video +
+                                </button>
+                            </div>
                             <table className="min-w-full mt-10 border-collapse border border-gray-300">
                                 <thead>
                                     <tr className="bg-blue-600 text-white">
@@ -540,7 +540,7 @@ const HomeElement = () => {
                                 </thead>
                                 <tbody>
                                     {videos.map((video, index) => (
-                                        
+
                                         <tr key={video._id}>
                                             <td className="border border-gray-300 p-3">{index + 1}</td>
                                             <td className="border border-gray-300 p-3">
@@ -661,47 +661,45 @@ const HomeElement = () => {
                         </div>
                     )}
 
-{isVideoModalOpen && (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-                {editingVideoId ? 'Update Video' : 'Add New Video'}
-            </h2>
-            <form onSubmit={(e) => { e.preventDefault(); handleVideoSubmit(); }}>
-                <input
-                    type="text"
-                    className="mb-4 w-full border border-gray-300 p-2 rounded-md"
-                    placeholder="Enter video name"
-                    value={videoName}
-                    onChange={(e) => setVideoName(e.target.value)}
-                />
-                <input
-                    type="text"
-                    value={videoLink}
-                    onChange={(e) => setVideoLink(e.target.value)}
-                    placeholder="Video Link"
-                    className="mb-4 w-full p-2 border border-gray-300 rounded"
-                />
-                
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-                >
-                    {editingVideoId ? 'Update Video' : 'Add Video'}
-                </button>
-                <button
-                    type="button"
-                    onClick={closeVideoModal}
-                    className="ml-4 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200"
-                >
-                    Cancel
-                </button>
-            </form>
-        </div>
-    </div>
-)}
+                    {isVideoModalOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                            <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
+                                <h2 className="text-xl font-bold mb-4">
+                                    {editingVideoId ? 'Update Video' : 'Add New Video'}
+                                </h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleVideoSubmit(); }}>
+                                    <input
+                                        type="text"
+                                        className="mb-4 w-full border border-gray-300 p-2 rounded-md"
+                                        placeholder="Enter video name"
+                                        value={videoName}
+                                        onChange={(e) => setVideoName(e.target.value)}
+                                    />
+                                    <input
+                                        type="text"
+                                        value={videoLink}
+                                        onChange={(e) => setVideoLink(e.target.value)}
+                                        placeholder="Video Link"
+                                        className="mb-4 w-full p-2 border border-gray-300 rounded"
+                                    />
 
-
+                                    <button
+                                        type="submit"
+                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                                    >
+                                        {editingVideoId ? 'Update Video' : 'Add Video'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={closeVideoModal}
+                                        className="ml-4 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200"
+                                    >
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                     {isHomeImageModalOpen && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                             <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
@@ -729,7 +727,6 @@ const HomeElement = () => {
                                         placeholder="Link"
                                         className="mb-4 w-full p-2 border border-gray-300 rounded"
                                     />
-
                                     <div className="mb-4">
                                         {homeImagePreviews.map((preview, index) => (
                                             <img key={index} src={preview} alt={`preview ${index}`} className="w-20 h-20 object-cover mr-2" />

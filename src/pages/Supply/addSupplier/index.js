@@ -14,21 +14,59 @@ const AddSupplier = () => {
         mobile: "",
         area: "",
         address: "",
-        due: "", // Handle as string for empty input
+        due: "",// Handle as string for empty input
+        totalAmount: suppliers.due,// Handle as string for empty input
         date: "",
         note: "",
     });
     const [editingSupplier, setEditingSupplier] = useState(null);
-
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-        // Fetch initial supplier data from the API
-        axios.get('http://localhost:5000/api/suppliers')
-            .then(response => {
-                setSuppliers(response.data);
-            })
-            .catch(error => {
-                console.error("There was an error fetching the suppliers!", error);
-            });
+        const fetchData = async () => {
+            try {
+                // Fetch suppliers data
+                const suppliersResponse = await axios.get('http://localhost:5000/api/suppliers');
+                const suppliersData = suppliersResponse.data;
+
+                // Fetch purchase data
+                const purchasesResponse = await axios.get('http://localhost:5000/api/purchase');
+                const purchasesData = purchasesResponse.data;
+
+                // Aggregate due amounts for each supplier
+                const dueAmounts = purchasesData.reduce((acc, purchase) => {
+                    if (purchase.supplier && purchase.due) {
+                        const supplierId = purchase.supplier._id;
+                        if (!acc[supplierId]) {
+                            acc[supplierId] = 0;
+                        }
+                        acc[supplierId] += purchase.due;
+                    }
+                    return acc;
+                }, {});
+                const totalAmount = purchasesData.reduce((acc, purchase) => {
+                    if (purchase.supplier && purchase.totalAmount) {
+                        const supplierId = purchase.supplier._id;
+                        if (!acc[supplierId]) {
+                            acc[supplierId] = 0;
+                        }
+                        acc[supplierId] += purchase.totalAmount;
+                    }
+                    return acc;
+                }, {});
+                const updatedSuppliers = suppliersData.map(supplier => ({
+                    ...supplier,
+                    due: (supplier.due || 0) + (dueAmounts[supplier._id] || 0),
+                    totalAmount: (supplier.due || 0) + (totalAmount[supplier._id] || 0)
+                }));
+                setSuppliers(updatedSuppliers);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const handleAddSupplier = () => {
@@ -81,6 +119,9 @@ const AddSupplier = () => {
         setModalOpen(false);
     };
 
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
     return (
         <React.Fragment>
             <div className="page-content">
@@ -122,8 +163,8 @@ const AddSupplier = () => {
                                         <td className="border border-gray-300 p-2">{supplier.name}</td>
                                         <td className="border border-gray-300 p-2">{supplier.mobile}</td>
                                         <td className="border border-gray-300 p-2">{supplier.area}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.due || 0}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.purchaseQuantity || 0}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.totalAmount}</td>
+                                        <td className="border border-gray-300 p-2">{(supplier.totalAmount)-(supplier.due)}</td>
                                         <td className="border border-gray-300 p-2">{supplier.purchaseReturnTotal || 0}</td>
                                         <td className="border border-gray-300 p-2">{supplier.purchaseReturnPay || 0}</td>
                                         <td className="border border-gray-300 p-2">{supplier.advance || 0}</td>
