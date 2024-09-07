@@ -4,6 +4,7 @@ import { Container } from 'reactstrap';
 import axios from 'axios';
 import Modal from '../../../components/Common/Modal'; // Ensure the correct import path for the Modal component
 import { Link } from 'react-router-dom';
+import baseUrl from '../../../helpers/baseUrl';
 
 const PurchaseList = () => {
     const [invoices, setInvoices] = useState([]);
@@ -19,7 +20,7 @@ const PurchaseList = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/purchase');
+                const response = await axios.get(`${baseUrl}/api/purchase`);
                 const data = response.data;
 
                 // Transform data into the format needed for the table

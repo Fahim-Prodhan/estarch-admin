@@ -79,7 +79,7 @@ const AddType = () => {
 
     const handleToggleStatus = async (type) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/types/${type._id}/status`, {
+            const response = await fetch(`${baseUrl}/api/types/${type._id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

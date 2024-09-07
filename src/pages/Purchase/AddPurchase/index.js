@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Container } from 'reactstrap';
 import Modal from '../../../components/Common/Modal';
+import baseUrl from '../../../helpers/baseUrl';
 
 const AddPurchase = () => {
     const [suppliers, setSuppliers] = useState([]);
@@ -22,7 +23,7 @@ const AddPurchase = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/suppliers');
+                const response = await axios.get(`${baseUrl}/api/suppliers`);
                 setSuppliers(response.data);
                 if (response.data.length > 0) {
                     setSelectedSupplier(response.data[0].name);
@@ -35,7 +36,7 @@ const AddPurchase = () => {
     }, []);
     const handleSaveSupplier = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/suppliers', newSupplier);
+            const response = await axios.post(`${baseUrl}/api/suppliers`, newSupplier);
             setSuppliers([...suppliers, response.data]);
             setModalOpen(false);
             setNewSupplier({
@@ -83,7 +84,7 @@ const AddPurchase = () => {
     useEffect(() => {
         const fetchProductByBarcode = async (barcode) => {
             try {
-                const response = await fetch(`http://localhost:5000/api/products/product/barcode/${barcode}`);
+                const response = await fetch(`${baseUrl}/api/products/product/barcode/${barcode}`);
                 const data = await response.json();
     
                 if (data && data.productId) {
@@ -222,7 +223,7 @@ const AddPurchase = () => {
     const handleBuy = async () => {
         const purchaseData = preparePurchaseData();
         try {
-            const response = await axios.post('http://localhost:5000/api/purchase', purchaseData);
+            const response = await axios.post(`${baseUrl}/api/purchase`, purchaseData);
             console.log('Purchase successful:', response.data);
             // Handle successful response (e.g., show a success message, reset form, etc.)
         } catch (error) {

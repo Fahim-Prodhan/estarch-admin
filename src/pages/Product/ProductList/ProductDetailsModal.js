@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
+import baseUrl from '../../../helpers/baseUrl';
 
 const ProductDetailsModal = ({ isOpen, toggle, product }) => {
   const [updatedProduct, setUpdatedProduct] = useState(product);
@@ -8,7 +9,7 @@ const ProductDetailsModal = ({ isOpen, toggle, product }) => {
     if (product) {
       const fetchPurchaseData = async () => {
         try {
-          const response = await fetch('http://localhost:5000/api/purchase');
+          const response = await fetch(`${baseUrl}/api/purchase`);
           const purchases = await response.json();
   
           // Check if purchases is an array
