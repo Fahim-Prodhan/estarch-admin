@@ -3,6 +3,7 @@ import Modal from "../../../components/Common/Modal.js";
 import { Container } from "reactstrap";
 import { Breadcrumbs } from "@material-ui/core";
 import axios from 'axios';
+import baseUrl from "../../../helpers/baseUrl.js";
 
 const AddSupplier = () => {
     const [suppliers, setSuppliers] = useState([]);
@@ -25,11 +26,11 @@ const AddSupplier = () => {
         const fetchData = async () => {
             try {
                 // Fetch suppliers data
-                const suppliersResponse = await axios.get('http://localhost:5000/api/suppliers');
+                const suppliersResponse = await axios.get(`${baseUrl}/api/suppliers`);
                 const suppliersData = suppliersResponse.data;
 
                 // Fetch purchase data
-                const purchasesResponse = await axios.get('http://localhost:5000/api/purchase');
+                const purchasesResponse = await axios.get(`${baseUrl}/api/purchase`);
                 const purchasesData = purchasesResponse.data;
 
                 // Aggregate due amounts for each supplier
@@ -96,7 +97,7 @@ const AddSupplier = () => {
 
         if (editingSupplier) {
             // Update existing supplier
-            axios.put(`http://localhost:5000/api/suppliers/${editingSupplier._id}`, supplierData)
+            axios.put(`${baseUrl}/api/suppliers/${editingSupplier._id}`, supplierData)
                 .then(response => {
                     const updatedSuppliers = suppliers.map((s) =>
                         s._id === response.data._id ? response.data : s
@@ -108,7 +109,7 @@ const AddSupplier = () => {
                 });
         } else {
             // Add new supplier
-            axios.post('http://localhost:5000/api/suppliers', supplierData)
+            axios.post(`${baseUrl}/api/suppliers`, supplierData)
                 .then(response => {
                     setSuppliers([...suppliers, response.data]);
                 })

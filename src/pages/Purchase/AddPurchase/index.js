@@ -195,6 +195,8 @@ const AddPurchase = () => {
             subtotal: product.subtotal,
             total: product.total,
             _id: product._id,
+            barcode:product.sizeDetail?.barcode
+
         }));
 
         const paymentTypesData = paymentTypes.map((payment) => ({

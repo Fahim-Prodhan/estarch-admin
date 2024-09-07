@@ -105,8 +105,8 @@ const Orders = () => {
       };
 
       const fetchCount = ()=>{
-        axios.get(`${baseUrl}/api/orders/status-count`).
-        then(res=>{
+        axios.get(`${baseUrl}/api/orders/status-count`)
+        .then(res=>{
             setOrderObject(res.data)
         })
       }
@@ -186,14 +186,17 @@ const Orders = () => {
 
     const handleFilterByStatus = (status) => {
         setStatusFilter(status);
+        setCurrentPage(1)
     };
 
     const handleFilterByCourier = (courier) => {
         setCourierFilter(courier);
+        setCurrentPage(1)
     };
 
     const handleFilterByDate = (date) => {
         setDateFilter(date);
+        setCurrentPage(1)
     };
 
 
@@ -359,7 +362,7 @@ const updatePrint = id =>{
                                     <CardBody>
                                         <div className='flex justify-between items-center '>
                                             <select
-                                                onChange={(e) => setLimit(e.target.value)}
+                                                onChange={(e) => {setLimit(e.target.value); setCurrentPage(1)}}
                                                 name="" id="" className='w-12'>
                                                 <option value="10">10</option>
                                                 <option value="20">20</option>

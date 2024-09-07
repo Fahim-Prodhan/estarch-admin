@@ -47,7 +47,7 @@ const ProductDetailsModal = ({ isOpen, toggle, product }) => {
   
             return {
               ...sizeDetail,
-              openingStock: (sizeDetail.openingStock || 0) + addedStock, // Update stock
+              openingStock: (sizeDetail.openingStock || 0), // Update stock
               purchasePrice: newPurchasePrice // Update purchase price
             };
           });
