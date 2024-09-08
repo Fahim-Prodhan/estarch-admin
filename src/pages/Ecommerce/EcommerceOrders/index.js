@@ -29,6 +29,7 @@ const Orders = () => {
     const [count, setCount] = useState(1)
     const [search, setSearch] = useState('')
     const [orderObject, setOrderObject] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     const pageRange = 2;
 
@@ -84,37 +85,39 @@ const Orders = () => {
     };
 
 
-    const fetchData = () => {   
+    const fetchData = () => {
+        setLoading(true)
         fetch(`${baseUrl}/api/orders?page=${currentPage}&size=${limit}&search=${search}&date=${dateFilter}&status=${statusFilter}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
-            setOrders(data.orders);
-            setCount(data.totalProducts)
-            setCurrentPage(data.currentPage)
-            setTotalPages(data.totalPages)
-            
-          })
-          .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-          });
-      };
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setOrders(data.orders);
+                setCount(data.totalProducts)
+                setCurrentPage(data.currentPage)
+                setTotalPages(data.totalPages)
+                setLoading(false)
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                setLoading(false)
+            });
+    };
 
-      const fetchCount = ()=>{
+    const fetchCount = () => {
         axios.get(`${baseUrl}/api/orders/status-count`)
-        .then(res=>{
-            setOrderObject(res.data)
-        })
-      }
-    
-      useEffect(() => {
+            .then(res => {
+                setOrderObject(res.data)
+            })
+    }
+
+    useEffect(() => {
         fetchCount()
         fetchData();
-      }, [limit, search,currentPage,dateFilter,statusFilter]);
+    }, [limit, search, currentPage, dateFilter, statusFilter]);
 
 
     const handleStatusChange = async (orderId, newStatus) => {
@@ -200,12 +203,12 @@ const Orders = () => {
     };
 
 
-const updatePrint = id =>{
-    axios.put(`${baseUrl}/api/orders/update-print/${id}`)
-    .then(res=>{
-       
-    })
-}
+    const updatePrint = id => {
+        axios.put(`${baseUrl}/api/orders/update-print/${id}`)
+            .then(res => {
+
+            })
+    }
 
 
 
@@ -340,7 +343,7 @@ const updatePrint = id =>{
                                 type="text"
                                 placeholder="Search by Invoice No or Phone"
                                 className="input input-bordered w-full max-w-xs"
-                                onChange={(e) => {setSearch(e.target.value); setCurrentPage(1)}}
+                                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
                             />
 
                             <div className="flex gap-6 md:mr-4">
@@ -362,7 +365,7 @@ const updatePrint = id =>{
                                     <CardBody>
                                         <div className='flex justify-between items-center '>
                                             <select
-                                                onChange={(e) => {setLimit(e.target.value); setCurrentPage(1)}}
+                                                onChange={(e) => { setLimit(e.target.value); setCurrentPage(1) }}
                                                 name="" id="" className='w-12'>
                                                 <option value="10">10</option>
                                                 <option value="20">20</option>
@@ -372,186 +375,195 @@ const updatePrint = id =>{
                                             </select>
 
                                         </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="table border-collapse border-2 border-gray-100">
-                                                {/* head */}
-                                                <thead>
-                                                    <tr>
-                                                        <th className="border-2 border-gray-100">Serial</th>
-                                                        <th className="border-2 border-gray-100">Info</th>
-                                                        <th className="border-2 border-gray-100">Total Bill</th>
-                                                        <th className="border-2 border-gray-100">Product</th>
-                                                        <th className="border-2 border-gray-100">Status</th>
-                                                        <th className="border-2 border-gray-100">Create</th>
-                                                        <th className="border-2 border-gray-100">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {orders?.map((item, index) => (
-                                                        <tr key={item._id}>
-                                                            <td className="border-2 border-gray-100">{index + 1}</td>
-                                                            <td className="border-2 border-gray-100">
-                                                                <div className="space-y-1">
-                                                                    <p className="font-bold">
-                                                                        {`${('0' + new Date(item.createdAt).getDate()).slice(-2)}-${('0' + (new Date(item.createdAt).getMonth() + 1)).slice(-2)}-${new Date(item.createdAt).getFullYear().toString().slice(-2)}, ${new Date(item.createdAt).getHours() % 12 || 12}:${('0' + new Date(item.createdAt).getMinutes()).slice(-2)} ${new Date(item.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
-                                                                    </p>
-                                                                    <p className="font-bold text-error">{item.serialId}</p>
-                                                                    <p>{item.invoice}</p>
-                                                                    <p>{item.date}</p>
-                                                                    <p className="flex items-center gap-1">
-                                                                        <span><CgProfile /></span>
-                                                                        <span className="font-semibold">{item.name}</span>
-                                                                    </p>
-                                                                    <p className="flex items-center gap-1">
-                                                                        <span><FaPhoneAlt /></span>
-                                                                        <span className="font-semibold">{item.phone}</span>
-                                                                    </p>
-                                                                    <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
-                                                                    <p className="text-red-500">{item.orderNotes}</p>
-                                                                </div>
-                                                            </td>
-                                                            <td className="border-2 border-gray-100">
-                                                                <div className="">
-                                                                    <p className="text-right">Total Bill: {item.totalAmount + item.discount} TK</p>
-                                                                    <p className="text-right">Delivery Charge: {item.deliveryCharge} TK</p>
-                                                                    <p className="text-right">Discount: {item.discount} TK</p>
-                                                                    <p className="text-right">Admin Discount: {item.adminDiscount} TK</p>
-                                                                    <hr />
-                                                                    <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
-                                                                    <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>
-                                                                    <p className="text-right">Available: {item.grandTotal - item.advanced} TK</p>
-                                                                </div>
-                                                            </td>
-                                                            <td className=" flex gap-2 items-end">
-                                                                {item?.cartItems?.slice(0, 2).map(c => {
-                                                                    const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
-                                                                    return (
-                                                                        <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 h-[310px]">
-                                                                            <div className="px-2">
-                                                                                <div className="relative">
-                                                                                    <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
-                                                                                    <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
+                                        {
+                                            loading ? <div className="mx-auto flex gap-4">
+                                                <span className="loading loading-bars loading-xs"></span>
+                                                <span className="loading loading-bars loading-sm"></span>
+                                                <span className="loading loading-bars loading-md"></span>
+                                                <span className="loading loading-bars loading-lg"></span>
+                                            </div>
+                                                :
+                                                <div className="overflow-x-auto">
+                                                    <table className="table border-collapse border-2 border-gray-100">
+                                                        {/* head */}
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="border-2 border-gray-100">Serial</th>
+                                                                <th className="border-2 border-gray-100">Info</th>
+                                                                <th className="border-2 border-gray-100">Total Bill</th>
+                                                                <th className="border-2 border-gray-100">Product</th>
+                                                                <th className="border-2 border-gray-100">Status</th>
+                                                                <th className="border-2 border-gray-100">Create</th>
+                                                                <th className="border-2 border-gray-100">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {orders?.map((item, index) => (
+                                                                <tr key={item._id}>
+                                                                    <td className="border-2 border-gray-100">{index + 1}</td>
+                                                                    <td className="border-2 border-gray-100">
+                                                                        <div className="space-y-1">
+                                                                            <p className="font-bold">
+                                                                                {`${('0' + new Date(item.createdAt).getDate()).slice(-2)}-${('0' + (new Date(item.createdAt).getMonth() + 1)).slice(-2)}-${new Date(item.createdAt).getFullYear().toString().slice(-2)}, ${new Date(item.createdAt).getHours() % 12 || 12}:${('0' + new Date(item.createdAt).getMinutes()).slice(-2)} ${new Date(item.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
+                                                                            </p>
+                                                                            <p className="font-bold text-error">{item.serialId}</p>
+                                                                            <p>{item.invoice}</p>
+                                                                            <p>{item.date}</p>
+                                                                            <p className="flex items-center gap-1">
+                                                                                <span><CgProfile /></span>
+                                                                                <span className="font-semibold">{item.name}</span>
+                                                                            </p>
+                                                                            <p className="flex items-center gap-1">
+                                                                                <span><FaPhoneAlt /></span>
+                                                                                <span className="font-semibold">{item.phone}</span>
+                                                                            </p>
+                                                                            <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
+                                                                            <p className="text-red-500">{item.orderNotes}</p>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="border-2 border-gray-100">
+                                                                        <div className="">
+                                                                            <p className="text-right">Total Bill: {item.totalAmount + item.discount} TK</p>
+                                                                            <p className="text-right">Delivery Charge: {item.deliveryCharge} TK</p>
+                                                                            <p className="text-right">Discount: {item.discount} TK</p>
+                                                                            <p className="text-right">Admin Discount: {item.adminDiscount} TK</p>
+                                                                            <hr />
+                                                                            <p className="font-bold text-right">Grand Total: {item.grandTotal} TK</p>
+                                                                            <p className="font-bold text-green-500 text-right">Advanced: {item.advanced} TK</p>
+                                                                            <p className="text-right">Available: {item.grandTotal - item.advanced} TK</p>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className=" flex gap-2 items-end">
+                                                                        {item?.cartItems?.slice(0, 2).map(c => {
+                                                                            const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
+                                                                            return (
+                                                                                <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 h-[310px]">
+                                                                                    <div className="px-2">
+                                                                                        <div className="relative">
+                                                                                            <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
+                                                                                            <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
+                                                                                        </div>
+                                                                                        <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>
+                                                                                        <p className="">
+                                                                                            <span className="font-semibold">SKU:</span> {c?.productId?.SKU}
+                                                                                        </p>
+                                                                                        <p className="">
+                                                                                            <span className="font-semibold">Quantity:</span> {c?.quantity}
+                                                                                        </p>
+                                                                                        {sizeDetail && (
+                                                                                            <>
+                                                                                                <p className="">
+                                                                                                    <span className="font-semibold">Size:</span> <span className="italic">{sizeDetail.barcode}</span> ({sizeDetail.size})
+                                                                                                </p>
+                                                                                                <p className="">
+                                                                                                    <span className="font-semibold">Stock:</span> {sizeDetail.openingStock}
+                                                                                                </p>
+                                                                                            </>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
-                                                                                <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>
-                                                                                <p className="">
-                                                                                    <span className="font-semibold">SKU:</span> {c?.productId?.SKU}
-                                                                                </p>
-                                                                                <p className="">
-                                                                                    <span className="font-semibold">Quantity:</span> {c?.quantity}
-                                                                                </p>
-                                                                                {sizeDetail && (
-                                                                                    <>
-                                                                                        <p className="">
-                                                                                            <span className="font-semibold">Size:</span> <span className="italic">{sizeDetail.barcode}</span> ({sizeDetail.size})
-                                                                                        </p>
-                                                                                        <p className="">
-                                                                                            <span className="font-semibold">Stock:</span> {sizeDetail.openingStock}
-                                                                                        </p>
-                                                                                    </>
-                                                                                )}
+                                                                            );
+                                                                        })}
+                                                                        {item.cartItems.length > 2 && (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    setSelectedOrder(item);
+                                                                                    toggleModal();
+                                                                                }}
+                                                                                className="btn btn-sm btn-primary text-white"
+                                                                            >
+                                                                                ...more {item.cartItems.length - 2}+
+                                                                            </button>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="border-2 border-gray-100">
+                                                                        <div className="space-y-2">
+                                                                            <div>
+                                                                                <select
+                                                                                    className={`select select-bordered w-28 ${item?.status[item?.status?.length - 1]?.name === 'confirm'
+                                                                                        ? 'bg-green-100 text-green-700'
+                                                                                        : item?.status[item?.status?.length - 1]?.name === 'cancel'
+                                                                                            ? 'bg-red-100 text-red-700'
+                                                                                            : item?.status[item?.status?.length - 1]?.name === 'doubleOrderCancel'
+                                                                                                ? 'bg-red-100 text-red-700'
+                                                                                                : item?.status[item?.status?.length - 1]?.name === 'processing'
+                                                                                                    ? 'bg-yellow-100 text-yellow-700'
+                                                                                                    : item?.status[item?.status.length - 1]?.name === 'sendToCourier'
+                                                                                                        ? 'bg-sky-100 text-sky-700'
+                                                                                                        : ''
+                                                                                        }`}
+                                                                                    value={item?.status[item?.status?.length - 1]?.name || 'new'}
+                                                                                    onChange={(e) => handleStatusChange(item?._id, e.target.value)}
+                                                                                >
+                                                                                    <option value="new">New</option>
+                                                                                    <option value="pending">Pending</option>
+                                                                                    <option value="pendingPayment">Pending Payment</option>
+                                                                                    <option value="confirm">Confirm</option>
+                                                                                    <option value="hold">Hold</option>
+                                                                                    <option value="processing">Processing</option>
+                                                                                    <option value="sendToCourier">Sent to Courier</option>
+                                                                                    <option value="courierProcessing">Courier Processing</option>
+                                                                                    <option value="delivered">Delivered</option>
+                                                                                    <option value="return">Return</option>
+                                                                                    <option value="exchange">Return Exchange</option>
+                                                                                    <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                                                                    <option value="exchange">Exchange</option>
+                                                                                    <option value="cancel">Cancel</option>
+                                                                                    <option value="doubleOrderCancel">Double Order Cancel</option>
+                                                                                </select>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <select
+                                                                                    className="select select-bordered w-28"
+                                                                                    value={item.courier}
+                                                                                    onChange={(e) => handleCourierChange(item._id, e.target.value)}
+                                                                                >
+                                                                                    <option value="courier">Courier</option>
+                                                                                    <option value="user1">User1</option>
+                                                                                    <option value="user2">User2</option>
+                                                                                </select>
                                                                             </div>
                                                                         </div>
-                                                                    );
-                                                                })}
-                                                                {item.cartItems.length > 2 && (
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setSelectedOrder(item);
-                                                                            toggleModal();
-                                                                        }}
-                                                                        className="btn btn-sm btn-primary text-white"
-                                                                    >
-                                                                        ...more {item.cartItems.length - 2}+
-                                                                    </button>
-                                                                )}
-                                                            </td>
-                                                            <td className="border-2 border-gray-100">
-                                                                <div className="space-y-2">
-                                                                    <div>
-                                                                        <select
-                                                                            className={`select select-bordered w-28 ${item?.status[item?.status?.length - 1]?.name === 'confirm'
-                                                                                ? 'bg-green-100 text-green-700'
-                                                                                : item?.status[item?.status?.length - 1]?.name === 'cancel'
-                                                                                    ? 'bg-red-100 text-red-700'
-                                                                                : item?.status[item?.status?.length - 1]?.name === 'doubleOrderCancel'
-                                                                                    ? 'bg-red-100 text-red-700'
-                                                                                    : item?.status[item?.status?.length - 1]?.name === 'processing'
-                                                                                        ? 'bg-yellow-100 text-yellow-700'
-                                                                                        : item?.status[item?.status.length - 1]?.name === 'sendToCourier'
-                                                                                            ? 'bg-sky-100 text-sky-700'
-                                                                                            : ''
-                                                                                }`}
-                                                                            value={item?.status[item?.status?.length - 1]?.name || 'new'}
-                                                                            onChange={(e) => handleStatusChange(item?._id, e.target.value)}
-                                                                        >
-                                                                            <option value="new">New</option>
-                                                                            <option value="pending">Pending</option>
-                                                                            <option value="pendingPayment">Pending Payment</option>
-                                                                            <option value="confirm">Confirm</option>
-                                                                            <option value="hold">Hold</option>
-                                                                            <option value="processing">Processing</option>
-                                                                            <option value="sendToCourier">Sent to Courier</option>
-                                                                            <option value="courierProcessing">Courier Processing</option>
-                                                                            <option value="delivered">Delivered</option>
-                                                                            <option value="return">Return</option>
-                                                                            <option value="exchange">Return Exchange</option>
-                                                                            <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
-                                                                            <option value="exchange">Exchange</option>
-                                                                            <option value="cancel">Cancel</option>
-                                                                            <option value="doubleOrderCancel">Double Order Cancel</option>
-                                                                        </select>
-                                                                    </div>
-
-                                                                    <div>
-                                                                        <select
-                                                                            className="select select-bordered w-28"
-                                                                            value={item.courier}
-                                                                            onChange={(e) => handleCourierChange(item._id, e.target.value)}
-                                                                        >
-                                                                            <option value="courier">Courier</option>
-                                                                            <option value="user1">User1</option>
-                                                                            <option value="user2">User2</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="border-2 border-gray-100">
-                                                                <div className="space-y-1">
-                                                                    <div className="text-center">
-                                                                        <a onClick={()=>updatePrint(item._id)} href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint?'red-500': 'green-500'}`}>
-                                                                            Print
-                                                                        </a>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl">
-                                                                            <FaRegEye />
-                                                                        </button>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs">
-                                                                            Add Note
-                                                                        </button>
-                                                                        <NoteModal />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="border-2 border-gray-100">
-                                                                <div className="dropdown dropdown-top dropdown-end">
-                                                                    <div tabIndex={0} role="button" className="btn btn-sm m-1"><BsThreeDotsVertical /></div>
-                                                                    <ul tabIndex={0} className="dropdown-content space-y-3 menu bg-base-100 rounded-box z-[1] p-2 shadow">
-                                                                        <li>
-                                                                            <a href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl">
-                                                                                <FaEdit />
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                                    </td>
+                                                                    <td className="border-2 border-gray-100">
+                                                                        <div className="space-y-1">
+                                                                            <div className="text-center">
+                                                                                <a onClick={() => updatePrint(item._id)} href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint ? 'red-500' : 'green-500'}`}>
+                                                                                    Print
+                                                                                </a>
+                                                                            </div>
+                                                                            <div className="text-center">
+                                                                                <button onClick={() => handleTrackingOpenModal(item._id)} className="text-blue-500 text-xl">
+                                                                                    <FaRegEye />
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="text-center">
+                                                                                <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs">
+                                                                                    Add Note
+                                                                                </button>
+                                                                                <NoteModal />
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="border-2 border-gray-100">
+                                                                        <div className="dropdown dropdown-top dropdown-end">
+                                                                            <div tabIndex={0} role="button" className="btn btn-sm m-1"><BsThreeDotsVertical /></div>
+                                                                            <ul tabIndex={0} className="dropdown-content space-y-3 menu bg-base-100 rounded-box z-[1] p-2 shadow">
+                                                                                <li>
+                                                                                    <a href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl">
+                                                                                        <FaEdit />
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                        }
                                         {/* <div className="flex justify-center mt-4">
                                             <button
                                                 onClick={() => handlePageChange(currentPage - 1)}
