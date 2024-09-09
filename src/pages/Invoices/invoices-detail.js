@@ -31,6 +31,8 @@ const InvoiceDetail = () => {
       }
     };
 
+    window.print()
+
     fetchOrder(); // Call the fetch function
 
     // Optional cleanup function if needed
@@ -42,7 +44,7 @@ const InvoiceDetail = () => {
   if (error) return <p>Error: {error}</p>;
   document.title = "Invoice Detail ";
 
-
+//7401564
 
   // Print the Invoice
   const printInvoice = () => {

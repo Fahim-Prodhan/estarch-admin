@@ -207,38 +207,35 @@ const SidebarContent = props => {
             </li>
 
             {/* Purchase */}
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Purchase")}</span>
               </Link>
               <ul className="sub-menu">
+               
                 <li>
-                  <Link to="/create-purchase">
-                    {props.t("Create Purchase")}
-                  </Link>
+                  <Link to="/add-purchase">{props.t("Add Purchase")} </Link>
                 </li>
                 <li>
                   <Link to="/purchase-list">{props.t("Purchase List")} </Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
             {/* Supply */}
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Supply")}</span>
               </Link>
               <ul className="sub-menu">
+             
                 <li>
-                  <Link to="/add-supply">{props.t("Add Supply")}</Link>
-                </li>
-                <li>
-                  <Link to="/supply-list">{props.t("Supply List")} </Link>
+                  <Link to="/add-supplier">{props.t("Add Supplier")} </Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
             {/* Expense */}
             {/* <li>
@@ -274,6 +271,15 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="/product-list">{props.t("Product List")} </Link>
+                </li>
+                <li>
+                  <Link to="/ecommerce-product-serial">{props.t("Product Serial")} </Link>
+                </li>
+                <li>
+                  <Link to="/ecommerce-category-serial">{props.t("Category Serial")} </Link>
+                </li>
+                <li>
+                  <Link to="/ecommerce-subcategory-serial">{props.t("Subcategory Serial")} </Link>
                 </li>
               </ul>
             </li>

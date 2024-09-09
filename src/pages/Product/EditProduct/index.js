@@ -96,7 +96,7 @@ function EditProduct() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/products/products`);
+        const response = await fetch(`${baseUrl}/api/products/new-all-products`);
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -257,7 +257,7 @@ function EditProduct() {
       const newSizeDetails = {
         size,
         barcode: generateId(),
-        purchasePrice: '00',
+        ratio: '00',
         regularPrice: regularPrice,
         discountPercent: discount.type === 'Percentage' ? discount.amount : '00',
         discountAmount: discount.type === 'Flat' ? discount.amount : regularPrice * discount.amount / 100,
@@ -691,7 +691,7 @@ function EditProduct() {
 
                             onChange={(e) => setSelectedSizeType(e.target.value)}
                           >
-                            <option value="" disabled>Select Size Type</option>
+                            <option value="" >Select Size Type</option>
                             {sizeTypes.map((type) => (
                               <option key={type._id} value={type.sizeType.name}>
                                 {type.sizeType.name}
@@ -751,7 +751,7 @@ function EditProduct() {
                           <tr className="w-full bg-gray-100">
                             <th className="py-2 px-4 border-b border-gray-200">Size-Color</th>
                             <th className="py-2 px-4 border-b border-gray-200">Barcode</th>
-                            <th className="py-2 px-4 border-b border-gray-200">Purchase Price</th>
+                            <th className="py-2 px-4 border-b border-gray-200">Ratio</th>
                             <th className="py-2 px-4 border-b border-gray-200">Regular Price</th>
                             <th className="py-2 px-4 border-b border-gray-200">Discount(%)</th>
                             <th className="py-2 px-4 border-b border-gray-200">Discount Amount</th>
@@ -770,8 +770,8 @@ function EditProduct() {
                                 <input
                                   type="text"
                                   className="w-full border border-gray-300 px-2 py-1"
-                                  value={item.purchasePrice}
-                                  onChange={(e) => updateSizeDetail(index, 'purchasePrice', e.target.value)}
+                                  value={item.ratio}
+                                  onChange={(e) => updateSizeDetail(index, 'ratio', e.target.value)}
                                 />
                               </td>
                               <td className="py-2 px-4 border-b border-gray-200">

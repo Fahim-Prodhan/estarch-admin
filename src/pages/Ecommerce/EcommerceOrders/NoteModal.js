@@ -4,8 +4,6 @@ import baseUrl from "../../../helpers/baseUrl";
 import { AuthContext } from "../../../utils/context/AuthProvider";
 
 const NoteModal = ({isOpen,  toggle, orderId }) => {
-
-    console.log('Received Order ID in NoteModal:', orderId);
     const { authUser } = useContext(AuthContext);
     const [note, setNote] = useState('');
     const [notes, setNotes] = useState([]);
@@ -15,7 +13,6 @@ const NoteModal = ({isOpen,  toggle, orderId }) => {
             const fetchNotes = async () => {
                 try {
                     const response = await axios.get(`${baseUrl}/api/orders/orders/notes/${orderId}`);
-                    console.log('Fetched notes response:', response.data);
                     setNotes(response.data.notes || []);
                 } catch (error) {
                     console.error('Error fetching notes:', error);
@@ -36,15 +33,17 @@ const NoteModal = ({isOpen,  toggle, orderId }) => {
           console.error('Order ID is not provided.');
           return;
         }
-      
         try {
           if (note.trim()) {
             const adminName = authUser?.fullName;
+            console.log(adminName);
+            
             const response = await axios.post(`${baseUrl}/api/orders/orders/notes/${orderId}`, { 
               noteContent: note.trim(),
               adminName
             });
-      
+            console.log(response);
+            
             setNote('');  
             setNotes(Array.isArray(response.data.order.notes) ? response.data.order.notes : []);
             toggle();
@@ -66,7 +65,7 @@ const NoteModal = ({isOpen,  toggle, orderId }) => {
                 <h2 className="text-xl font-bold mb-4 text-center">Add a Note</h2>
 
                 <textarea
-                    className="w-full p-2 border border-gray-300 rounded mb-4"
+                    className="w-full h-20 p-2 border border-gray-300 rounded mb-4"
                     rows="4"
                     placeholder="Enter your note here..."
                     value={note}
@@ -78,7 +77,7 @@ const NoteModal = ({isOpen,  toggle, orderId }) => {
                 </button>
 
                 <h3 className="text-lg font-bold mt-6">Previous Notes</h3>
-                <ul className="previous-notes-list">
+                <ul className="previous-notes-list h-80 overflow-y-scroll">
                     {notes.length > 0 ? (
                         notes.map((n) => (
                             <li key={n._id} className="border-b py-2">

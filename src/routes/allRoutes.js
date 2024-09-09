@@ -19,12 +19,10 @@ import EcommerceManageOrders from "../pages/Ecommerce/ManageOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
 
 // Purchase Pages
-import PurchaseCreate from "../pages/Purchase/PurchaseCreate/index"
-import PurchaseList from "../pages/Purchase/PurchaseList/index"
+
 
 // supply pages
-import AddSupply from "../pages/Supply/AddSupply/index"
-import SupplyList from "../pages/Supply/SupplyList/index"
+
 
 // Expense Pages
 import ExpenseHead from "../pages/Expense/ExpenseHead/index"
@@ -34,6 +32,9 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 // Product Page
 import ProductList from '../pages/Product/ProductList/index'
 import AddProduct from "../pages/Product/AddProduct/index"
+import ProductSerial from "../pages/Product/ProductSerial/index"
+import CategorySerial from "../pages/Product/CategorySerial/index"
+import SubcategorySerial from "../pages/Product/SubcategorySerial/index"
 
 
 // Category Pages
@@ -72,10 +73,12 @@ import AddSize from "../pages/Ecommerce/AddSize"
 import InvoicesDetail from "../pages/Invoices/invoices-detail"
 import ChartBuilder from "../pages/Ecommerce/EcommerceChartBuilder"
 import AddSizeChart from "../pages/Ecommerce/AddSizeChart"
-import ProductSerial from "../pages/Product/ProductSerial"
 import HomeElement from "../pages/Ecommerce/HomeElement"
 import HomeView from "../pages/Ecommerce/HomeView"
 import EditProduct from "../pages/Product/EditProduct"
+import AddSupplier from "../pages/Supply/addSupplier"
+import AddPurchase from "../pages/Purchase/AddPurchase"
+import PurchaseList from "../pages/Product/PurchaseList"
 
 
 const userRoutes = [
@@ -97,12 +100,12 @@ const userRoutes = [
 
 
   // Purchase Routes
-  { path: "/create-purchase", component: <PurchaseCreate/> },
+  { path: "/add-purchase", component: <AddPurchase/> },
   { path: "/purchase-list", component: <PurchaseList/> },
 
   // supply Routes
-  { path: "/add-supply", component: <AddSupply/> },
-  { path: "/supply-list", component: <SupplyList/> },
+ 
+  { path: "/add-supplier",component: <AddSupplier/> },
   
   // Expense Routes
   { path: "/expense-head", component: <ExpenseHead/> },
@@ -114,6 +117,8 @@ const userRoutes = [
   { path: "/ecommerce-add-product", component: <AddProduct/> },
   { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
   { path: "/ecommerce-product-serial", component: <ProductSerial/> },
+  { path: "/ecommerce-category-serial", component: <CategorySerial/> },
+  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
 
 
   

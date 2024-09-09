@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
-import { fetchTypes, createType, updateType, deleteType } from "../../../utils/typeApi.js";
+import { fetchTypes, createType, updateType} from "../../../utils/typeApi.js";
 import Modal from '../../../components/Common/Modal.js';
 import baseUrl from '../../../helpers/baseUrl.js';
 
@@ -12,11 +12,14 @@ const AddType = () => {
     const [newImage, setNewImage] = useState(null);
     const [editingType, setEditingType] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Fetch types function, declared outside of useEffect so it can be used elsewhere
+    const getTypes = async () => {
+        const data = await fetchTypes();
+        setTypes(data);
+    };
+
     useEffect(() => {
-        const getTypes = async () => {
-            const data = await fetchTypes();
-            setTypes(data);
-        };
         getTypes();
     }, []);
 
@@ -29,27 +32,19 @@ const AddType = () => {
 
     const handleEditType = (type) => {
         setEditingType(type);
-        setNewType(type.name);     
+        setNewType(type.name);
         setModalOpen(true);
         setNewImage(null);
     };
 
     const handleSaveType = async () => {
-
         if (editingType) {
             await updateType(editingType._id, newType, newImage);
         } else {
             await createType(newType, newImage);
         }
         setModalOpen(false);
-        const data = await fetchTypes();
-        setTypes(data);
-    };
-
-    const handleDeleteType = async (id) => {
-        await deleteType(id);
-        const data = await fetchTypes();
-        setTypes(data);
+        await getTypes(); // Fetch updated types after saving
     };
 
     const handleImageChange = async (e) => {
@@ -82,6 +77,25 @@ const AddType = () => {
         setNewImage('');
     };
 
+    const handleToggleStatus = async (type) => {
+        try {
+            const response = await fetch(`${baseUrl}/api/types/${type._id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ active: !type.active }),
+            });
+
+            if (response.ok) {
+                await getTypes(); // Fetch updated types after toggling the status
+            } else {
+                console.error('Failed to toggle status:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error toggling type status:', error);
+        }
+    };
 
     return (
         <React.Fragment>
@@ -109,11 +123,20 @@ const AddType = () => {
                                     <tr key={type._id}>
                                         <td className="border border-gray-300 p-2">{index + 1}</td>
                                         <td className="border border-gray-300 p-2">
-                                            {type.image ? (
-                                                <img src={`${baseUrl}/${type.image}`} alt={type.name} className="w-16 h-16 object-cover" />
-                                            ) : (
-                                                <span>No Image</span>
-                                            )}
+                                            <div className="relative">
+                                                <img
+                                                    src={`${baseUrl}/${type.image}`}
+                                                    alt={type.name}
+                                                    className={`w-16 h-16 object-cover transition-all duration-300 ${
+                                                        !type.active ? 'grayscale opacity-50' : ''
+                                                    }`}
+                                                />
+                                                {!type.active && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
+                                                        <span className="text-sm">Disabled</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="border border-gray-300 p-2">{type.name}</td>
                                         <td className="border border-gray-300 p-2">
@@ -123,12 +146,12 @@ const AddType = () => {
                                             >
                                                 Edit
                                             </button>
-                                            <button
-                                                className="bg-red-500 text-white p-2 rounded"
-                                                onClick={() => handleDeleteType(type._id)}
-                                            >
-                                                Delete
-                                            </button>
+                                            <input
+                                                type="checkbox"
+                                                className="toggle toggle-primary transition-all duration-300"
+                                                checked={type.active}
+                                                onChange={() => handleToggleStatus(type)}
+                                            />
                                         </td>
                                     </tr>
                                 ))}
