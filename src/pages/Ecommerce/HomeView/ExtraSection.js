@@ -20,6 +20,8 @@ function ExtraSection() {
             try {
                 const response = await axios.get(`${baseUrl}/api/extra-section`);
                 setExtraSectionInfo(response.data);
+                console.log('res', response.data);
+                
                 setCategoryType1(response.data.type1);
                 setCategoryName1(response.data.name1);
                 setCategoryType2(response.data.type2);

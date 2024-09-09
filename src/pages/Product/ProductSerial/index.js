@@ -96,7 +96,7 @@ function ProductSerial() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                                 {products.map(product => (
                                     <div key={product._id} className="bg-white p-2 flex flex-col justify-center items-center rounded-lg shadow-md">
-                                        <img src={`${baseUrl}/${product.images}`} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
+                                        <img src={`${baseUrl}/${product.images[0]}`} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
                                         <h2 className="text-base font-semibold">
                                             {product?.productName?.length > 10 ? `${product.productName.slice(0, 10)}...` : product.productName}
                                         </h2>
