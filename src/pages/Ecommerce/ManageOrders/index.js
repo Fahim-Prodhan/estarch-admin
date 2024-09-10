@@ -18,9 +18,13 @@ const ManageOrders = () => {
     const [discount, setDiscount] = useState(0)
     const [Advance, setAdvance] = useState(0)
     const [adminDiscount, setAdminDiscount] = useState(0)
-    const { id } = useParams();
-    console.log(orders);
+    const [name , setName] = useState('')
+    const [address , setAddress] = useState('')
+    const [phone , setPhone] = useState('')
+    const [orderNotes , setOrderNotes] = useState('')
 
+
+    const { id } = useParams();
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -35,19 +39,16 @@ const ManageOrders = () => {
         };
         fetchOrder();
     }, [id]);
-
-
     const updateDiscount = discount + parseInt(adminDiscount)
-
     // Update order
     const UpdateOrder = () => {
         console.log(updateDiscount);
-        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { cartItems: products, advanced: Advance, discount: calculateTotalDiscount(),adminDiscount:parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, {name,address,phone,orderNotes, deliveryCharge:delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(),adminDiscount:parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
             .then(res => {
                 alert("ok")
+                console.log(res);  
             })
     }
-
     const handleBarcodeChange = async (e) => {
         const barcode = e.target.value;
         setBarcode(barcode);
@@ -101,19 +102,17 @@ const ManageOrders = () => {
 
     useEffect(() => {
         setDelevary(orders?.deliveryCharge)
-
         const totalDiscount = products.reduce((accumulator, item) => {
             return accumulator + (item.discountAmount * item.quantity || 0);
         }, 0);
         setDiscount(totalDiscount)
         setAdvance(orders?.advanced)
         setAdminDiscount(orders?.adminDiscount)
+        setOrderNotes(orders?.orderNotes || '')
+        setPhone(orders?.phone || '')
+        setAddress(orders?.address || '')
+        setName(orders?.name || '')
     }, [orders]);
-
-    console.log(discount);
-    console.log(products)
-
-
     return (
         <React.Fragment>
             <div className="page-content">
@@ -127,31 +126,35 @@ const ManageOrders = () => {
                                 <label className="block text-sm font-medium mb-1">Customer Name</label>
                                 <input
                                     type="text"
+                                    onChange={(e)=> setName(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.name || ''}
+                                    defaultValue={name}
                                 />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Customer Phone</label>
                                 <input
                                     type="text"
+                                    onChange={(e)=> setPhone(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.phone || ''}
+                                    defaultValue={phone}
                                 />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Customer Address</label>
                                 <input
                                     type="text"
+                                    onChange={(e)=> setAddress(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.address || ''}
+                                    defaultValue={address}
                                 />
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Customer Note</label>
                                 <textarea
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    defaultValue={orders?.orderNotes || ''}
+                                    onChange={(e)=> setOrderNotes(e.target.value)}
+                                    defaultValue={orderNotes}
                                 />
                             </div>
                             <div className="mb-4">
