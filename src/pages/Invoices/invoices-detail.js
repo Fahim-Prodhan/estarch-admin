@@ -163,8 +163,10 @@ useEffect(()=>{
                               <td>{key + 1}</td>
                               <td>
                                 <h5 className="font-size-15 mb-1">{item.title}</h5>
+                                <h5 className="font-size-15 mb-1">{item.SKU}</h5>
+                                <h5 className="font-size-15 mb-1"></h5>
                                 <ul className="list-inline mb-0">
-                                  <li className="list-inline-item">Size : <span className="fw-medium">{item.size}</span></li>
+                                  <li className="list-inline-item">Size : {item.barcode} <span className="fw-medium">({item.size})</span></li>
                                 </ul>
                               </td>
                               <td>{item.price + item.discountAmount}</td>

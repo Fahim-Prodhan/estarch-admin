@@ -79,7 +79,18 @@ function ProductSerial() {
             console.error('Error updating serial numbers', error);
         }
     };
-
+    function calculateTotalOpeningStock(product) {
+        // Check if sizeDetails exists and is an array
+        if (Array.isArray(product.sizeDetails)) {
+          // Calculate total opening stock by summing up the openingStock values
+          return product.sizeDetails.reduce((total, sizeDetail) => {
+            return total + sizeDetail.openingStock;
+          }, 0);
+        } else {
+          // Return 0 if sizeDetails is not an array or does not exist
+          return 0;
+        }
+      }
     return (
         <React.Fragment>
             <div className="page-content">
@@ -101,7 +112,7 @@ function ProductSerial() {
                                             {product?.productName?.length > 10 ? `${product.productName.slice(0, 10)}...` : product.productName}
                                         </h2>
                                         <p className="text-orange-500">{product.SKU}</p>
-                                        <p className="text-orange-500">Qty: {product.qty}</p>
+                                        <p className="text-orange-500">Qty: {calculateTotalOpeningStock(product)}</p>
                                         <input
                                             type="number"
                                             min="0"

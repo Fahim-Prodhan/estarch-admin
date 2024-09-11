@@ -14,7 +14,7 @@ import { FaPhoneAlt } from "react-icons/fa";
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
-    const [statusFilter, setStatusFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('new');
     const [courierFilter, setCourierFilter] = useState('');
     const [dateFilter, setDateFilter] = useState('');
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -418,7 +418,7 @@ const Orders = () => {
                                                                                 <span className="font-semibold">{item.phone}</span>
                                                                             </p>
                                                                             <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
-                                                                            <p className="text-red-500">{item.orderNotes}</p>
+                                                                            <p className="text-red-500">Note: {item?.notes[item?.notes.length - 1]?.noteContent}</p>
                                                                         </div>
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
