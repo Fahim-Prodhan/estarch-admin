@@ -422,7 +422,7 @@ const Orders = () => {
                                                                         </div>
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
-                                                                        <div className="">
+                                                                        <div className="w-40">
                                                                             <p className="text-right">Total Bill: {item.totalAmount + item.discount} TK</p>
                                                                             <p className="text-right">Delivery Charge: {item.deliveryCharge} TK</p>
                                                                             <p className="text-right">Discount: {item.discount} TK</p>

@@ -8,14 +8,23 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
   const [orderNote, setOrderNote] = useState('');
   const [customerNote, setCustomerNote] = useState('');
   const [advancePayment, setAdvancePayment] = useState(0);
-  const [orderSource, setOrderSource] = useState('Website');
+  const [orderSource, setOrderSource] = useState('Store');
 
   const getDeliveryAmount = () => {
     return deliveryLocation === 'inside' ? 60 : 120;
   };
 
   const discountAmount = discount.type === 'percentage' ? (calculateTotalAmount() * discount.value) / 100 : discount.value;
-  const grandTotalAmount = finalAmount - discountAmount + getDeliveryAmount();
+  
+  const productDiscount = () => {
+    return orderItems.reduce((acc, item) => {
+      const itemTotal = (item.discountAmount) * item.quantity;
+      return acc + itemTotal;
+    }, 0);
+  };
+
+  
+  const grandTotalAmount = calculateTotalAmount()- discountAmount + getDeliveryAmount();
   const dueAmount = grandTotalAmount - advancePayment;
 
   const orderData = {
@@ -25,6 +34,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
     deliveryCharge: getDeliveryAmount(),
     address: `${userInfo.address}`,
     orderNotes: orderNote,
+    adminDiscount: discountAmount,
     cartItems: orderItems.map(item => ({
       productId: item._id,
       title: item.productName,
@@ -36,7 +46,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
     paymentMethod: 'Cash on Delivery',
     totalAmount: calculateTotalAmount(),
     userId: null,
-    discount: discountAmount,
+    discount: productDiscount(),
     grandTotal: grandTotalAmount,
     advanced: advancePayment,  
     dueAmount,  
@@ -106,10 +116,12 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
                 ))}
               </tbody>
             </table>
-            <p className="mb-2"><strong>Total Amount:</strong> {calculateTotalAmount()} TK</p>
-            <p className="mb-2"><strong>Discount:</strong> {discount.value} {discount.type === 'percentage' ? '%' : 'TK'}</p>
+            <p className="mb-2"><strong>Total Bill:</strong> {calculateTotalAmount() + productDiscount()} TK</p>
+            <p className="mb-2"><strong>Product Discount:</strong> {productDiscount()} TK</p>
+            <p className="mb-2"><strong>After Product Discount:</strong> {calculateTotalAmount()} TK</p>
+            <p className="mb-2"><strong>Admin Discount:</strong> {discount.value} {discount.type === 'percentage' ? '%' : 'TK'}</p>
             <p className="mb-2"><strong>Delivery Amount:</strong> {getDeliveryAmount()} TK</p>
-            <p className="mb-4"><strong>Final Amount:</strong> {grandTotalAmount} TK</p>
+            <p className="mb-4"><strong>Grand Total:</strong> {grandTotalAmount} TK</p>
             <p className="mb-2"><strong>Advance Payment:</strong> {advancePayment} TK</p>
             <p className="mb-2"><strong>Due Amount:</strong> {dueAmount} TK</p>
           </div>
