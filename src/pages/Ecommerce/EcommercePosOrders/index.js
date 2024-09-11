@@ -291,23 +291,23 @@ const PosOrders = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 h-[550px] overflow-y-scroll">
                 {products?.map((product, index) => (
                   <div
                     key={index}
-                    className="cursor-pointer card card-compact bg-base-100 w-[140px] h-[220px] shadow-xl rounded-none mt-2"
+                    className="cursor-pointer card card-compact bg-base-100 w-[140px] shadow-xl rounded-none mt-2"
                     onClick={() => handleProductClick(product)}
                   >
                     <div className="p-2 h-[150px]">
                       <figure>
                         <img
                           className="h-[140px] w-[130px]"
-                          src={product.images[0]}
+                          src={`${baseUrl}/${product.images[0]}`}
                           alt={product.productName}
                         />
                       </figure>
                     </div>
-                    <div className="bg-slate-200 h-[70px] text-sm text-center p-2">
+                    <div className="  text-sm text-center p-2">
                       <p>SKU:{product.SKU}</p>
                       <p className="text-sm">{product.productName}({product.totalStock})</p>
                     </div>
