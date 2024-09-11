@@ -152,7 +152,9 @@ useEffect(()=>{
                           <tr>
                             <th style={{ width: "70px" }}>No.</th>
                             <th>Item</th>
-                            <th>Price</th>
+                            <th>Regular Price</th>
+                            <th>Discount</th>
+                            <th>Selling Price</th>
                             <th>Quantity</th>
                             <th className="text-end" style={{ width: "120px" }}>Total</th>
                           </tr>
@@ -170,39 +172,41 @@ useEffect(()=>{
                                 </ul>
                               </td>
                               <td>{item.price + item.discountAmount}</td>
+                              <td>{item.discountAmount}</td>
+                              <td>{item.price}</td>
                               <td>{item.quantity}</td>
-                              <td className="text-end">{(item.price + item.discountAmount )* item.quantity }</td>
+                              <td className="text-end">{(item.price )* item.quantity }</td>
                             </tr>
                           ))}
-                          <tr>
-                            <th colSpan="4" className="text-end">Sub Total</th>
+                         <tr>
+                            <th colSpan="6" className="text-end">Sub Total</th>
                             <td className="text-end">{order.totalAmount + order.discount}</td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">
+                            <th colSpan="6" className="border-0 text-end">
                               Discount :</th>
                             <td className="border-0 text-end">- {order.discount + order.adminDiscount}</td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">
+                            <th colSpan="6" className="border-0 text-end">
                               Shipping Charge :</th>
                             <td className="border-0 text-end">{order.deliveryCharge}</td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">
+                            <th colSpan="6" className="border-0 text-end">
                               Tax</th>
                             <td className="border-0 text-end">00</td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">Total</th>
+                            <th colSpan="6" className="border-0 text-end">Total</th>
                             <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal}</h4></td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">Advance</th>
+                            <th colSpan="6" className="border-0 text-end">Advance</th>
                             <td className="border-0 text-end"><h4 className="m-0">{order.advanced}</h4></td>
                           </tr>
                           <tr>
-                            <th colSpan="4" className="border-0 text-end">Due Amount</th>
+                            <th colSpan="6" className="border-0 text-end">Due Amount</th>
                             <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal - order.advanced}</h4></td>
                           </tr>
                         </tbody>
