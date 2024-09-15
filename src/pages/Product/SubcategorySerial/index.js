@@ -3,6 +3,7 @@ import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import baseUrl from '../../../helpers/baseUrl';
 import axios from 'axios';
+import altImg from '../../../assets/avater.jpg'
 
 function SubcategoryProductSerial() {
     const [products, setProducts] = useState([]);
@@ -26,14 +27,14 @@ function SubcategoryProductSerial() {
     const handleSubcategoryNameChange = (e) => {
         SetSubcategoryName(e.target.value);
     };
-const fetchProducts = async () => {
-            const response = await fetch(`${baseUrl}/api/products/products/subcategory-status-on/products/${encodeURIComponent(subcategoryName)}`);
-            const data = await response.json();
-            setProducts(data.products);
-        };
+    const fetchProducts = async () => {
+        const response = await fetch(`${baseUrl}/api/products/products/subcategory-status-on/products/${encodeURIComponent(subcategoryName)}`);
+        const data = await response.json();
+        setProducts(data.products);
+    };
     useEffect(() => {
         // Fetch the products from the API when the component mounts
-        
+
         fetchProducts();
     }, [subcategoryName]);
 
@@ -105,15 +106,15 @@ const fetchProducts = async () => {
     function calculateTotalOpeningStock(product) {
         // Check if sizeDetails exists and is an array
         if (Array.isArray(product.sizeDetails)) {
-          // Calculate total opening stock by summing up the openingStock values
-          return product.sizeDetails.reduce((total, sizeDetail) => {
-            return total + sizeDetail.openingStock;
-          }, 0);
+            // Calculate total opening stock by summing up the openingStock values
+            return product.sizeDetails.reduce((total, sizeDetail) => {
+                return total + sizeDetail.openingStock;
+            }, 0);
         } else {
-          // Return 0 if sizeDetails is not an array or does not exist
-          return 0;
+            // Return 0 if sizeDetails is not an array or does not exist
+            return 0;
         }
-      }
+    }
 
 
     return (
@@ -140,7 +141,7 @@ const fetchProducts = async () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                                 {products.map(product => (
                                     <div key={product._id} className="bg-white p-2 flex flex-col justify-center items-center rounded-lg shadow-md">
-                                        <img src={`${baseUrl}/${product.images[0]}`} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
+                                        <img src={product.images[0] ? `${baseUrl}/${product.images[0]}` : altImg} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
                                         <h2 className="text-base font-semibold">
                                             {product?.productName?.length > 10 ? `${product.productName.slice(0, 10)}...` : product.productName}
                                         </h2>

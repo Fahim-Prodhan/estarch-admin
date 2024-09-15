@@ -11,6 +11,8 @@ import TrackingModal from './TrackingModal';
 import { MDBDataTable } from 'mdbreact';
 import { CgProfile } from "react-icons/cg";
 import { FaPhoneAlt } from "react-icons/fa";
+import altImg from '../../../assets/avater.jpg'
+
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -418,7 +420,8 @@ const Orders = () => {
                                                                                 <span className="font-semibold">{item.phone}</span>
                                                                             </p>
                                                                             <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
-                                                                            <p className="text-red-500">Note: {item?.notes[item?.notes.length - 1]?.noteContent}</p>
+                                                                            <p className="flex gap-1"><span className="font-semibold">Customer Note: </span>{item.orderNotes}</p>
+                                                                            <p className="text-red-500">Admin Note: {item?.notes[item?.notes.length - 1]?.noteContent}</p>
                                                                         </div>
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
@@ -437,10 +440,10 @@ const Orders = () => {
                                                                         {item?.cartItems?.slice(0, 2).map(c => {
                                                                             const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
                                                                             return (
-                                                                                <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 h-[310px]">
+                                                                                <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 ">
                                                                                     <div className="px-2">
                                                                                         <div className="relative">
-                                                                                            <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
+                                                                                            <img className="w-[140px] mx-auto shadow-lg" src={c?.productId?.images[0] ? `${baseUrl}/${c?.productId?.images[0]}`: altImg } alt={c?.productId?.productName} />
                                                                                             <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
                                                                                         </div>
                                                                                         <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>

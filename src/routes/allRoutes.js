@@ -31,6 +31,7 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 
 // Product Page
 import ProductList from '../pages/Product/ProductList/index'
+import ProductStock from '../pages/Product/ProductStock/index'
 import AddProduct from "../pages/Product/AddProduct/index"
 import ProductSerial from "../pages/Product/ProductSerial/index"
 import CategorySerial from "../pages/Product/CategorySerial/index"
@@ -119,6 +120,7 @@ const userRoutes = [
   { path: "/ecommerce-product-serial", component: <ProductSerial/> },
   { path: "/ecommerce-category-serial", component: <CategorySerial/> },
   { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
+  { path: "/ecommerce-product-stock", component: <ProductStock/> },
 
 
   

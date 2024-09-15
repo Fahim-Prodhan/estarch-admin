@@ -3,6 +3,7 @@ import { Container } from 'reactstrap';
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import baseUrl from '../../../helpers/baseUrl';
 import axios from 'axios';
+import altImg from '../../../assets/avater.jpg'
 
 function CategoryProductSerial() {
     const [products, setProducts] = useState([]);
@@ -22,14 +23,14 @@ function CategoryProductSerial() {
         fetchCategories();
     }, []);
 
-     // Sort
-     const handleCategoryNameChange = (e) => {
+    // Sort
+    const handleCategoryNameChange = (e) => {
         SetCategoryName(e.target.value);
     };
 
     // Fetch the products from the API when the component mounts
     const fetchProducts = async () => {
-        const response = await fetch( `${baseUrl}/api/products/products/category-status-on/products/${encodeURIComponent(CategoryName)}`);
+        const response = await fetch(`${baseUrl}/api/products/products/category-status-on/products/${encodeURIComponent(CategoryName)}`);
         const data = await response.json();
         setProducts(data);
     };
@@ -105,16 +106,16 @@ function CategoryProductSerial() {
     function calculateTotalOpeningStock(product) {
         // Check if sizeDetails exists and is an array
         if (Array.isArray(product.sizeDetails)) {
-          // Calculate total opening stock by summing up the openingStock values
-          return product.sizeDetails.reduce((total, sizeDetail) => {
-            return total + sizeDetail.openingStock;
-          }, 0);
+            // Calculate total opening stock by summing up the openingStock values
+            return product.sizeDetails.reduce((total, sizeDetail) => {
+                return total + sizeDetail.openingStock;
+            }, 0);
         } else {
-          // Return 0 if sizeDetails is not an array or does not exist
-          return 0;
+            // Return 0 if sizeDetails is not an array or does not exist
+            return 0;
         }
-      }
-    
+    }
+
 
     return (
         <React.Fragment>
@@ -125,7 +126,7 @@ function CategoryProductSerial() {
                         <div className="container mx-auto">
                             <div className="flex justify-between items-center mb-5">
                                 <h1 className="text-2xl font-semibold">Manage Product Serial</h1>
-                                <select value={CategoryName}  onChange={handleCategoryNameChange} className='select select-bordered select-sm' id="">
+                                <select value={CategoryName} onChange={handleCategoryNameChange} className='select select-bordered select-sm' id="">
                                     <option value="">Select Category Name</option>
                                     {categories.map(item => (
                                         <option key={item._id} value={item.name}>
@@ -140,7 +141,7 @@ function CategoryProductSerial() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                                 {products.map(product => (
                                     <div key={product._id} className="bg-white p-2 flex flex-col justify-center items-center rounded-lg shadow-md">
-                                        <img src={`${baseUrl}/${product.images[0]}`} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
+                                        <img src={product.images[0] ? `${baseUrl}/${product.images[0]}` : altImg} alt={product.productName} className="w-full h-40 object-cover rounded-md mb-4" />
                                         <h2 className="text-base font-semibold">
                                             {product?.productName?.length > 10 ? `${product.productName.slice(0, 10)}...` : product.productName}
                                         </h2>

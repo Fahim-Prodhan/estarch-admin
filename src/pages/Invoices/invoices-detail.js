@@ -14,6 +14,7 @@ const InvoiceDetail = () => {
   const [order, setOrder] = useState(null); // State to store order data
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [error, setError] = useState(null);
+
   useEffect(() => {
     // Function to fetch order data
     const fetchOrder = async () => {
@@ -31,29 +32,19 @@ const InvoiceDetail = () => {
       }
     };
 
-    
     fetchOrder(); // Call the fetch function
-    // Optional cleanup function if needed
-    return () => {
-      // Cleanup logic
-    };
   }, [id]);
 
-
-  
-useEffect(()=>{
-  if(order){
-    window.print()
-  }
-},[order])
-
+  useEffect(() => {
+    if (order) {
+      window.print();
+    }
+  }, [order]);
 
   if (loading) return <p>Loading...</p>; // Show loading state
   if (error) return <p>Error: {error}</p>;
-  document.title = "Invoice Detail ";
 
-//7401564
-
+  document.title = "Invoice Detail";
 
   // Print the Invoice
   const printInvoice = () => {
@@ -87,9 +78,14 @@ useEffect(()=>{
               display: none;
             }
           }
+
+          .text-black * {
+            color: black !important;
+            font-weight: 700;
+          }
         `}
       </style>
-      <div className="page-content">
+      <div className="page-content text-black">
         <Container fluid>
           {/* Render Breadcrumbs */}
           <Breadcrumbs title="Invoices" breadcrumbItem="Invoice Detail" />
@@ -100,7 +96,7 @@ useEffect(()=>{
                   <div className="invoice-title">
                     <h4 className="float-end font-size-16">
                       <Barcode
-                        className='w-44'
+                        className="w-44"
                         value={order.invoice}
                         displayValue={false}
                         lineColor="#00000"
@@ -131,7 +127,6 @@ useEffect(()=>{
                         <div>
                           <h5 className="font-size-16 mb-1">Invoice No:</h5>
                           <p>{order.invoice}</p>
-
                         </div>
                         <div className="mt-4">
                           <h5 className="font-size-16 mb-1">Invoice Date:</h5>
@@ -166,7 +161,6 @@ useEffect(()=>{
                               <td>
                                 <h5 className="font-size-15 mb-1">{item.title}</h5>
                                 <h5 className="font-size-15 mb-1">{item.SKU}</h5>
-                                <h5 className="font-size-15 mb-1"></h5>
                                 <ul className="list-inline mb-0">
                                   <li className="list-inline-item">Size : {item.barcode} <span className="fw-medium">({item.size})</span></li>
                                 </ul>
@@ -178,7 +172,7 @@ useEffect(()=>{
                               <td className="text-end">{(item.price )* item.quantity }</td>
                             </tr>
                           ))}
-                         <tr>
+                          <tr>
                             <th colSpan="6" className="text-end">Sub Total</th>
                             <td className="text-end">{order.totalAmount + order.discount}</td>
                           </tr>

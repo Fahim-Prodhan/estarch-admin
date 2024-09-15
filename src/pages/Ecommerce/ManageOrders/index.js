@@ -100,6 +100,7 @@ const ManageOrders = () => {
     }
 
 
+
     useEffect(() => {
         setDelevary(orders?.deliveryCharge)
         const totalDiscount = products.reduce((accumulator, item) => {
@@ -113,6 +114,8 @@ const ManageOrders = () => {
         setAddress(orders?.address || '')
         setName(orders?.name || '')
     }, [orders]);
+
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -192,7 +195,7 @@ const ManageOrders = () => {
                                     <table className="min-w-full table-auto border-collapse border border-gray-300">
                                         <thead className="bg-gray-600 text-white">
                                             <tr>
-                                                <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU</th>
+                                                <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU & Barcode</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">Product</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Quantity</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Discount</th>
@@ -204,9 +207,10 @@ const ManageOrders = () => {
                                             {products.length > 0 ?
                                                 products.map((product, index) => (
                                                     <tr key={product.id}>
-                                                        <td className="border-b p-2">{product.productId.SKU}</td>
-                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span> {product.productId.sizeDetails.map((p, index)=>(
-                                                            p.size === product.size ? <span>({p.barcode}) </span> : null
+                                                        <td className="border-b p-2"><span>SKU: {product.productId.SKU}</span> {product.productId.sizeDetails.map((p, index)=>(
+                                                            p.size === product.size ? <p> Barcode: {p.barcode}  </p> : null))}</td>
+                                                        <td className="border-b p-2">{product.title} <span>(Size: {product.size})</span> {product.productId.sizeDetails.map((p, index)=>(
+                                                            p.size === product.size ? <span className="text-red-500">Available: {p.openingStock} </span> : null
                                                         ))}</td>
                                                         
                                                         <td className="border-b p-2 text-center"> 

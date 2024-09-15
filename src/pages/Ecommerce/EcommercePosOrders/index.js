@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 import Modal from "./modal";
 import { fetchBrands, fetchCategories, fetchSubCategories } from "../../../utils/categoryApi";
 import PaymentModal from "./PaymentModal";
+import altImg from '../../../assets/avater.jpg'
+
 const PosOrders = () => {
   document.title = "Estarch | Pos Orders";
   const [products, setProducts] = useState([]);
@@ -302,7 +304,7 @@ const PosOrders = () => {
                       <figure>
                         <img
                           className="h-[140px] w-[130px]"
-                          src={`${baseUrl}/${product.images[0]}`}
+                          src={product.images[0]?`${baseUrl}/${product.images[0]}`: altImg}
                           alt={product.productName}
                         />
                       </figure>
