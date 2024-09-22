@@ -333,6 +333,33 @@ const SidebarContent = props => {
               </li>
             </li> */}
 
+            <li className="menu-title">Accounts</li>
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-user-circle"></i>
+                <span>{props.t("Accounts")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/accounts/main-accounts">{props.t("Main Account")}</Link>
+                </li>
+                <li>
+                  <Link to="/pages-register">{props.t("Investor Account")}</Link>
+                </li>
+                {/* <li>
+                  <Link to="/pages-login">{props.t("Login")}</Link>
+                </li>
+                <li>
+                  <Link to="/page-recoverpw">
+                    {props.t("Recover Password")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/auth-lock-screen">{props.t("Lock Screen")}</Link>
+                </li> */}
+              </ul>
+            </li>
+
             <li className="menu-title">Pages</li>
             <li>
               <Link to="/#" className="has-arrow waves-effect">

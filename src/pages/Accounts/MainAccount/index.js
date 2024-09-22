@@ -9,7 +9,7 @@ import altImg from '../../../assets/avater.jpg'
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ProductList = () => {
-  document.title = "Estarch | Product Stock List";
+  document.title = "Estarch | Main Account";
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -178,41 +178,36 @@ const ProductList = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Estarch" breadcrumbItem="Product Stock List" />
+          <Breadcrumbs title="Estarch" breadcrumbItem="Main Account" />
           <div className="">
             <p className="w-full bg-gray-600 text-white p-2 font-bold text-2xl">
-              Product Stock List
+              Main Accounts
             </p>
             {/* Status Summary Cards */}
-            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-6 gap-6 my-8">
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff7e3e1d]">
-                <p className="font-semibold text-[#FF7F3E]">Total Stock</p>
-                <p className="text-2xl font-bold text-[#FF7F3E]">  {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalStock} </p>
+            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-4 gap-6 my-8">
+              <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821] col-span-4">
+                <p className="font-bold  text-[#40A578] text-3xl m-0">Total Amount</p>
+                <p className="text-2xl font-bold text-[#40A578]">  {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : 87000}  ৳ </p>
               </div>
 
               <div className="shadow-md cursor-pointer text-center py-2 bg-[#af47d223]">
-                <p className="font-semibold text-[#AF47D2]">Total Purchase Price</p>
+                <p className="font-semibold text-[#AF47D2] m-0">Online Ecommerce</p>
                 <p className="text-2xl font-bold text-[#AF47D2]"> {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalPurchasePrice} ৳</p>
               </div>
 
 
               <div className="shadow-md cursor-pointer text-center py-2 bg-[#1b424225]">
-                <p className="font-semibold text-[#1B4242]">Total Regular Price</p>
+                <p className="font-semibold text-[#1B4242] m-0">Showroom Amount</p>
                 <p className="text-2xl font-bold text-[#1B4242]"> {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalRegularPrice} ৳</p>
               </div>
 
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821]">
-                <p className="font-semibold text-[#40A578]">Total Sale Price</p>
-                <p className="text-2xl font-bold text-[#40A578]"> {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalSalePrice} ৳</p>
-              </div>
-
               <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff204d2a]">
-                <p className="font-semibold text-[#FF204E]">Total WholeSale Price</p>
+                <p className="font-semibold text-[#FF204E] m-0">WholeSale Amount</p>
                 <p className="text-2xl font-bold text-[#FF204E]"> {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalWholeSalePrice} ৳</p>
               </div>
 
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#620c9f21]">
-                <p className="font-semibold text-[#610C9F]">Total OSP Price</p>
+              <div className="shadow-md cursor-pointer text-center py-2 bg-[#620c9f21] ">
+                <p className="font-semibold text-[#610C9F] m-0">Courier Amount</p>
                 <p className="text-2xl font-bold text-[#610C9F]"> {stockLoading ? <span className="loading loading-spinner loading-sm"></span> : totalOspPricePrice} ৳</p>
               </div>
 
@@ -234,33 +229,15 @@ const ProductList = () => {
                         <option value="150">150</option>
                       </select>
                       <select value={brandName} onChange={handleBrandNameChange} className='select select-bordered ' id="">
-                        <option value="">Select Brand Name</option>
-                        {brands.map(item => (
-                          <option key={item._id} value={item.name}>
-                            {item.name}
-                          </option>
-                        ))}
+                        <option value="">Filter Transaction</option>
+                        <option value="">Online</option>
+                        <option value="">Showroom</option>
+                        <option value="">Whole Sale</option>
+                        <option value="">Courier</option>
                       </select>
 
-                      <select value={CategoryName} onChange={handleCategoryNameChange} className='select select-bordered ' id="">
-                        <option value="">Select Category Name</option>
-                        {categories.map(item => (
-                          <option key={item._id} value={item.name}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select value={subcategoryName} onChange={handleSubcategoryNameChange} className='select select-bordered' id="">
-                        <option value="">Select Subcategory Name</option>
-                        {subcategories.map(item => (
-                          <option key={item._id} value={item.name}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
                       <label className="input input-bordered w-full max-w-xs flex items-center gap-2">
-                        <input onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }} type="text" className="grow w-full max-w-sm" placeholder="Search" />
+                        <input onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }} type="text" className="grow w-full max-w-sm" placeholder="Search Transaction ID" />
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 16 16"
@@ -272,6 +249,8 @@ const ProductList = () => {
                             clipRule="evenodd" />
                         </svg>
                       </label>
+                      <button className="bg-error py-2 rounded-md text-white px-12">Withdraw</button>
+
 
                     </div>
 
@@ -288,83 +267,32 @@ const ProductList = () => {
                             <thead>
                               <tr>
                                 <th className={`border-2 border-gray-200 border-opacity-75`}>Serial</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Image</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Product Info</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Total Purchase Price</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Total Regular Price</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Total Sale Price</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Total WholeSale Price</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Total OSP Price</th>
-                                <th className={`border-2 border-gray-200 border-opacity-75`}>Action</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>Transaction ID</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>Transaction Type</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>From</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>To</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>Amount</th>
+                                <th className={`border-2 border-gray-200 border-opacity-75`}>Date</th>
                               </tr>
                             </thead>
                             <tbody>
                               {
-                                products.map((item, index) => {
-                                  // Calculate total regular price by summing up all regular prices in sizeDetails
-                                  const totalQuantity = item.sizeDetails?.reduce((acc, sizeDetail) => acc + sizeDetail?.openingStock, 0) || 0;
-                                  const totalRegularPrice = item.sizeDetails?.reduce((acc, sizeDetail) => {
-                                    const priceForSize = sizeDetail?.regularPrice * sizeDetail?.openingStock || 0;
-                                    return acc + priceForSize;
-                                  }, 0) || 0;
-                                  const totalSellingPrice = item.sizeDetails?.reduce((acc, sizeDetail) => {
-                                    const priceForSize = sizeDetail?.salePrice * sizeDetail?.openingStock || 0;
-                                    return acc + priceForSize;
-                                  }, 0) || 0;
-
-                                  const totalPurchasePrice = item.sizeDetails?.reduce((acc, sizeDetail) => {
-                                    const priceForSize = sizeDetail?.purchasePrice * sizeDetail?.openingStock || 0;
-                                    return acc + priceForSize;
-                                  }, 0) || 0;
-
-                                  const totalWholeSalePrice = item.sizeDetails?.reduce((acc, sizeDetail) => {
-                                    const priceForSize = sizeDetail?.wholesalePrice * sizeDetail?.openingStock || 0;
-                                    return acc + priceForSize;
-                                  }, 0) || 0;
-
-                                  const totalOSPPrice = item.sizeDetails?.reduce((acc, sizeDetail) => {
-                                    const priceForSize = sizeDetail?.ospPrice * sizeDetail?.openingStock || 0;
-                                    return acc + priceForSize;
-                                  }, 0) || 0;
-
-
+                                products.map((item, index) => {          
+                                  const totalWholeSalePrice = item.sizeDetails?.reduce((acc, sizeDetail) => acc + sizeDetail?.wholesalePrice, 0) || 0;
+                                 
                                   return (
                                     <tr key={item._id}>
                                       <td className={`border-2 border-gray-200 border-opacity-75`}>{index + 1}</td>
+                                    
                                       <td className={`border-2 border-gray-200 border-opacity-75`}>
-                                        <div className="w-12 flex justify-center">
-                                          <div className="flex justify-center">
-                                            <img
-                                              className=""
-                                              src={item.images[0] ? `${baseUrl}/${item.images[0]}` : altImg}
-                                              alt='Product images'
-                                            />
-                                          </div>
-                                        </div>
+                                        <p>EST-TN-009193747</p>
                                       </td>
-                                      <td className={`border-2 border-gray-200 border-opacity-75`}>
-                                        <div className="w-44 p-0">
-                                          <p><span className="font-bold">Name:</span> <span>{item.productName}</span></p>
-                                          <p><span className="font-bold">Sku:</span> <span>{item.SKU}</span></p>
-                                          <p><span className="font-bold">Total Stock:</span> <span>{totalQuantity}</span></p>
-                                        </div>
-                                      </td>
-                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>{totalPurchasePrice} ৳</td> {/* Display total regular price */}
-                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>{totalRegularPrice} ৳</td>
-                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>{totalSellingPrice} ৳</td>
+                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>Cash In</td> {/* Display total regular price */}
+                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>Fiaz</td>
+                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>Main Account</td>
                                       <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>{totalWholeSalePrice} ৳</td>
-                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>{totalOSPPrice} ৳</td>
-                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>
-                                        <button
-                                          className="btn btn-sm btn-accent text-white"
-                                          onClick={() => {
-                                            setSelectedProduct(item);
-                                            toggleModal();
-                                          }}
-                                        >
-                                          Details
-                                        </button>
-                                      </td>
+                                      <td className={`border-2 border-gray-200 border-opacity-75 text-center`}>Sept 24, 20024 2:00Pm</td>
+                            
                                     </tr>
                                   );
                                 })

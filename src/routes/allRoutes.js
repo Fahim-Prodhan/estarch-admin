@@ -52,6 +52,9 @@ import Brand from "../pages/Brand/index"
 // barcode Print page
 import BarcodeDisplay from "../pages/Product/BarcodeDisplay/index"
 
+// accounts
+import MainAccounts from "../pages/Accounts/MainAccount/index.js"
+
 
 
 // Authentication related pages
@@ -135,6 +138,10 @@ const userRoutes = [
   
   // brand routes
   { path: "/brand", component: <Brand/> },
+  
+  // Accounts
+  { path: "/accounts/main-accounts", component: <MainAccounts/> },
+
   
   // authentication
   { path: "/pages-register", component: <Register1/> },
