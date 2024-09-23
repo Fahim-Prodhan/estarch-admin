@@ -215,7 +215,6 @@ function AddProduct() {
     updateAllSizeDetails('wholesalePrice', price);
   };
 
-  console.log(wholeSale);
 
 
   const generateId = () => {

@@ -79,72 +79,78 @@ import EditProduct from "../pages/Product/EditProduct"
 import AddSupplier from "../pages/Supply/addSupplier"
 import AddPurchase from "../pages/Purchase/AddPurchase"
 import PurchaseList from "../pages/Product/PurchaseList"
+import PaymentOption from "../pages/PaymentOption/AddPayment"
+import ViewPaymentOption from "../pages/PaymentOption/ViewPaymentOption"
+import EditPayment from "../pages/PaymentOption/EditPayment"
+
 
 
 const userRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
 
   // E-commerce Routes
-  { path: "/ecommerce-home-element", component: <HomeElement/> },
-  { path: "/ecommerce-home-view", component: <HomeView/> },
-  { path: "/ecommerce-orders", component: <EcommerceOrders/> },
-  { path: "/manage-orders/:id", component: <EcommerceManageOrders/> },
-  { path: "/ecommerce-return", component: <EcommerceReturn/> },
-  { path: "/ecommerce-add-category", component: <AddCategory/> },
-  { path: "/ecommerce-add-subcategory", component: <AddSubCategory/> },
-  { path: "/ecommerce-add-brand", component: <AddBrand/> },
-  { path: "/ecommerce-add-type", component: <AddType/> },
-  { path: "/ecommerce-add-size-type", component: <AddSizeType/> },
-  { path: "/ecommerce-add-size", component: <AddSize/> },
-  { path: "/ecommerce-chart-builder", component: <ChartBuilder/> },
+  { path: "/ecommerce-home-element", component: <HomeElement /> },
+  { path: "/ecommerce-home-view", component: <HomeView /> },
+  { path: "/ecommerce-orders", component: <EcommerceOrders /> },
+  { path: "/manage-orders/:id", component: <EcommerceManageOrders /> },
+  { path: "/ecommerce-return", component: <EcommerceReturn /> },
+  { path: "/ecommerce-add-category", component: <AddCategory /> },
+  { path: "/ecommerce-add-subcategory", component: <AddSubCategory /> },
+  { path: "/ecommerce-add-brand", component: <AddBrand /> },
+  { path: "/ecommerce-add-type", component: <AddType /> },
+  { path: "/ecommerce-add-size-type", component: <AddSizeType /> },
+  { path: "/ecommerce-add-size", component: <AddSize /> },
+  { path: "/ecommerce-chart-builder", component: <ChartBuilder /> },
 
 
   // Purchase Routes
-  { path: "/add-purchase", component: <AddPurchase/> },
-  { path: "/purchase-list", component: <PurchaseList/> },
+  { path: "/add-purchase", component: <AddPurchase /> },
+  { path: "/purchase-list", component: <PurchaseList /> },
 
   // supply Routes
- 
-  { path: "/add-supplier",component: <AddSupplier/> },
-  
+
+  { path: "/add-supplier", component: <AddSupplier /> },
+
   // Expense Routes
-  { path: "/expense-head", component: <ExpenseHead/> },
-  { path: "/create-expense", component: <CreateExpense/> },
-  { path: "/expense-list", component: <ExpenseList/> },
-  
+  { path: "/expense-head", component: <ExpenseHead /> },
+  { path: "/create-expense", component: <CreateExpense /> },
+  { path: "/expense-list", component: <ExpenseList /> },
+
   // Product Routes
-  { path: "/product-list", component: <ProductList/> },
-  { path: "/ecommerce-add-product", component: <AddProduct/> },
-  { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
-  { path: "/ecommerce-product-serial", component: <ProductSerial/> },
-  { path: "/ecommerce-category-serial", component: <CategorySerial/> },
-  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
+  { path: "/product-list", component: <ProductList /> },
+  { path: "/ecommerce-add-product", component: <AddProduct /> },
+  { path: "/ecommerce-edit-product/:id", component: <EditProduct /> },
+  { path: "/ecommerce-product-serial", component: <ProductSerial /> },
+  { path: "/ecommerce-category-serial", component: <CategorySerial /> },
+  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial /> },
 
+  // payment Routes
+  { path: "/ecommerce-Payment-Option", component: <PaymentOption/> },
+  { path: "/ecommerce-Payment-Option/:id", component: <EditPayment/> },
+  { path: "/ecommerce-Payment-Option-view", component: <ViewPaymentOption/> },
 
-  
-  
   // Category Routes
-  { path: "/create-category", component: <CreateCategory/> },
-  { path: "/category-list", component: <CategoryList/> },
-  
-  // Attribute Routes
-  { path: "/main-attribute", component: <AddSizeChart/> },
-  { path: "/attribute-values", component: <AttributeValue/> },
-  
-  // brand routes
-  { path: "/brand", component: <Brand/> },
-  
-  // authentication
-  { path: "/pages-register", component: <Register1/> },
-  { path: "/invoice/:id", component: <InvoicesDetail/> },
+  { path: "/create-category", component: <CreateCategory /> },
+  { path: "/category-list", component: <CategoryList /> },
 
-  
+  // Attribute Routes
+  { path: "/main-attribute", component: <AddSizeChart /> },
+  { path: "/attribute-values", component: <AttributeValue /> },
+
+  // brand routes
+  { path: "/brand", component: <Brand /> },
+
+  // authentication
+  { path: "/pages-register", component: <Register1 /> },
+  { path: "/invoice/:id", component: <InvoicesDetail /> },
+
+
 
 
   //Utility
-  { path: "/pages-starter", component: <PagesStarter/> },
+  { path: "/pages-starter", component: <PagesStarter /> },
 
-  
+
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name
   {
@@ -157,22 +163,22 @@ const userRoutes = [
 
 const authRoutes = [
 
-  { path: "/logout", component: <Logout/> },
-  { path: "/login", component: <Login/> },
-  { path: "/forgot-password", component: <ForgetPwd/> },
+  { path: "/logout", component: <Logout /> },
+  { path: "/login", component: <Login /> },
+  { path: "/forgot-password", component: <ForgetPwd /> },
   // { path: "/register", component: <Register/> },
 
-  { path: "/pages-maintenance", component: <PagesMaintenance/> },
-  { path: "/pages-comingsoon", component: <PagesComingsoon/> },
-  { path: "/pages-404", component: <Pages404/> },
-  { path: "/pages-500", component: <Pages500/> },
+  { path: "/pages-maintenance", component: <PagesMaintenance /> },
+  { path: "/pages-comingsoon", component: <PagesComingsoon /> },
+  { path: "/pages-404", component: <Pages404 /> },
+  { path: "/pages-500", component: <Pages500 /> },
 
   // Authentication Inner
-  { path: "/pages-login", component: <Login1/> },
+  { path: "/pages-login", component: <Login1 /> },
   // { path: "/pages-register", component: <Register1/> },
-  { path: "/page-recoverpw", component: <Recoverpw/> },
-  { path: "/auth-lock-screen", component: <LockScreen/> },
-  { path: "/barcode-display", component: <BarcodeDisplay/> },
+  { path: "/page-recoverpw", component: <Recoverpw /> },
+  { path: "/auth-lock-screen", component: <LockScreen /> },
+  { path: "/barcode-display", component: <BarcodeDisplay /> },
 ]
 
 export { userRoutes, authRoutes }

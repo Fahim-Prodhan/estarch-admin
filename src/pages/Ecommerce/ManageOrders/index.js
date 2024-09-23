@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Container } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { MdDelete } from "react-icons/md";
-import { IoMdAddCircle } from "react-icons/io";
 import axios from "axios";
 import baseUrl from "../../../helpers/baseUrl";
 import { useParams } from "react-router";
-
+import { PiPlus } from 'react-icons/pi';
+import { TbTrash } from 'react-icons/tb';
 const ManageOrders = () => {
     document.title = "Estarch | Manage Order";
     const [orders, setOrders] = useState({});
@@ -18,11 +18,67 @@ const ManageOrders = () => {
     const [discount, setDiscount] = useState(0)
     const [Advance, setAdvance] = useState(0)
     const [adminDiscount, setAdminDiscount] = useState(0)
-    const [name , setName] = useState('')
-    const [address , setAddress] = useState('')
-    const [phone , setPhone] = useState('')
-    const [orderNotes , setOrderNotes] = useState('')
+    const [name, setName] = useState('')
+    const [address, setAddress] = useState('')
+    const [phone, setPhone] = useState('')
+    const [orderNotes, setOrderNotes] = useState('')
+    const [payments, setPayments] = useState([
+        { id: 1, accountType: '', paymentOption: '', amount: '', paymentOptions: [] },
+    ]);
+    const [accounts, setAccounts] = useState([]); // Store the accounts data
 
+    // Fetch accounts data from API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/payment/showroom-accounts');
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    setAccounts(data[0].accounts); // Assuming "accounts" is inside the first object
+                }
+            } catch (error) {
+                console.error('Error fetching accounts:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Handle the account type selection
+    const handleAccountTypeChange = (id, value) => {
+        // Find payment options for the selected account type
+        const selectedAccount = accounts.find((acc) => acc.accountType === value);
+        const paymentOptions = selectedAccount ? selectedAccount.payments : [];
+
+        setPayments((prevPayments) =>
+            prevPayments.map((payment) =>
+                payment.id === id
+                    ? { ...payment, accountType: value, paymentOption: '', paymentOptions } // Reset paymentOption and set new options
+                    : payment
+            )
+        );
+    };
+
+    const addPaymentRow = () => {
+        const newPayment = { id: Date.now(), accountType: '', paymentOption: '', amount: '', paymentOptions: [] };
+        setPayments([...payments, newPayment]);
+    };
+
+    const removePaymentRow = (id) => {
+        setPayments(payments.filter((payment) => payment.id !== id));
+    };
+
+    const handleInputChange = (id, field, value) => {
+        const updatedPayments = payments.map((payment) =>
+            payment.id === id ? { ...payment, [field]: value } : payment
+        );
+        setPayments(updatedPayments);
+    };
+
+    const totalPayAmount = payments.reduce(
+        (acc, payment) => acc + Number(payment.amount || 0),
+        0
+    );
 
     const { id } = useParams();
     useEffect(() => {
@@ -43,10 +99,10 @@ const ManageOrders = () => {
     // Update order
     const UpdateOrder = () => {
         console.log(updateDiscount);
-        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, {name,address,phone,orderNotes, deliveryCharge:delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(),adminDiscount:parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { payments, name, address, phone, orderNotes, deliveryCharge: delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(), adminDiscount: parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
             .then(res => {
                 alert("ok")
-                console.log(res);  
+                console.log(res);
             })
     }
     const handleBarcodeChange = async (e) => {
@@ -90,7 +146,7 @@ const ManageOrders = () => {
 
     const calculateTotalAmount = () => products.reduce((total, item) => total + item.price * item.quantity, 0);
     const calculateTotalDiscount = () => products.reduce((total, item) => total + item.discountAmount * item.quantity, 0);
-  
+
     const totalAmount = () => {
         return (calculateTotalAmount() + parseInt(delivery)) - adminDiscount;
     };
@@ -106,13 +162,13 @@ const ManageOrders = () => {
             return accumulator + (item.discountAmount * item.quantity || 0);
         }, 0);
         setDiscount(totalDiscount)
-        setAdvance(orders?.advanced)
+        setAdvance(orders?.advanced + totalPayAmount)
         setAdminDiscount(orders?.adminDiscount)
         setOrderNotes(orders?.orderNotes || '')
         setPhone(orders?.phone || '')
         setAddress(orders?.address || '')
         setName(orders?.name || '')
-    }, [orders]);
+    }, [orders, payments]);
     return (
         <React.Fragment>
             <div className="page-content">
@@ -126,7 +182,7 @@ const ManageOrders = () => {
                                 <label className="block text-sm font-medium mb-1">Customer Name</label>
                                 <input
                                     type="text"
-                                    onChange={(e)=> setName(e.target.value)}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
                                     defaultValue={name}
                                 />
@@ -135,7 +191,7 @@ const ManageOrders = () => {
                                 <label className="block text-sm font-medium mb-1">Customer Phone</label>
                                 <input
                                     type="text"
-                                    onChange={(e)=> setPhone(e.target.value)}
+                                    onChange={(e) => setPhone(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
                                     defaultValue={phone}
                                 />
@@ -144,7 +200,7 @@ const ManageOrders = () => {
                                 <label className="block text-sm font-medium mb-1">Customer Address</label>
                                 <input
                                     type="text"
-                                    onChange={(e)=> setAddress(e.target.value)}
+                                    onChange={(e) => setAddress(e.target.value)}
                                     className="w-full px-3 py-2 border-2 rounded"
                                     defaultValue={address}
                                 />
@@ -153,7 +209,7 @@ const ManageOrders = () => {
                                 <label className="block text-sm font-medium mb-1">Customer Note</label>
                                 <textarea
                                     className="w-full px-3 py-2 border-2 rounded"
-                                    onChange={(e)=> setOrderNotes(e.target.value)}
+                                    onChange={(e) => setOrderNotes(e.target.value)}
                                     defaultValue={orderNotes}
                                 />
                             </div>
@@ -205,11 +261,11 @@ const ManageOrders = () => {
                                                 products.map((product, index) => (
                                                     <tr key={product.id}>
                                                         <td className="border-b p-2">{product.productId.SKU}</td>
-                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span> {product.productId.sizeDetails.map((p, index)=>(
+                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span> {product.productId.sizeDetails.map((p, index) => (
                                                             p.size === product.size ? <span>({p.barcode}) </span> : null
                                                         ))}</td>
-                                                        
-                                                        <td className="border-b p-2 text-center"> 
+
+                                                        <td className="border-b p-2 text-center">
                                                             <div className="flex items-center justify-center">
                                                                 <button
                                                                     type="button"
@@ -289,6 +345,7 @@ const ManageOrders = () => {
                                         readOnly
                                     />
                                 </div>
+
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Advance</label>
                                     <input
@@ -309,6 +366,69 @@ const ManageOrders = () => {
                                         />
                                     </div>
                                 </div>
+                            </div>
+                            <div className='max-h-40 overflow-y-scroll mt-5 w-full'>
+                                {payments.map((payment) => (
+                                    <div className="grid grid-cols-5 gap-4 mb-2" key={payment.id}>
+                                        {/* Payment Type */}
+                                        <div className="col-span-1">
+                                            <select
+                                                className="w-full p-2 border rounded"
+                                                value={payment.accountType}
+                                                onChange={(e) => handleAccountTypeChange(payment.id, e.target.value)}
+                                            >
+                                                <option value="">Select Account Type</option>
+                                                {accounts.map((account) => (
+                                                    <option key={account._id} value={account.accountType}>
+                                                        {account.accountType.charAt(0).toUpperCase() + account.accountType.slice(1)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Payment Option */}
+                                        <div className="col-span-1">
+                                            <select
+                                                className="w-full p-2 border rounded"
+                                                value={payment.paymentOption}
+                                                onChange={(e) => handleInputChange(payment.id, 'paymentOption', e.target.value)}
+                                            >
+                                                <option value="">Account option</option>
+                                                {payment.paymentOptions.map(option => (
+                                                    <option key={option._id} value={option.paymentOption}>
+                                                        {option.paymentOption}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Amount */}
+                                        <div className="col-span-1">
+                                            <input
+                                                type="number"
+                                                placeholder="Amount"
+                                                value={payment.amount}
+                                                onChange={(e) => handleInputChange(payment.id, 'amount', e.target.value)}
+                                                className="w-full p-2 border rounded"
+                                            />
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="col-span-1 flex items-center space-x-2">
+                                            <button className="text-blue-500 p-2" onClick={addPaymentRow}>
+                                                <PiPlus />
+                                            </button>
+                                            {payments.length > 1 && (
+                                                <button
+                                                    className="text-red-500 p-2"
+                                                    onClick={() => removePaymentRow(payment.id)}
+                                                >
+                                                    <TbTrash />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

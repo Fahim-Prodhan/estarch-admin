@@ -9,6 +9,46 @@ const AddPurchase = () => {
     const [suppliers, setSuppliers] = useState([]);
     const [selectedSupplier, setSelectedSupplier] = useState('');
     const [isModalOpen, setModalOpen] = useState(false);
+    const [skuproduct, setSkuProduct] = useState([]);
+    const [filteredProduct, setFilteredProduct] = useState([]);
+    const [productValue, setProductValue] = useState('');
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [due, setDue] = useState(0);
+    const [barcode, setBarcode] = useState('');
+    const [products, setProducts] = useState([]);
+    const [isMultiple, setIsMultiple] = useState(false);
+    const [isAdding, setIsAdding] = useState(true);
+    const [reference, setReference] = useState('');
+    const [note, setNote] = useState('');
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await fetch(`${baseUrl}/api/products/navbar-search`);
+                const data = await response.json();
+                setSkuProduct(data);
+
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    // Filter products based on the input value
+    useEffect(() => {
+        if (productValue) {
+            const filtered = skuproduct.filter(product =>
+                product.productName.toLowerCase().includes(productValue.toLowerCase()) ||
+                product.SKU.toLowerCase().includes(productValue.toLowerCase())
+            );
+            console.log(filtered);
+
+            setFilteredProduct(filtered);
+        } else {
+            setFilteredProduct([]);
+        }
+    }, [productValue, skuproduct]);
     const [newSupplier, setNewSupplier] = useState({
         name: '',
         businessName: '',
@@ -16,7 +56,7 @@ const AddPurchase = () => {
         mobile: '',
         area: '',
         address: '',
-        due: '',
+        purchaseTotal: '',
         date: '',
         note: ''
     });
@@ -46,7 +86,7 @@ const AddPurchase = () => {
                 mobile: '',
                 area: '',
                 address: '',
-                due: '',
+                purchaseTotal: '',
                 date: '',
                 note: ''
             });
@@ -54,39 +94,13 @@ const AddPurchase = () => {
             console.error('Error saving supplier:', error);
         }
     };
-    const [totalAmount, setTotalAmount] = useState(0);
-    const [due, setDue] = useState(0);
-    const [paymentTypes, setPaymentTypes] = useState([
-        { type: 'Cash', isOpen: true, amount: '' },
-    ]);
-    const handlePaymentTypeChange = (index, value) => {
-        const updatedPaymentTypes = [...paymentTypes];
-        updatedPaymentTypes[index].type = value;
-        setPaymentTypes(updatedPaymentTypes);
-    };
-    const handlePaymentAmountChange = (index, value) => {
-        const updatedPaymentTypes = [...paymentTypes];
-        updatedPaymentTypes[index].amount = value;
-        setPaymentTypes(updatedPaymentTypes);
-    };
-    const addPaymentType = () => {
-        setPaymentTypes([...paymentTypes, { type: 'Cash', isOpen: true, amount: '' }]);
-    };
-    const removePaymentType = (index) => {
-        const updatedPaymentTypes = paymentTypes.filter((_, i) => i !== index);
-        setPaymentTypes(updatedPaymentTypes);
-    };
-    const [barcode, setBarcode] = useState('');
-    const [products, setProducts] = useState([]);
-    const [isMultiple, setIsMultiple] = useState(false);
-    const [isAdding, setIsAdding] = useState(true);
-    
+
     useEffect(() => {
         const fetchProductByBarcode = async (barcode) => {
             try {
                 const response = await fetch(`${baseUrl}/api/products/product/barcode/${barcode}`);
                 const data = await response.json();
-    
+
                 if (data && data.productId) {
                     const sizeDetail = data.productId.sizeDetails.find(detail => detail.barcode === barcode);
                     const newProduct = {
@@ -97,7 +111,7 @@ const AddPurchase = () => {
                         subtotal: (sizeDetail ? sizeDetail.purchasePrice : 0) * (data.quantity || 1),
                         total: (sizeDetail ? sizeDetail.salePrice : 0) * (data.quantity || 1),
                     };
-    
+
                     // If adding multiple products
                     if (isMultiple) {
                         setProducts(prevProducts => {
@@ -123,16 +137,33 @@ const AddPurchase = () => {
                 console.error('Error fetching product:', error);
             }
         };
-    
+
         if (barcode.trim() && isAdding) {
             fetchProductByBarcode(barcode.trim());
         }
     }, [barcode, isAdding, isMultiple]);
-    
+
+    const clickProduct = (product) => {
+        if (!product || !product.sizeDetails || product.sizeDetails.length === 0) return;
+
+        const newProducts = product.sizeDetails.map(sizeDetail => ({
+            ...product,
+            sizeDetail, // Keep the individual size detail
+            size: sizeDetail.size, // Add the size info
+            quantity: 1, // Default quantity for each size, you can adjust this
+            purchasePrice: sizeDetail.purchasePrice || 0,
+            subtotal: sizeDetail.purchasePrice * 1, // Default subtotal with quantity 1
+            total: sizeDetail.salePrice * 1, // Default total with sale price and quantity 1
+        }));
+
+        // Add these new products to the state
+        setProducts(prevProducts => [...prevProducts, ...newProducts]);
+    };
+
     const handleInputChange = (e) => {
         setBarcode(e.target.value);
     };
-    
+
     const handleCheckboxChange = () => {
         setIsMultiple(prev => !prev);
         if (!isMultiple) {
@@ -142,12 +173,12 @@ const AddPurchase = () => {
             setIsAdding(false);
         }
     };
-    
+
     const handleFinalize = () => {
         setIsAdding(false);
         setIsMultiple(false);
     };
-    
+
     const handleQuantityChange = (index, newQuantity) => {
         if (newQuantity < 1) return;
         setProducts(products.map((product, i) => i === index ? {
@@ -178,16 +209,14 @@ const AddPurchase = () => {
     useEffect(() => {
         const totalProductAmount = products?.reduce((sum, product) => sum + (product.subtotal || 0), 0);
         const totalProductQuantity = products?.reduce((sum, product) => sum + (product.quantity || 0), 0);
-        const totalPaymentAmount = paymentTypes.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
-        const dueAmount = totalProductAmount - totalPaymentAmount;
+        const dueAmount = totalProductAmount;
 
         setDue(dueAmount);
         setTotalAmount(totalProductAmount); // Update totalAmount
         setTotalQuantity(totalProductQuantity); // Update totalQuantity
-    }, [products, paymentTypes]);
+    }, [products]);
 
-    const [reference, setReference] = useState('');
-    const [note, setNote] = useState('');
+
     const preparePurchaseData = () => {
         const items = products.map((product) => ({
             product: product._id,
@@ -196,15 +225,10 @@ const AddPurchase = () => {
             subtotal: product.subtotal,
             total: product.total,
             _id: product._id,
-            barcode:product.sizeDetail?.barcode
+            barcode: product.sizeDetail?.barcode
 
         }));
 
-        const paymentTypesData = paymentTypes.map((payment) => ({
-            type: payment.type,
-            amount: payment.amount,
-            _id: payment._id,
-        }));
 
         return {
             supplier: suppliers.find(supplier => supplier.name === selectedSupplier)._id,
@@ -213,7 +237,6 @@ const AddPurchase = () => {
             reference,
             note,
             items,
-            paymentTypes: paymentTypesData,
             totalAmount,
             totalQuantity,
             due,
@@ -330,11 +353,32 @@ const AddPurchase = () => {
                                 <label htmlFor="multiple" className="text-gray-700 mr-4"></label>
                                 <input
                                     type="text"
-                                    placeholder="Enter Product Name/Sku/scan barcode"
+                                    placeholder="scan barcode"
                                     className="w-full p-2 border rounded"
                                     value={barcode}
                                     onChange={handleInputChange}
                                 />
+                                <div className='w-full'>
+                                    <input value={productValue}
+                                        onChange={(e) => setProductValue(e.target.value)} type="text" placeholder="Type SKU/Name" className="w-full p-2 border rounded" />
+                                    {productValue && (
+                                        <div className="mt-2 z-[100] h-20 overflow-y-scroll bg-white border border-gray-300 rounded shadow-md">
+                                            {filteredProduct.length > 0 ? (
+                                                filteredProduct.map((product, index) => (
+                                                    <div
+                                                        key={index}
+                                                        onClick={() => clickProduct(product)}
+                                                        className="cursor-pointer p-2 hover:bg-gray-200 text-black"
+                                                    >
+                                                        {product.productName}<span>({product.SKU})</span>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="p-2 text-gray-500">No product available</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                                 {isMultiple && (
                                     <button
                                         onClick={handleFinalize}
@@ -397,8 +441,8 @@ const AddPurchase = () => {
                                                     min="0"
                                                 />
                                             </td>
-                                            <td className="p-2 border text-center">{product.subtotal}</td>
-                                            <td className="p-2 border text-center">{product.subtotal}</td>
+                                            <td className="p-2 border text-center">{product.subtotal || 0}</td>
+                                            <td className="p-2 border text-center">{product.subtotal || 0}</td>
                                             <td className="p-2 border text-center">
                                                 <button
                                                     onClick={() => handleDelete(index)}
@@ -431,54 +475,6 @@ const AddPurchase = () => {
                                         value={totalAmount}
                                         readOnly
                                     />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block font-medium mb-1">Payment Type</label>
-                                    <div>
-                                        {paymentTypes.map((payment, paymentIndex) => (
-                                            <div key={paymentIndex} className="mb-4">
-                                                <div className="flex items-center mb-2">
-                                                    <select
-                                                        className="form-select"
-                                                        value={payment.type}
-                                                        onChange={(e) => handlePaymentTypeChange(paymentIndex, e.target.value)}
-                                                        disabled={!payment.isOpen}
-                                                    >
-                                                        <option value="Cash">Cash</option>
-                                                        <option value="Card">Card</option>
-                                                        <option value="Online">Online</option>
-                                                    </select>
-                                                    <button
-                                                        className="btn btn-success ml-2"
-                                                        onClick={addPaymentType}
-                                                    >
-                                                        +
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-danger ml-2"
-                                                        onClick={() => removePaymentType(paymentIndex)}
-                                                    >
-                                                        -
-                                                    </button>
-                                                </div>
-                                                {payment.isOpen && (
-                                                    <div className='flex gap-5'>
-                                                        <input
-                                                            className="form-control bg-gray-200"
-                                                            readOnly
-                                                            value={payment.type}
-                                                        />
-                                                        <input
-                                                            className="form-control"
-                                                            placeholder="Amount"
-                                                            value={payment.amount}
-                                                            onChange={(e) => handlePaymentAmountChange(paymentIndex, e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
                                 </div>
                                 <div className="mb-4">
                                     <label className="block font-medium mb-1">Due</label>
@@ -563,8 +559,8 @@ const AddPurchase = () => {
                                 <input
                                     type="number"
                                     className="border border-gray-300 rounded p-2 w-full"
-                                    value={newSupplier.due}
-                                    onChange={(e) => setNewSupplier({ ...newSupplier, due: e.target.value })}
+                                    value={newSupplier.purchaseTotal}
+                                    onChange={(e) => setNewSupplier({ ...newSupplier, purchaseTotal: e.target.value })}
                                 />
                             </div>
                             <div>

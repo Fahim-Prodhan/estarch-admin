@@ -4,23 +4,17 @@ import { Row, Col, CardBody, Card, Container, Input, Label } from "reactstrap";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import axios from 'axios';
-import logo from "../../assets/images/logo-dark.png";
-import logolight from "../../assets/images/logo-light.png";
-// Import Bootstrap CSS
-
 import baseUrl from "../../helpers/baseUrl";
-
 const Register = (props) => {
   document.title = "Estarch | Register";
-
   // State to handle form data
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     mobile: '',
     password: '',
+    role: ''
   });
-
   // State to handle errors
   const [error, setError] = useState('');
 
@@ -129,6 +123,23 @@ const Register = (props) => {
                           onChange={handleChange}
                           required
                         />
+                      </div>
+                      <div className="mb-3">
+                        <Label className="form-label">Role</Label>
+                        <Input
+                          id="role"
+                          name="role"
+                          type="select"
+                          className="form-control"
+                          value={formData.role}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="" disabled>Select a role</option>
+                          <option value="admin">Admin</option>
+                          <option value="showroom_manager">Showroom</option>
+                          <option value="wholesale">Whole Sale</option>
+                        </Input>
                       </div>
 
                       {/* Display error message if there's an error */}

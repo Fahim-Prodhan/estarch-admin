@@ -15,8 +15,7 @@ const AddSupplier = () => {
         mobile: "",
         area: "",
         address: "",
-        due: "",// Handle as string for empty input
-        totalAmount: suppliers.due,// Handle as string for empty input
+        purchaseTotal: "",
         date: "",
         note: "",
     });
@@ -28,38 +27,7 @@ const AddSupplier = () => {
                 // Fetch suppliers data
                 const suppliersResponse = await axios.get(`${baseUrl}/api/suppliers`);
                 const suppliersData = suppliersResponse.data;
-
-                // Fetch purchase data
-                const purchasesResponse = await axios.get(`${baseUrl}/api/purchase`);
-                const purchasesData = purchasesResponse.data;
-
-                // Aggregate due amounts for each supplier
-                const dueAmounts = purchasesData.reduce((acc, purchase) => {
-                    if (purchase.supplier && purchase.due) {
-                        const supplierId = purchase.supplier._id;
-                        if (!acc[supplierId]) {
-                            acc[supplierId] = 0;
-                        }
-                        acc[supplierId] += purchase.due;
-                    }
-                    return acc;
-                }, {});
-                const totalAmount = purchasesData.reduce((acc, purchase) => {
-                    if (purchase.supplier && purchase.totalAmount) {
-                        const supplierId = purchase.supplier._id;
-                        if (!acc[supplierId]) {
-                            acc[supplierId] = 0;
-                        }
-                        acc[supplierId] += purchase.totalAmount;
-                    }
-                    return acc;
-                }, {});
-                const updatedSuppliers = suppliersData.map(supplier => ({
-                    ...supplier,
-                    due: (supplier.due || 0) + (dueAmounts[supplier._id] || 0),
-                    totalAmount: (supplier.due || 0) + (totalAmount[supplier._id] || 0)
-                }));
-                setSuppliers(updatedSuppliers);
+                setSuppliers(suppliersData);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -79,7 +47,7 @@ const AddSupplier = () => {
             mobile: "",
             area: "",
             address: "",
-            due: "",
+            purchaseTotal: "",
             date: "",
             note: "",
         });
@@ -164,13 +132,13 @@ const AddSupplier = () => {
                                         <td className="border border-gray-300 p-2">{supplier.name}</td>
                                         <td className="border border-gray-300 p-2">{supplier.mobile}</td>
                                         <td className="border border-gray-300 p-2">{supplier.area}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.totalAmount}</td>
-                                        <td className="border border-gray-300 p-2">{(supplier.totalAmount)-(supplier.due)}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.purchaseReturnTotal || 0}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.purchaseReturnPay || 0}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.advance || 0}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.purchaseTotal}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.purchasePay}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.returnTotal }</td>
+                                        <td className="border border-gray-300 p-2">{supplier.returnPay}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.advance}</td>
                                         <td className="border border-gray-300 p-2">{supplier.dueDismiss || 0}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.due || 0}</td>
+                                        <td className="border border-gray-300 p-2">{supplier.purchaseTotal - supplier.purchasePay }</td>
                                         <td className="border border-gray-300 p-2">
                                             <button
                                                 className="bg-blue-500 text-white p-2 rounded mr-2"
@@ -252,8 +220,8 @@ const AddSupplier = () => {
                         <input
                             type="number"
                             className="border border-gray-300 rounded p-2 w-full"
-                            value={newSupplier.due}
-                            onChange={(e) => setNewSupplier({ ...newSupplier, due: e.target.value })}
+                            value={newSupplier.purchaseTotal}
+                            onChange={(e) => setNewSupplier({ ...newSupplier, purchaseTotal: e.target.value })}
                         />
                     </div>
                     <div>

@@ -222,6 +222,22 @@ const SidebarContent = props => {
                 </li>
               </ul>
             </li>
+            {/* Payment Option */}
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-envelope"></i>
+                <span>{props.t("Payment Option")}</span>
+              </Link>
+              <ul className="sub-menu">
+               
+                <li>
+                  <Link to="/ecommerce-Payment-Option">{props.t("Add Payment Option")} </Link>
+                </li>
+                <li>
+                  <Link to="/ecommerce-Payment-Option-view">{props.t("View Payment Option")} </Link>
+                </li>
+              </ul>
+            </li>
 
             {/* Supply */}
             <li>
