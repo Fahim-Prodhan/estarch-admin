@@ -1,48 +1,63 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
+import InvestModal from "./InvestModal"; // Import the modal component
 import baseUrl from "../../../helpers/baseUrl";
 import axios from "axios";
-import altImg from '../../../assets/avater.jpg'
-import { useId } from "react";
-import RequestModal from "./RequestModal";
-import { IoNotificationsCircle } from "react-icons/io5";
-import InvestorWithdrawModal from "./InvestorWithdrawModal";
-import MyRequestsModal from "../MyInvestorAccount/MyRequestsModal";
+import MyRequestsModal from "./MyRequestsModal";
+import IncomingRequestModal from "./IncomingRequestsModal";
 
-const ProductList = () => {
-  document.title = "Estarch | Main Account";
+const MyInvestorAccount = () => {
+  document.title = "Estarch | My Investor Account";
   const [search, setSearch] = useState('')
-  const [limit, setLimit] = useState(10)
-  const [count, setCount] = useState(1)
+  const [limit, setLimit] = useState(15)
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
-  
+  const [count, setCount] = useState(1)
+
+
   const [showModal, setShowModal] = useState(false);
-  const [showInvestorModal, setShowInvestorModal] = useState(false);
   const [showMyRequestModal, setShowMyRequestModal] = useState(false);
-  const [myTransaction, setMyTransaction] = useState([])
-  const [investingCalculation, setInvestingCalculation] = useState(null)
-
-
-
-
-  const handleModalOpen = () => setShowModal(true);
-  const handleModalClose = () => setShowModal(false);
-
-  const handleInvestorModalOpen = () => setShowInvestorModal(true);
-  const handleInvestorModalClose = () => setShowInvestorModal(false);
-  const handleMyRequestModalOpen = () => setShowMyRequestModal(true); // Function to show modal
-  const handleMyRequestModalClose = () => setShowMyRequestModal(false);
-
-  // new
-  const [accountInfo, setAccountInfo] = useState(null)
-  const [moneyRequests, setMoneyRequests] = useState([])
+  const [showMyIncomingRequestModal, setShowMyIncomingRequestModal] = useState(false);
+  const [myIncomingRequests, setMyIncomingRequests] = useState([])
   const [myRequests, setRequests] = useState([])
+  const [myTransaction, setMyTransaction] = useState([])
+  const [myAccount, setMyAccount] = useState(null)
+
+  const pageRange = 2;
+
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const startPage = Math.max(1, currentPage - pageRange);
+    const endPage = Math.min(totalPages, currentPage + pageRange);
+
+    if (startPage > 1) {
+      pageNumbers.push(1);
+      if (startPage > 2) pageNumbers.push('...');
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) pageNumbers.push('...');
+      pageNumbers.push(totalPages);
+    }
+
+    return pageNumbers;
+  };
 
 
-  const fetchMyRequest = async () => {
+  const onPageChange = (page) => {
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+
+    setCurrentPage(page);
+  };
+
+  const fetchMyAccount = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
 
@@ -52,10 +67,10 @@ const ProductList = () => {
       }
 
       // Try to fetch notifications
-      const response = await axios.get(`${baseUrl}/api/transaction/get-transaction/${userId}`);
+      const response = await axios.get(`${baseUrl}/api/account/investor/${userId}`);
 
       // Set the response data in state
-      setRequests(response.data);
+      setMyAccount(response.data);
 
     } catch (error) {
       // Handle errors here
@@ -88,7 +103,7 @@ const ProductList = () => {
       const response = await axios.get(`${baseUrl}/api/transaction/get-notification/${userId}`);
 
       // Set the response data in state
-      setMoneyRequests(response.data);
+      setMyIncomingRequests(response.data);
 
     } catch (error) {
       // Handle errors here
@@ -108,19 +123,39 @@ const ProductList = () => {
     }
   };
 
-  const fetchAccountInfo = () => {
+  const fetchRequest = async () => {
     try {
-      axios.get(`${baseUrl}/api/account/main-account`)
-        .then(res => {
-          setAccountInfo(res.data)
-        })
+      const userId = JSON.parse(localStorage.getItem('userId'));
+
+      // Check if userId exists and is valid
+      if (!userId) {
+        throw new Error("Invalid or missing userId.");
+      }
+
+      // Try to fetch notifications
+      const response = await axios.get(`${baseUrl}/api/transaction/get-transaction/${userId}`);
+
+      // Set the response data in state
+      setRequests(response.data);
+
     } catch (error) {
-      console.log(error);
-
+      // Handle errors here
+      if (error.response) {
+        // If the server responded with a status other than 2xx
+        console.error("Server Error:", error.response.data);
+      } else if (error.request) {
+        // If the request was made but no response was received
+        console.error("Network Error: No response received.");
+      } else if (error.message === "Invalid or missing userId.") {
+        // If userId is invalid or missing in localStorage
+        console.error("Error:", error.message);
+      } else {
+        // Other unknown errors
+        console.error("Error:", error.message);
+      }
     }
-  }
+  };
 
-  
   const fetchMyAllTransaction = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
@@ -157,152 +192,74 @@ const ProductList = () => {
     }
   };
 
-  const fetchInvestingCalculation = ()=>{
-    try {
-        axios.get(`${baseUrl}/api/account/calculate-invested-balance`)
-        .then(res => {
-            setInvestingCalculation(res.data)
-        })
-    } catch (error) {
-        console.log(error);
-        
-    }
-}
+  const allFetchingFun = () => {
+    fetchIncomingRequest();
+    fetchRequest();
+    fetchMyAllTransaction();
+    fetchMyAccount();
+  }
 
   useEffect(() => {
-    fetchIncomingRequest();
-    fetchMyRequest();
-    fetchAccountInfo()
-    fetchMyAllTransaction()
-    fetchInvestingCalculation();
+    allFetchingFun()
   }, [currentPage,limit])
 
-
-  const pageRange = 2;
-
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const startPage = Math.max(1, currentPage - pageRange);
-    const endPage = Math.min(totalPages, currentPage + pageRange);
-
-    if (startPage > 1) {
-      pageNumbers.push(1);
-      if (startPage > 2) pageNumbers.push('...');
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) pageNumbers.push('...');
-      pageNumbers.push(totalPages);
-    }
-
-    return pageNumbers;
-  };
-
-
-  const onPageChange = (page) => {
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-
-    setCurrentPage(page);
-  };
-
-
-
-
+  const handleModalOpen = () => setShowModal(true); // Function to show modal
+  const handleModalClose = () => setShowModal(false); // Function to close modal
+  const handleMyRequestModalOpen = () => setShowMyRequestModal(true); // Function to show modal
+  const handleMyRequestModalClose = () => setShowMyRequestModal(false); // Function to close modal
+  const handleMyIncomingRequestModalOpen = () => setShowMyIncomingRequestModal(true); // Function to show modal
+  const handleMyIncomingRequestModalClose = () => setShowMyIncomingRequestModal(false); // Function to close modal
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Estarch" breadcrumbItem={`${accountInfo?.accountantName}`} />
+          <Breadcrumbs title="Estarch" breadcrumbItem={`Investor Account of ${myAccount?.investorName}`} />
           <div className="">
 
-            {/* Status Summary Cards */}
-            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-5 gap-6 my-8">
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821] col-span-5">
-                <p className="font-bold  text-[#40A578] text-2xl m-0">Total Amount</p>
-                <p className="text-2xl font-bold text-[#40A578]">  {accountInfo?.earnAmount - accountInfo?.spendAmount} ৳ </p>
+            <div className="shadow-md p-2 mb-4 rounded-md">
+              {/* Grid section */}
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-3 gap-6 my-4">
+                <div className="shadow-md cursor-pointer text-center py-2 bg-[#af47d223]">
+                  <p className="font-semibold text-[#AF47D2] text-2xl  m-0">Total Invested amount</p>
+                  <p className="text-2xl font-bold text-[#AF47D2]">{myAccount?.investedAmount} ৳</p>
+                </div>
+
+                <div className="shadow-md cursor-pointer text-center py-2 bg-[#1b424225]">
+                  <p className="font-semibold text-[#1B4242] text-2xl  m-0">Total withdrawal Amount</p>
+                  <p className="text-2xl font-bold text-[#1B4242]"> {myAccount?.withdrawAmount} ৳</p>
+                </div>
+
+                <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821]">
+                  <p className="font-bold text-[#40A578] text-2xl m-0">Net Invested Amount</p>
+                  <p className="text-2xl font-bold text-[#40A578]">{myAccount?.investedAmount - myAccount?.withdrawAmount} ৳</p>
+                </div>
               </div>
 
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#476ed22a]">
-                <p className="font-semibold text-[#476ed2] m-0">Invested Amount</p>
-                <p className="text-2xl font-bold text-[#476ed2]">{investingCalculation?.balance}  ৳</p>
-              </div>
-
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#af47d223]">
-                <p className="font-semibold text-[#AF47D2] m-0">Online Ecommerce</p>
-                <p className="text-2xl font-bold text-[#AF47D2]">  ৳</p>
-              </div>
-
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#1b424225]">
-                <p className="font-semibold text-[#1B4242] m-0">Showroom Amount</p>
-                <p className="text-2xl font-bold text-[#1B4242]">  ৳</p>
-              </div>
-
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#ff204d2a]">
-                <p className="font-semibold text-[#FF204E] m-0">WholeSale Amount</p>
-                <p className="text-2xl font-bold text-[#FF204E]">  ৳</p>
-              </div>
-
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#620c9f21] ">
-                <p className="font-semibold text-[#610C9F] m-0">Courier Amount</p>
-                <p className="text-2xl font-bold text-[#610C9F]"> ৳</p>
-              </div>
-            </div>
-            <div className="shadow-md flex justify-center bg-white p-3 mb-4 rounded-md">
-              <div className="flex gap-4">
-                <button onClick={handleInvestorModalOpen} className="py-2 rounded-md text-white px-6 flex items-center gap-1 bg-error">Investor Withdraw</button>
-                <button onClick={handleMyRequestModalOpen} className="py-2 rounded-md text-white px-6 flex items-center gap-1 bg-orange-400">
+              {/* Buttons */}
+              <div className="my-4 flex gap-4">
+                <button
+                  className="btn btn-sm btn-primary text-white"
+                  onClick={handleModalOpen} // Open modal on click
+                >
+                  Invest +
+                </button>
+                <button onClick={handleMyRequestModalOpen} className="btn btn-sm bg-orange-400 text-white">
                   My Pending Request +{myRequests.length}
                 </button>
-                <button onClick={handleModalOpen} className={`py-2 rounded-md text-white px-6 flex items-center gap-1 bg-primary`}><span className="text-xl"><IoNotificationsCircle /></span> Request +{moneyRequests.length}</button>
+                <button onClick={handleMyIncomingRequestModalOpen} className="btn btn-sm btn-error text-white">
+                  Incoming Request +{myIncomingRequests?.length}
+                </button>
               </div>
             </div>
+
+            {/* Table section */}
             <Row>
               <Col className="col-12">
                 <Card>
                   <CardBody>
 
-                    <div className='flex justify-between items-center '>
-                      <select
-                        onChange={(e) => setLimit(e.target.value)}
-                        name="" id="" className=' select select-bordered'>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="150">150</option>
-                      </select>
-                      <select value={''} onChange={''} className='select select-bordered ' id="">
-                        <option value="">Filter Transaction</option>
-                        <option value="">Online</option>
-                        <option value="">Showroom</option>
-                        <option value="">Whole Sale</option>
-                        <option value="">Courier</option>
-                      </select>
-
-                      <label className="input input-bordered w-full max-w-xs flex items-center gap-2">
-                        <input onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }} type="text" className="grow w-full max-w-sm" placeholder="Search Transaction ID" />
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          fill="currentColor"
-                          className="h-4 w-4 opacity-70">
-                          <path
-                            fillRule="evenodd"
-                            d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                            clipRule="evenodd" />
-                        </svg>
-                      </label>
-
-                    </div>
-
-                    {
-                      <div className="overflow-x-auto overflow-y-hidden">
+                    <div className="overflow-x-auto overflow-y-hidden">
                       <table className="table">
                         <thead>
                           <tr>
@@ -349,7 +306,6 @@ const ProductList = () => {
                         </tbody>
                       </table>
                     </div>
-                    }
 
                     <div className="flex justify-center mt-4">
                       <button
@@ -392,13 +348,14 @@ const ProductList = () => {
               </Col>
             </Row>
           </div>
+          {/* Modal */}
+          <InvestModal allFetchingFun={allFetchingFun} show={showModal} handleClose={handleModalClose} />
+          <MyRequestsModal show={showMyRequestModal} myRequests={myRequests} handleClose={handleMyRequestModalClose} />
+          <IncomingRequestModal allFetchingFun={allFetchingFun} show={showMyIncomingRequestModal} myRequests={myIncomingRequests} handleClose={handleMyIncomingRequestModalClose} />
         </Container>
       </div>
-      <RequestModal fetchAccountInfo={fetchAccountInfo} fetchIncomingRequest={fetchIncomingRequest} show={showModal} handleClose={handleModalClose} moneyRequests={moneyRequests} />
-      <MyRequestsModal show={showMyRequestModal} myRequests={myRequests} handleClose={handleMyRequestModalClose} />
-      <InvestorWithdrawModal fetchIncomingRequest={fetchIncomingRequest} fetchMyRequest={fetchMyRequest} show={showInvestorModal} handleClose={handleInvestorModalClose} />
     </React.Fragment>
   );
 };
 
-export default ProductList;
+export default MyInvestorAccount;

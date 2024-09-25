@@ -344,7 +344,10 @@ const SidebarContent = props => {
                   <Link to="/accounts/main-accounts">{props.t("Main Account")}</Link>
                 </li>
                 <li>
-                  <Link to="/pages-register">{props.t("Investor Account")}</Link>
+                  <Link to="/accounts/investor-accounts">{props.t("Investor Account")}</Link>
+                </li>
+                <li>
+                  <Link to="/accounts/my-investor-accounts">{props.t("My Investor Account")}</Link>
                 </li>
                 {/* <li>
                   <Link to="/pages-login">{props.t("Login")}</Link>
@@ -360,7 +363,7 @@ const SidebarContent = props => {
               </ul>
             </li>
 
-            <li className="menu-title">Pages</li>
+            <li className="menu-title">Others</li>
             <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-user-circle"></i>
@@ -381,6 +384,18 @@ const SidebarContent = props => {
                 <li>
                   <Link to="/auth-lock-screen">{props.t("Lock Screen")}</Link>
                 </li> */}
+              </ul>
+            </li>
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-user-circle"></i>
+                <span>{props.t("Courier")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/courier-api">{props.t("Courier API")}</Link>
+                </li>
+        
               </ul>
             </li>
             

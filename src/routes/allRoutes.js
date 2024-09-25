@@ -54,6 +54,11 @@ import BarcodeDisplay from "../pages/Product/BarcodeDisplay/index"
 
 // accounts
 import MainAccounts from "../pages/Accounts/MainAccount/index.js"
+import InvestorAccount from "../pages/Accounts/InvestorAccount/index.js"
+import MyInvestorAccount from "../pages/Accounts/MyInvestorAccount/index.js"
+
+// Courier
+import CourierApi from '../pages/Courier/CourierApi/index.js'
 
 
 
@@ -141,6 +146,11 @@ const userRoutes = [
   
   // Accounts
   { path: "/accounts/main-accounts", component: <MainAccounts/> },
+  { path: "/accounts/investor-accounts", component: <InvestorAccount/> },
+  { path: "/accounts/my-investor-accounts", component: <MyInvestorAccount/> },
+
+  // Courier
+  { path: "/courier-api", component: <CourierApi/> },
 
   
   // authentication
