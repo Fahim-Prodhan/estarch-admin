@@ -31,6 +31,7 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 
 // Product Page
 import ProductList from '../pages/Product/ProductList/index'
+import ProductStock from '../pages/Product/ProductStock/index'
 import AddProduct from "../pages/Product/AddProduct/index"
 import ProductSerial from "../pages/Product/ProductSerial/index"
 import CategorySerial from "../pages/Product/CategorySerial/index"
@@ -50,6 +51,9 @@ import Brand from "../pages/Brand/index"
 
 // barcode Print page
 import BarcodeDisplay from "../pages/Product/BarcodeDisplay/index"
+
+// accounts
+import MainAccounts from "../pages/Accounts/MainAccount/index.js"
 
 
 
@@ -117,34 +121,44 @@ const userRoutes = [
   { path: "/expense-list", component: <ExpenseList /> },
 
   // Product Routes
-  { path: "/product-list", component: <ProductList /> },
-  { path: "/ecommerce-add-product", component: <AddProduct /> },
-  { path: "/ecommerce-edit-product/:id", component: <EditProduct /> },
-  { path: "/ecommerce-product-serial", component: <ProductSerial /> },
-  { path: "/ecommerce-category-serial", component: <CategorySerial /> },
-  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial /> },
+  { path: "/product-list", component: <ProductList/> },
+  { path: "/ecommerce-add-product", component: <AddProduct/> },
+  { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
+  { path: "/ecommerce-product-serial", component: <ProductSerial/> },
+  { path: "/ecommerce-category-serial", component: <CategorySerial/> },
+  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
+  { path: "/ecommerce-product-stock", component: <ProductStock/> },
 
+
+  
+  
+  // Category Routes
+  { path: "/create-category", component: <CreateCategory/> },
+  { path: "/category-list", component: <CategoryList/> },
+  
   // payment Routes
   { path: "/ecommerce-Payment-Option", component: <PaymentOption/> },
-  { path: "/ecommerce-Payment-Option/:id", component: <EditPayment/> },
+  { path: "/ecommerce-Payment-Option/:id", component: <EditPayment/>},
   { path: "/ecommerce-Payment-Option-view", component: <ViewPaymentOption/> },
+  
 
-  // Category Routes
-  { path: "/create-category", component: <CreateCategory /> },
-  { path: "/category-list", component: <CategoryList /> },
 
   // Attribute Routes
-  { path: "/main-attribute", component: <AddSizeChart /> },
-  { path: "/attribute-values", component: <AttributeValue /> },
-
+  { path: "/main-attribute", component: <AddSizeChart/> },
+  { path: "/attribute-values", component: <AttributeValue/> },
+  
   // brand routes
-  { path: "/brand", component: <Brand /> },
+  { path: "/brand", component: <Brand/> },
+  
+  // Accounts
+  { path: "/accounts/main-accounts", component: <MainAccounts/> },
 
+  
   // authentication
-  { path: "/pages-register", component: <Register1 /> },
-  { path: "/invoice/:id", component: <InvoicesDetail /> },
+  { path: "/pages-register", component: <Register1/> },
+  { path: "/invoice/:id", component: <InvoicesDetail/> },
 
-
+  
 
 
   //Utility

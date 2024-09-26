@@ -11,6 +11,9 @@ import "./productDetails.css"; // Import the CSS file
 import BarcodePrintModal from "./BarcodePrintModal";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import './productList.css'
+import altImg from '../../../assets/avater.jpg'
+
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ProductList = () => {
@@ -26,7 +29,12 @@ const ProductList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-
+  const [categories, setCategories] = useState([]);
+  const [CategoryName, SetCategoryName] = useState('');
+  const [subcategories, setSubcategories] = useState([]);
+  const [subcategoryName, SetSubcategoryName] = useState('');
+  const [brands, setBrands] = useState([]);
+  const [brandName, setBrandName] = useState('');
 
 
   const pageRange = 2;
@@ -91,9 +99,10 @@ const ProductList = () => {
       });
   };
 
+ 
   const fetchData = () => {
     setLoading(true)
-    fetch(`${baseUrl}/api/products/products?page=${currentPage}&size=${limit}&search=${search}`)
+    fetch(`${baseUrl}/api/products/products?page=${currentPage}&size=${limit}&search=${search}&category=${CategoryName}&subcategory=${subcategoryName}&brand=${brandName}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -117,7 +126,54 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [limit, search, currentPage]);
+  }, [limit, search, currentPage, CategoryName, subcategoryName, brandName]);
+
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/brands`);
+      setBrands(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/categories/categories`);
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+
+  const fetchSubcategories = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/categories/subcategories`);
+      setSubcategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+  useEffect(() => {
+    fetchCategories();
+    fetchSubcategories();
+    fetchBrands();
+  }, []);
+
+
+  const handleBrandNameChange = (e) => {
+    setBrandName(e.target.value);
+  };
+
+  const handleCategoryNameChange = (e) => {
+    SetCategoryName(e.target.value);
+  };
+
+  const handleSubcategoryNameChange = (e) => {
+    SetSubcategoryName(e.target.value);
+  };
+
 
 
   return (
@@ -133,17 +189,43 @@ const ProductList = () => {
               <Col className="col-12">
                 <Card>
                   <CardBody>
-                    <div className='flex justify-between items-center '>
+                   <div className='flex justify-between items-center '>
                       <select
                         onChange={(e) => setLimit(e.target.value)}
-                        name="" id="" className='w-12'>
+                        name="" id="" className=' select select-bordered'>
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                         <option value="150">150</option>
                       </select>
-                      <label className="input input-bordered w-full max-w-sm flex items-center gap-2">
+                      <select value={brandName} onChange={handleBrandNameChange} className='select select-bordered ' id="">
+                        <option value="">Select Brand Name</option>
+                        {brands.map(item => (
+                          <option key={item._id} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select value={CategoryName} onChange={handleCategoryNameChange} className='select select-bordered ' id="">
+                        <option value="">Select Category Name</option>
+                        {categories.map(item => (
+                          <option key={item._id} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select value={subcategoryName} onChange={handleSubcategoryNameChange} className='select select-bordered' id="">
+                        <option value="">Select Subcategory Name</option>
+                        {subcategories.map(item => (
+                          <option key={item._id} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                      <label className="input input-bordered w-full max-w-xs flex items-center gap-2">
                         <input onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }} type="text" className="grow w-full max-w-sm" placeholder="Search" />
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -171,26 +253,29 @@ const ProductList = () => {
                             {/* head */}
                             <thead>
                               <tr>
-                                <th className="border-2 border-gray-100">Image</th>
-                                <th className="border-2 border-gray-100">Product Info</th>
-                                <th className="border-2 border-gray-100">SKU</th>
-                                <th className="border-2 border-gray-100">Toggle-Size-Barcode-Stock</th>
-                                <th className="border-2 border-gray-100">Others info</th>
-                                <th className="border-2 border-gray-100">Action</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">Image</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">Product Info</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">SKU</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">Toggle-Size-Barcode-Stock</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">Others info</th>
+                                <th className="border-1 border-gray-200 border-opacity-75">Action</th>
                               </tr>
                             </thead>
                             <tbody>
                               {
                                 products.map(item =>
                                   <tr key={item._id}>
-                                    <td className="border-2 border-gray-100">
+                                    <td className="border-1 border-gray-200 border-opacity-75">
                                       <div className="w-12 flex justify-center">
                                         <div className="flex justify-center">
-                                          <img className="" src={`${baseUrl}/${item.images[0]}`} alt={item.name} />
+                                          <img
+                                            src={item.images[0] ? `${baseUrl}/${item.images[0]}` : altImg}
+                                            alt='Product images'
+                                          />
                                         </div>
                                       </div>
                                     </td>
-                                    <td className="border-2 border-gray-100">
+                                    <td className="border-1 border-gray-200 border-opacity-75">
                                       <div className="w-44 p-0">
                                         <p><span className="font-bold">Name:</span> <span>{item.productName}</span></p>
                                         <p><span className="font-bold">Type:</span> <span>{item.selectedType}</span></p>
@@ -199,8 +284,8 @@ const ProductList = () => {
                                         <p><span className="font-bold">Brand:</span> <span>{item.selectedBrand}</span></p>
                                       </div>
                                     </td>
-                                    <td className="border-2 border-gray-100"><p><span className="font-bold">Sku:</span> <span>{item.SKU}</span></p></td>
-                                    <td className="border-2 border-gray-100">
+                                    <td className="border-1 border-gray-200 border-opacity-75"><p><span className="font-bold">Sku:</span> <span>{item.SKU}</span></p></td>
+                                    <td className="border-1 border-gray-200 border-opacity-75">
                                       <div className="space-y-2">
                                         {
                                           item.sizeDetails.map(s =>
@@ -212,7 +297,7 @@ const ProductList = () => {
                                         }
                                       </div>
                                     </td>
-                                    <td className="border-2 border-gray-100">
+                                    <td className="border-1 border-gray-200 border-opacity-75">
                                       <div className="space-y-2 ">
                                         <div onClick={() => updateOtherToggle(item._id, "productStatus")} className="flex flex-wrap gap-2 cursor-pointer">
                                           <p className={`bg-${item.productStatus === true ? "blue" : "red"}-500 text-center text-white p-1 rounded-md w-12`}>
@@ -246,7 +331,7 @@ const ProductList = () => {
                                         </div>
                                       </div>
                                     </td>
-                                    <td className="border-2 border-gray-100">
+                                    <td className="border-1 border-gray-200 border-opacity-75">
                                       <div className="dropdown flex justify-center ">
                                         <div tabIndex={0} role="button" className="btn m-1 btn-sm"><BsThreeDotsVertical /></div>
                                         <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[10000]  p-2 shadow space-y-2">

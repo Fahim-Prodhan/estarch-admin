@@ -23,6 +23,7 @@ import "./assets/scss/theme.scss";
 
 // Import Fack Backend
 import fakeBackend from "./helpers/AuthType/fakeBackend";
+import PosOrders from './pages/POS/PosOrders';
 
 // Activating fake backend
 fakeBackend();
@@ -88,6 +89,7 @@ const App = props => {
             />
           ))}
         <Route path='/ecommerce-pos-orders' element={<EcommercePosOrders/> }/>
+        <Route path='/pos-orders' element={<PosOrders/> }/>
       </Routes>
     </React.Fragment>
   );

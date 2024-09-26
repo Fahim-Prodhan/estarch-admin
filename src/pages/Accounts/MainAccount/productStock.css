@@ -1,0 +1,3 @@
+tbody tr:nth-child(odd) td {
+    background-color: #f1f5f9ac !important; /* Tailwind's bg-base-200 color */
+  }

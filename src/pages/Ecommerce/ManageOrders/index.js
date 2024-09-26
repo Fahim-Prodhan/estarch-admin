@@ -25,13 +25,15 @@ const ManageOrders = () => {
     const [payments, setPayments] = useState([
         { id: 1, accountType: '', paymentOption: '', amount: '', paymentOptions: [] },
     ]);
+
+    const [newPayments, setNewPayments] = useState([]); // Store newly added payments
     const [accounts, setAccounts] = useState([]); // Store the accounts data
 
     // Fetch accounts data from API
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/payment/showroom-accounts');
+                const response = await fetch('http://localhost:5000/api/payment/online-accounts');
                 const data = await response.json();
                 if (data && data.length > 0) {
                     setAccounts(data[0].accounts); // Assuming "accounts" is inside the first object
@@ -44,41 +46,81 @@ const ManageOrders = () => {
         fetchData();
     }, []);
 
-    // Handle the account type selection
-    const handleAccountTypeChange = (id, value) => {
-        // Find payment options for the selected account type
+    const handleAccountTypeChange = (id, value, isNew = false) => {
         const selectedAccount = accounts.find((acc) => acc.accountType === value);
         const paymentOptions = selectedAccount ? selectedAccount.payments : [];
 
-        setPayments((prevPayments) =>
-            prevPayments.map((payment) =>
-                payment.id === id
-                    ? { ...payment, accountType: value, paymentOption: '', paymentOptions } // Reset paymentOption and set new options
-                    : payment
-            )
-        );
+        const updateState = (state, setState) => {
+            setState((prevPayments) =>
+                prevPayments.map((payment) =>
+                    payment.id === id
+                        ? { ...payment, accountType: value, paymentOption: '', accountNumber: '', paymentOptions } // Reset paymentOption and set new options
+                        : payment
+                )
+            );
+        };
+        updateState(newPayments, setNewPayments);
+        updateState(payments, setPayments);
     };
 
     const addPaymentRow = () => {
         const newPayment = { id: Date.now(), accountType: '', paymentOption: '', amount: '', paymentOptions: [] };
-        setPayments([...payments, newPayment]);
+        setNewPayments([...newPayments, newPayment]); // Add to newPayments state
+        setPayments([...payments, newPayment]); // Also add to payments state
     };
 
-    const removePaymentRow = (id) => {
-        setPayments(payments.filter((payment) => payment.id !== id));
+    const removePaymentRow = (id, isNew = false) => {
+        if (isNew) {
+            setNewPayments(newPayments.filter((payment) => payment.id !== id));
+        } else {
+            setPayments(payments.filter((payment) => payment.id !== id));
+        }
     };
 
-    const handleInputChange = (id, field, value) => {
-        const updatedPayments = payments.map((payment) =>
-            payment.id === id ? { ...payment, [field]: value } : payment
-        );
-        setPayments(updatedPayments);
+    const handleInputChange = (id, field, value, isNew = false) => {
+        const updateState = (state, setState) => {
+            setState((prevPayments) =>
+                prevPayments.map((payment) => {
+                    if (payment.id === id) {
+                        if (field === 'paymentOption') {
+                            const selectedAccount = accounts.find((acc) => acc.accountType === payment.accountType);
+                            const selectedPaymentOption = selectedAccount?.payments.find((opt) => opt.paymentOption === value);
+                            const accountNumber = selectedPaymentOption?.accountNumber || '';
+
+                            return { ...payment, paymentOption: value, accountNumber };
+                        }
+                        return { ...payment, [field]: value };
+                    }
+                    return payment;
+                })
+            );
+        };
+
+
+        updateState(newPayments, setNewPayments);
+
+        updateState(payments, setPayments);
+
     };
 
+    // Calculate total amount for payments and new payments
     const totalPayAmount = payments.reduce(
         (acc, payment) => acc + Number(payment.amount || 0),
         0
     );
+    console.log(newPayments);
+    console.log(payments);
+
+
+    const totalNewPayAmount = newPayments.reduce(
+        (acc, payment) => acc + Number(payment.amount || 0),
+        0
+    );
+
+    console.log(totalNewPayAmount);
+
+
+
 
     const { id } = useParams();
     useEffect(() => {
@@ -86,6 +128,7 @@ const ManageOrders = () => {
             try {
                 const response = await axios.get(`${baseUrl}/api/orders/order/${id}`);
                 setOrders(response.data);
+                setPayments(response.data.payments)
                 console.log(response.data);
 
                 setProducts(response.data.cartItems || []);
@@ -98,8 +141,10 @@ const ManageOrders = () => {
     const updateDiscount = discount + parseInt(adminDiscount)
     // Update order
     const UpdateOrder = () => {
+        const userIdString = localStorage.getItem('userId');
+        const userId = JSON.parse(userIdString);
         console.log(updateDiscount);
-        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { payments, name, address, phone, orderNotes, deliveryCharge: delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(), adminDiscount: parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, {manager: userId, newPayments, payments, name, address, phone, orderNotes, deliveryCharge: delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(), adminDiscount: parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
             .then(res => {
                 alert("ok")
                 console.log(res);
@@ -156,13 +201,14 @@ const ManageOrders = () => {
     }
 
 
+
     useEffect(() => {
         setDelevary(orders?.deliveryCharge)
         const totalDiscount = products.reduce((accumulator, item) => {
             return accumulator + (item.discountAmount * item.quantity || 0);
         }, 0);
         setDiscount(totalDiscount)
-        setAdvance(orders?.advanced + totalPayAmount)
+        setAdvance(totalPayAmount)
         setAdminDiscount(orders?.adminDiscount)
         setOrderNotes(orders?.orderNotes || '')
         setPhone(orders?.phone || '')
@@ -248,7 +294,7 @@ const ManageOrders = () => {
                                     <table className="min-w-full table-auto border-collapse border border-gray-300">
                                         <thead className="bg-gray-600 text-white">
                                             <tr>
-                                                <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU</th>
+                                                <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">SKU & Barcode</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium">Product</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Quantity</th>
                                                 <th className="border border-gray-300 px-4 py-2 text-center text-sm font-medium">Discount</th>
@@ -368,7 +414,7 @@ const ManageOrders = () => {
                                 </div>
                             </div>
                             <div className='max-h-40 overflow-y-scroll mt-5 w-full'>
-                                {payments.map((payment) => (
+                                {payments?.map((payment) => (
                                     <div className="grid grid-cols-5 gap-4 mb-2" key={payment.id}>
                                         {/* Payment Type */}
                                         <div className="col-span-1">
@@ -394,7 +440,7 @@ const ManageOrders = () => {
                                                 onChange={(e) => handleInputChange(payment.id, 'paymentOption', e.target.value)}
                                             >
                                                 <option value="">Account option</option>
-                                                {payment.paymentOptions.map(option => (
+                                                {payment?.paymentOptions?.map(option => (
                                                     <option key={option._id} value={option.paymentOption}>
                                                         {option.paymentOption}
                                                     </option>
@@ -403,6 +449,16 @@ const ManageOrders = () => {
                                         </div>
 
                                         {/* Amount */}
+                                        <div className="col-span-1">
+                                            <input
+                                                type="text"
+                                                disabled
+                                                placeholder="accountNumber"
+                                                value={payment.accountNumber}
+                                                onChange={(e) => handleInputChange(payment.id, 'accountNumber', e.target.value)}
+                                                className="w-full p-2 border rounded"
+                                            />
+                                        </div>
                                         <div className="col-span-1">
                                             <input
                                                 type="number"

@@ -56,7 +56,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`${baseUrl}/api/orders`, {
+      const response = await fetch(`${baseUrl}/api/orders/online-pos-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const PaymentModal = ({ setPaymentModalVisible, userInfo, orderItems, discount, 
       if (response.ok) {
         const responseData = await response.json();
         alert('Order placed successfully!');
-        navigate(`/invoice/${responseData.order._id}`);
+        navigate(`/ecommerce-orders`);
         console.log(responseData);
       } else {
         console.error('There was an error placing the order:', response.statusText);

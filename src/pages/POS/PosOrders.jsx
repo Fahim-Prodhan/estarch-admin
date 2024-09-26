@@ -1,39 +1,49 @@
 import React, { useEffect, useState } from "react";
-import { MdArrowDropDown } from "react-icons/md";
 import SizeModal from "./SizeModal";
-import baseUrl from "../../../helpers/baseUrl";
 import { IoPlayBackCircleSharp } from "react-icons/io5";
-import './pos.css'
-import FullScreenButton from "../../../components/Common/FullScreenButton";
 import { Link } from "react-router-dom";
 import Modal from "./modal";
-import { fetchBrands, fetchCategories, fetchSubCategories } from "../../../utils/categoryApi";
 import PaymentModal from "./PaymentModal";
-import altImg from '../../../assets/avater.jpg'
-
-const EcommercePosOrders = () => {
+import HoldList from "./HoldList";
+import altImg from '../../assets/avater.jpg'
+import baseUrl from "../../helpers/baseUrl";
+import FilterDropdown from "./productFilter";
+import FullScreenButton from "./FullScreenButton";
+import HoldSaleModal from "./HoldSaleModal";
+const PosOrders = () => {
   document.title = "Estarch | Pos Orders";
   const [products, setProducts] = useState([]);
-  const [filters, setFilters] = useState({ brand: '', category: '', subcategory: '', search: '' });
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [orderItems, setOrderItems] = useState([]);
   const [discount, setDiscount] = useState({ type: 'percentage', value: 0 });
-  const [brands, setBrands] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
-  const [filteredBrands, setFilteredBrands] = useState([]);
-  const [filteredCategories, setFilteredCategories] = useState([]);
-  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [totalTk, setTotalTK] = useState(0)
-  const [totalPayable, setTotalPayable] = useState(0)
   const [userInfo, setUserInfo] = useState({
     phone: '',
     name: '',
     address: ''
   });
+  const [exchangeAmount, setExchangeAmount] = useState(0);
+  const [exchangeDetails, setExchangeDetail] = useState(null);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenList, setIsModalOpenList] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  const handleOpenModalList = () => {
+    setIsModalOpenList(true);
+  };
+
+  const handleCloseModalList = () => {
+    setIsModalOpenList(false);
+  };
   const fetchUserData = async (phone) => {
     try {
       const response = await fetch(`${baseUrl}/api/orders/orders/${phone}`);
@@ -41,122 +51,37 @@ const EcommercePosOrders = () => {
 
       if (userData) {
         console.log(userData);
-
         setUserInfo({
           phone: userData.phone,
           name: userData.name,
           address: userData.address,
         });
-
         setOrders(userData.orderList || []);
-
-        // Log the updated state after it's set
-        console.log("Updated Orders:", userData.orderList);
-        console.log("Updated UserInfo:", {
-          phone: userData.phone,
-          name: userData.name,
-          address: userData.address,
-        });
-
       } else {
-        // Handle case where user is not found
         setUserInfo({ phone: '', name: '', address: '' });
-        setOrders([]); // Clear orders if user is not found
+        setOrders([]);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
-  console.log(orderItems);
-
   const handleUserInfoChange = async (e) => {
     const { name, value } = e.target;
 
     if (name === 'phone' && value.length === 11) {
       console.log(name, value.length);
 
-      // Fetch user data when phone number changes
       await fetchUserData(value);
     }
-
     setUserInfo((prevUserInfo) => ({
       ...prevUserInfo,
       [name]: value,
     }));
   };
-
-
-  useEffect(() => {
-    fetchProducts();
-  }, [filters]);
-  useEffect(() => {
-    const getCategories = async () => {
-      const data = await fetchCategories();
-      setCategories(data);
-      setFilteredCategories(data);
-    };
-    getCategories();
-    const getBrands = async () => {
-      const data = await fetchBrands();
-      setBrands(data);
-      setFilteredBrands(data);
-    };
-    getBrands();
-    const getSubCategories = async () => {
-      const subCategoryData = await fetchSubCategories();
-      console.log(subCategoryData);
-      setSubCategories(Array.isArray(subCategoryData) ? subCategoryData : []);
-      setFilteredSubCategories(Array.isArray(subCategoryData) ? subCategoryData : []);
-    };
-    getSubCategories();
-  }, []);
-
-
-  // Handle payment button click
   const handlePaymentClick = () => {
     setPaymentModalVisible(true);
   };
 
-
-  const debounce = (func, delay) => {
-    let debounceTimer;
-    return (...args) => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => func(...args), delay);
-    };
-  };
-
-  const handleSearch = debounce((e, type) => {
-    const searchTerm = e.target.value.toLowerCase();
-    if (type === 'Brand') {
-      setFilteredBrands(brands.filter(brand => brand.name.toLowerCase().includes(searchTerm)));
-    } else if (type === 'Category') {
-      setFilteredCategories(categories.filter(category => category.name.toLowerCase().includes(searchTerm)));
-    } else if (type === 'Sub Category') {
-      setFilteredSubCategories(subCategories.filter(subCategory => subCategory.name.toLowerCase().includes(searchTerm)));
-    }
-  }, 300);
-
-
-  const fetchProducts = async () => {
-    let query = new URLSearchParams(filters).toString();
-    const response = await fetch(`${baseUrl}/api/products/products-for-pos?${query}`);
-    const data = await response.json();
-    console.log(data);
-
-    setProducts(data);
-  };
-
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-  };
-  const handleFilterSelect = (type, value) => {
-    setFilters(prevFilters => ({
-      [type.toLowerCase()]: value,
-    }));
-  };
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
@@ -164,49 +89,40 @@ const EcommercePosOrders = () => {
   };
 
   const handleSizeSelect = (size) => {
-    // Find the selected size details from the product's sizeDetails array
-    const { _id, price, discountPercent = 0, discountAmount = 0, ...sizeData } = selectedProduct.sizeDetails.find(
+    const { price, discountPercent = 0, discountAmount = 0, ...sizeData } = selectedProduct.sizeDetails.find(
       (detail) => detail.size === size
     );
-
-
-    // Calculate the after-discount price based on the discountPercent and price
     const afterDiscount = discountAmount > 0
       ? price - discountAmount
       : price - (price * discountPercent) / 100;
 
-    // Add the selected product with the size, quantity, and discount information to the order items
+
     setOrderItems([
       ...orderItems,
       {
         ...selectedProduct,
         ...sizeData,
         size,
+        productId: selectedProduct._id,
         quantity: 1,
         discountPercent,
         discountAmount,
-        afterDiscount: afterDiscount > 0 ? afterDiscount : 0, // Ensure price doesn't go below 0
+        afterDiscount: afterDiscount > 0 ? afterDiscount : 0,
       }
     ]);
-
-    // Close the modal and reset the selected product
     setModalVisible(false);
     setSelectedProduct(null);
   };
-
-
 
   const handleQuantityChange = (index, increment) => {
     const newOrderItems = [...orderItems];
     newOrderItems[index].quantity = Math.max(1, newOrderItems[index].quantity + increment);
     setOrderItems(newOrderItems);
   };
-
   const handleDiscountChange = (index, field, value) => {
     setDiscount((prevDiscount) => ({ ...prevDiscount, value: 0 }));
     const newOrderItems = [...orderItems];
     newOrderItems[index][field] = parseFloat(value) || 0;
-
     if (field === 'discountPercent') {
       newOrderItems[index].discountAmount = (newOrderItems[index].regularPrice * newOrderItems[index].discountPercent) / 100;
     } else {
@@ -232,13 +148,10 @@ const EcommercePosOrders = () => {
   };
 
   const handleTypeChange = (e) => {
-
     setDiscount((prevDiscount) => ({ ...prevDiscount, type: e.target.value }));
-
   };
 
   const handleValueChange = (e) => {
-
     setDiscount((prevDiscount) => ({ ...prevDiscount, value: e.target.value }));
   };
 
@@ -249,8 +162,9 @@ const EcommercePosOrders = () => {
   const totalDiscount = discount.type === 'percentage' ? calculateTotalAmount() * discount.value / 100 : discount.value
 
   useEffect(() => {
-    setTotalTK(calculateTotalAmount() - totalDiscount)
-  }, [calculateTotalAmount(), totalDiscount, discount])
+    setTotalTK(calculateTotalAmount() - totalDiscount - exchangeAmount)
+  }, [calculateTotalAmount(), totalDiscount, discount, exchangeAmount])
+ 
 
   return (
     <React.Fragment>
@@ -258,58 +172,26 @@ const EcommercePosOrders = () => {
         <main className="min-h-screen bg-slate-50">
           <div className="flex">
             <div className="w-5/12 flex items-center flex-col px-3">
-              <div className="grid grid-cols-2 gap-3 w-full">
-                {['Brand', 'Category', 'Subcategory'].map((filter, idx) => (
-                  <div key={idx}>
-                    <details className="dropdown w-full">
-                      <summary className="btn bg-white w-full border flex justify-between">
-                        {filter} <MdArrowDropDown />
-                      </summary>
-                      <ul className="menu w-full dropdown-content bg-base-100 rounded-box z-[1] p-1 shadow">
-                        <li>
-                          <input
-                            type="text"
-                            placeholder="Type here"
-                            className="input h-8 w-full input-bordered rounded-sm"
-                            onChange={(e) => handleSearch(e, filter)}
-                          />
-                        </li>
-                        {(filter === 'Brand' ? filteredBrands : filter === 'Category' ? filteredCategories : filteredSubCategories).map((item) => (
-                          <li className="p-2 cursor-pointer hover:bg-slate-400" key={item._id} onClick={() => handleFilterSelect(filter, item.name)}>
-                            {item.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  </div>
-                ))}
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Enter Product name / SKU"
-                    className="input input-bordered w-full max-w-xs"
-                    name="search"
-                    onChange={handleFilterChange}
-                  />
-                </div>
+              <div className="w-full">
+                <FilterDropdown setProducts={setProducts} />
               </div>
-              <div className="grid grid-cols-4 gap-2 h-[550px] overflow-y-scroll">
+              <div className="grid grid-cols-4 gap-2 max-h-[600px] overflow-y-scroll mb-14">
                 {products?.map((product, index) => (
                   <div
                     key={index}
-                    className="cursor-pointer card card-compact bg-base-100 w-[140px] shadow-xl rounded-none mt-2"
+                    className="cursor-pointer card card-compact bg-base-100 w-[140px] h-[240px] shadow-xl rounded-none mt-2"
                     onClick={() => handleProductClick(product)}
                   >
-                    <div className="p-2 h-[150px]">
+                    <div className="p-2 h-[170px]">
                       <figure>
                         <img
-                          className="h-[140px] w-[130px]"
-                          src={product.images[0]?`${baseUrl}/${product.images[0]}`: altImg}
+                          className="h-full w-[130px]"
+                          src={product.images[0] ? `${baseUrl}/${product.images[0]}` : altImg}
                           alt={product.productName}
                         />
                       </figure>
                     </div>
-                    <div className="  text-sm text-center p-2">
+                    <div className="bg-slate-200 h-[70px] text-sm text-center p-2">
                       <p>SKU:{product.SKU}</p>
                       <p className="text-sm">{product.productName}({product.totalStock})</p>
                     </div>
@@ -357,46 +239,44 @@ const EcommercePosOrders = () => {
                     </span>
                   }
                 </p>
-                <table className="min-w-full bg-white px-4">
-                  <thead className="bg-green-500 text-white">
-                    <tr>
-                      <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Price</th>
-                      <th className="px-4 py-2">Disc(%)</th>
-                      <th className="px-4 py-2">Disc Amt</th>
-                      <th className="px-4 py-2">After Disc</th>
-                      <th className="px-4 py-2">Qty</th>
-                      <th className="px-4 py-2">Total</th>
-                      <th className="px-4 py-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="pos-table-scroll" >
+                <div className="min-w-full bg-white px-4">
+                  {/* Header */}
+                  <div className="bg-green-500 text-white flex">
+                    <div className="px-4 py-2 w-28 flex-grow border-b border-green-500">Name</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Price</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Disc(%)</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Disc Amt</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">After Disc</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Qty</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Total</div>
+                    <div className="px-4 py-2 flex-1 border-b border-green-500">Action</div>
+                  </div>
+                  {/* Rows */}
+                  <div className="h-[250px] overflow-y-scroll ">
                     {orderItems.map((item, index) => (
-                      <tr key={index} style={{ height: '50px' }}>
-                        <td className="border px-4 py-2 text-[13px]">
-                          {item.productName} ({item.size})
-                          <br />
-                          Barcode: {item.barcode}
-                        </td>
-                        <td className="border px-4 py-2">{item.regularPrice}</td>
-                        <td className="border px-4 py-2">
+                      <div key={index} className="flex items-center border-b">
+                        <div className="px-4 py-2 flex-grow w-28 text-xs  border-r">{item.productName} ({item.size})<br />Barcode: {item.barcode} <br /> SKU: {item.SKU}</div>
+                        <div className="px-4 py-2 flex-1 border-r">{item.regularPrice}</div>
+                        <div className="px-4 py-2 flex-1 border-r">
                           <input
                             type="number"
+                            min='0'
                             value={item.discountPercent}
                             onChange={(e) => handleDiscountChange(index, 'discountPercent', e.target.value)}
                             className="input w-16"
                           />
-                        </td>
-                        <td className="border px-4 py-2">
+                        </div>
+                        <div className="px-4 py-2 flex-1 border-r">
                           <input
                             type="number"
+                            min='0'
                             value={item.discountAmount}
                             onChange={(e) => handleDiscountChange(index, 'discountAmount', e.target.value)}
                             className="input w-16"
                           />
-                        </td>
-                        <td className="border px-4 py-2">{item.salePrice}</td>
-                        <td className="border px-4 py-2 flex items-center">
+                        </div>
+                        <div className="px-4 py-2 flex-1 border-r">{item.salePrice}</div>
+                        <div className="px-4 py-2 flex-1 border-r flex items-center">
                           <button
                             onClick={() => handleQuantityChange(index, -1)}
                             disabled={item.quantity <= 1}
@@ -411,17 +291,17 @@ const EcommercePosOrders = () => {
                           >
                             +
                           </button>
-                        </td>
-                        <td className="border px-4 py-2">{item.salePrice * item.quantity}</td>
-                        <td className="border px-4 py-2 text-center">
+                        </div>
+                        <div className="px-4 py-2 flex-1 border-r">{item.salePrice * item.quantity}</div>
+                        <div className="px-4 py-2 flex-1 text-center">
                           <button onClick={() => handleDelete(index)} className="text-red-500">🗑️</button>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
                 {orderItems.some(item => item.discountPercent > 0 || item.discountAmount > 0) && (
-                  <div className="flex justify-center mt-1">
+                  <div className="flex justify-center mt-5">
                     <button
                       onClick={clearDiscounts}
                       className="btn btn-sm w-32 bg-red-600 hover:bg-red-600 text-white font-medium"
@@ -430,7 +310,7 @@ const EcommercePosOrders = () => {
                     </button>
                   </div>
                 )}
-                <div className="mt-14">
+                <div className="fixed w-[55%] py-7 px-2 bottom-[220px] ">
                   <div className="flex justify-between">
                     <span>Items</span>
                     <span>{calculateTotalItems()}</span>
@@ -440,7 +320,7 @@ const EcommercePosOrders = () => {
                     <span>{calculateTotalAmount()}</span>
                   </div>
                 </div>
-                <div className="bg-black px-4 text-white grid grid-cols-2 gap-5 p-2">
+                <div className="fixed w-[55%] bg-black px-2  text-white grid grid-cols-2 gap-5 py-7 bottom-[70px]">
                   <div className="flex justify-between items-center space-x-2">
                     <div className="flex items-center space-x-2 text-black">
                       <span className="text-white">Disc</span>
@@ -478,7 +358,7 @@ const EcommercePosOrders = () => {
               </div>
             </div>
           </div>
-          <div className="sticky bottom-0">
+          <div className="fixed w-full bottom-0">
             <div className="mt-3 flex text-center ">
               <div className="bg-[#605ca8] w-7/12 flex justify-evenly">
                 <div className="flex items-center h-full justify-evenly gap-10">
@@ -490,35 +370,43 @@ const EcommercePosOrders = () => {
                   Total : {totalTk} TK
                 </p>
               </div>
-              <div className="bg-[#188ae2] w-2/12" onClick={() => document.getElementById('my_modal_3').showModal()}>
+              <div className="bg-[#188ae2] w-2/12 cursor-pointer" onClick={() => document.getElementById('my_modal_3').showModal()}>
                 <p className="text-4xl font-bold py-4 text-white">
                   Exchange
                 </p>
               </div>
 
               <dialog id="my_modal_3" className="modal">
-                <div className="modal-box w-11/12 max-w-5xl">
+                <div className="modal-box w-11/12 max-w-7xl fixed  top-5">
                   <form method="dialog">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕                                                    </button>
                   </form>
-                  <Modal />
+                  <Modal setExchangeAmount={setExchangeAmount} setUserInfo={setUserInfo} setExchangeDetail={setExchangeDetail} />
                 </div>
               </dialog>
-              <div className="bg-[#c1793c] w-1/12">
+              <div className="bg-[#c1793c] w-1/12 cursor-pointer" onClick={handleOpenModalList}>
                 <p className="text-4xl font-bold py-4 text-white">
                   :::
                 </p>
               </div>
-              <div className="bg-[#ff890f] w-1/12">
+              <HoldList setUserInfo={setUserInfo} setOrderItems={setOrderItems} isOpen={isModalOpenList} onClose={handleCloseModalList} />
+              <button disabled={orderItems.length === 0} className="bg-[#ff890f] w-1/12 " onClick={handleOpenModal}>
                 <p className="text-4xl font-bold py-4 text-white">
                   Hold
                 </p>
-              </div>
+              </button>
+              <HoldSaleModal setOrderItems={setOrderItems} setUserInfo={setUserInfo} setOrders={setOrders} userInfo={userInfo} orderItems={orderItems} isOpen={isModalOpen} onClose={handleCloseModal} />
               <div
-                className="bg-[#f31250] w-1/12"
+                className="bg-[#f31250] w-1/12 cursor-pointer"
                 onClick={() => {
                   setOrderItems([]);
                   setDiscount((prevDiscount) => ({ ...prevDiscount, value: 0 }));
+                  setUserInfo({
+                    phone: '',
+                    name: '',
+                    address: ''
+                  })
+                  setOrders([])
                 }}
               >
                 <p className="text-4xl font-bold py-4 text-white">
@@ -526,8 +414,11 @@ const EcommercePosOrders = () => {
                 </p>
               </div>
 
-              <div className={` cursor-pointer w-2/12 ${userInfo.phone ? 'bg-[#00a65a]' : "bg-[#00a65b3f] "}`} >
-                <button disabled={!userInfo.phone} onClick={handlePaymentClick}>
+              <div className={` cursor-pointer w-2/12 ${orderItems.length !== 0 || totalTk < 0  || !userInfo.phone ? 'bg-[#00a65a]' : "bg-[#00a65b3f] "}`} >
+                <button
+                  disabled={orderItems.length === 0 || totalTk < 0 || !userInfo.phone}
+                  onClick={handlePaymentClick}
+                >
                   <p className="text-4xl font-bold py-4 text-white">
                     Payment
                   </p>
@@ -540,12 +431,12 @@ const EcommercePosOrders = () => {
           <SizeModal product={selectedProduct} onSizeSelect={handleSizeSelect} onClose={() => setModalVisible(false)} />
         )}
         {paymentModalVisible && (
-          <PaymentModal setPaymentModalVisible={setPaymentModalVisible} userInfo={userInfo} orderItems={orderItems} discount={discount} calculateTotalAmount={calculateTotalAmount} finalAmount={totalTk} />
+          <PaymentModal exchangeDetails={exchangeDetails} exchangeAmount={exchangeAmount} totalDiscount={totalDiscount} setPaymentModalVisible={setPaymentModalVisible} userInfo={userInfo} orderItems={orderItems} discount={discount} calculateTotalAmount={calculateTotalAmount} finalAmount={totalTk} />
 
         )}
 
         <dialog id="orders_modal" className="modal">
-          <div className="modal-box w-11/12 max-w-5xl">
+          <div className="modal-box fixed top-16 w-11/12 max-w-5xl">
             <form method="dialog">
               <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
@@ -565,7 +456,7 @@ const EcommercePosOrders = () => {
                     <td className="border px-4 py-2">{order.invoice}</td>
                     <td className="border px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="border px-4 py-2">{order.grandTotal}</td>
-                    <td className="border px-4 py-2">{order.status[0].name}</td>
+                    <td className="border px-4 py-2">{order.lastStatus.name}</td>
                   </tr>
                 ))}
               </tbody>
@@ -579,4 +470,4 @@ const EcommercePosOrders = () => {
   );
 };
 
-export default EcommercePosOrders;
+export default PosOrders;

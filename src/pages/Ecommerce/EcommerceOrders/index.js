@@ -11,6 +11,8 @@ import TrackingModal from './TrackingModal';
 import { MDBDataTable } from 'mdbreact';
 import { CgProfile } from "react-icons/cg";
 import { FaPhoneAlt } from "react-icons/fa";
+import altImg from '../../../assets/avater.jpg'
+
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -30,6 +32,7 @@ const Orders = () => {
     const [search, setSearch] = useState('')
     const [orderObject, setOrderObject] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [searchOrderNo, setSearchOrderNo] = useState('')
 
     const pageRange = 2;
 
@@ -87,7 +90,7 @@ const Orders = () => {
 
     const fetchData = () => {
         setLoading(true)
-        fetch(`${baseUrl}/api/orders?page=${currentPage}&size=${limit}&search=${search}&date=${dateFilter}&status=${statusFilter}`)
+        fetch(`${baseUrl}/api/orders?page=${currentPage}&size=${limit}&search=${search}&date=${dateFilter}&status=${statusFilter}&searchOrderNo=${searchOrderNo}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -117,7 +120,7 @@ const Orders = () => {
     useEffect(() => {
         fetchCount()
         fetchData();
-    }, [limit, search, currentPage, dateFilter, statusFilter]);
+    }, [limit, search, currentPage, dateFilter, statusFilter,searchOrderNo]);
 
 
     const handleStatusChange = async (orderId, newStatus) => {
@@ -281,7 +284,7 @@ const Orders = () => {
 
                         <div className="shadow-md cursor-pointer text-center py-2 bg-[#8b9a4619]" onClick={() => handleFilterByStatus('exchange')}>
                             <p className="text-2xl font-bold text-[#8B9A46]">{orderObject?.exchange}</p>
-                            <p className="font-semibold text-[#8B9A46]">Return Exchange</p>
+                            <p className="font-semibold text-[#8B9A46]">Exchange</p>
                         </div>
 
                         <div className="shadow-md cursor-pointer text-center py-2 bg-[#d5535320]" onClick={() => handleFilterByStatus('cancel')}>
@@ -313,7 +316,6 @@ const Orders = () => {
                                     <option value="courierProcessing">Courier Processing</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="return">Return</option>
-                                    <option value="exchange">Return Exchange</option>
                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                     <option value="exchange">Exchange</option>
                                     <option value="cancel">Cancel</option>
@@ -341,10 +343,19 @@ const Orders = () => {
 
                             <input
                                 type="text"
-                                placeholder="Search by Invoice No or Phone"
-                                className="input input-bordered w-full max-w-xs"
+                                placeholder="Invoice No or Phone"
+                                className="input input-bordered w-full max-w-56"
                                 onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
                             />
+
+                            <input
+                                type="text"
+                                placeholder="Order No"
+                                className="input input-bordered max-w-28"
+                                onChange={(e) => { setSearchOrderNo(e.target.value); setCurrentPage(1) }}
+                            />
+
+                         
 
                             <div className="flex gap-6 md:mr-4">
                                 <button className="btn btn-sm bg-error text-white border-none">
@@ -407,8 +418,9 @@ const Orders = () => {
                                                                                 {`${('0' + new Date(item.createdAt).getDate()).slice(-2)}-${('0' + (new Date(item.createdAt).getMonth() + 1)).slice(-2)}-${new Date(item.createdAt).getFullYear().toString().slice(-2)}, ${new Date(item.createdAt).getHours() % 12 || 12}:${('0' + new Date(item.createdAt).getMinutes()).slice(-2)} ${new Date(item.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
                                                                             </p>
                                                                             <p className="font-bold text-error">{item.serialId}</p>
+                                                                            <p className="font-bold text-success">Order No: {item?.orderNo}</p>
                                                                             <p>{item.invoice}</p>
-                                                                            <p>{item.date}</p>
+                                                                            
                                                                             <p className="flex items-center gap-1">
                                                                                 <span><CgProfile /></span>
                                                                                 <span className="font-semibold">{item.name}</span>
@@ -418,7 +430,8 @@ const Orders = () => {
                                                                                 <span className="font-semibold">{item.phone}</span>
                                                                             </p>
                                                                             <p className="flex gap-1 italic"><span className="">{item.address}</span></p>
-                                                                            <p className="text-red-500">Note: {item?.notes[item?.notes.length - 1]?.noteContent}</p>
+                                                                            <p className="flex gap-1"><span className="font-semibold">Customer Note: </span>{item.orderNotes}</p>
+                                                                            <p className="text-red-500">Admin Note: {item?.notes[item?.notes.length - 1]?.noteContent}</p>
                                                                         </div>
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
@@ -437,10 +450,10 @@ const Orders = () => {
                                                                         {item?.cartItems?.slice(0, 2).map(c => {
                                                                             const sizeDetail = c?.productId?.sizeDetails?.find(sizeDetail => sizeDetail?.size === c?.size);
                                                                             return (
-                                                                                <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 h-[310px]">
+                                                                                <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 ">
                                                                                     <div className="px-2">
                                                                                         <div className="relative">
-                                                                                            <img className="w-[140px] mx-auto" src={`${baseUrl}/${c?.productId?.images[0]}`} alt={c?.productId?.productName} />
+                                                                                            <img className="w-[140px] mx-auto shadow-lg" src={c?.productId?.images[0] ? `${baseUrl}/${c?.productId?.images[0]}`: altImg } alt={c?.productId?.productName} />
                                                                                             <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
                                                                                         </div>
                                                                                         <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>
@@ -505,7 +518,6 @@ const Orders = () => {
                                                                                     <option value="courierProcessing">Courier Processing</option>
                                                                                     <option value="delivered">Delivered</option>
                                                                                     <option value="return">Return</option>
-                                                                                    <option value="exchange">Return Exchange</option>
                                                                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
                                                                                     <option value="exchange">Exchange</option>
                                                                                     <option value="cancel">Cancel</option>
@@ -529,7 +541,7 @@ const Orders = () => {
                                                                     <td className="border-2 border-gray-100">
                                                                         <div className="space-y-1">
                                                                             <div className="text-center">
-                                                                                <a onClick={() => updatePrint(item._id)} href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint ? 'red-500' : 'green-500'}`}>
+                                                                                <a onClick={() => updatePrint(item._id)} target='_blank' href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint ? 'red-500' : 'green-500'}`}>
                                                                                     Print
                                                                                 </a>
                                                                             </div>

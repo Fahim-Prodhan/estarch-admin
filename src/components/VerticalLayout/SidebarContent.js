@@ -177,7 +177,7 @@ const SidebarContent = props => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/ecommerce-pos-orders">
+                  <Link to="/pos-orders">
                     {props.t("Pos Orders")}
                   </Link>
                 </li>
@@ -224,12 +224,11 @@ const SidebarContent = props => {
             </li>
             {/* Payment Option */}
             <li>
-              <Link to="/#" className="has-arrow waves-effect">
+              <Link  className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Payment Option")}</span>
               </Link>
               <ul className="sub-menu">
-               
                 <li>
                   <Link to="/ecommerce-Payment-Option">{props.t("Add Payment Option")} </Link>
                 </li>
@@ -289,6 +288,9 @@ const SidebarContent = props => {
                   <Link to="/product-list">{props.t("Product List")} </Link>
                 </li>
                 <li>
+                  <Link to="/ecommerce-product-stock">{props.t("Product Stock")} </Link>
+                </li>
+                <li>
                   <Link to="/ecommerce-product-serial">{props.t("Product Serial")} </Link>
                 </li>
                 <li>
@@ -345,6 +347,33 @@ const SidebarContent = props => {
                 <Link to="/brand">{props.t("Brand")}</Link>
               </li>
             </li> */}
+
+            <li className="menu-title">Accounts</li>
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-user-circle"></i>
+                <span>{props.t("Accounts")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/accounts/main-accounts">{props.t("Main Account")}</Link>
+                </li>
+                <li>
+                  <Link to="/pages-register">{props.t("Investor Account")}</Link>
+                </li>
+                {/* <li>
+                  <Link to="/pages-login">{props.t("Login")}</Link>
+                </li>
+                <li>
+                  <Link to="/page-recoverpw">
+                    {props.t("Recover Password")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/auth-lock-screen">{props.t("Lock Screen")}</Link>
+                </li> */}
+              </ul>
+            </li>
 
             <li className="menu-title">Pages</li>
             <li>

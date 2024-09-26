@@ -92,8 +92,8 @@ function EditPayment() {
         e.preventDefault();
 
         try {
-            const response = await fetch(`${baseUrl}/api/payment/payment-options`, {
-                method: 'POST',
+            const response = await fetch(`${baseUrl}/api/payment/payment-options/${id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -106,15 +106,10 @@ function EditPayment() {
 
             const data = await response.json();
             console.log('Response Data: ', data);
+            alert('updated successfully')
         } catch (error) {
             console.error('Error:', error);
         }
-        setAccountFields({
-            accountName: '',
-            accounts: [
-                { accountType: '', payments: [{ paymentOption: '', accountNumber: '' }] }
-            ]
-        })
     };
 
     return (

@@ -14,6 +14,7 @@ const InvoiceDetail = () => {
   const [order, setOrder] = useState(null); // State to store order data
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [error, setError] = useState(null);
+
   useEffect(() => {
     // Function to fetch order data
     const fetchOrder = async () => {
@@ -31,29 +32,19 @@ const InvoiceDetail = () => {
       }
     };
 
-    
     fetchOrder(); // Call the fetch function
-    // Optional cleanup function if needed
-    return () => {
-      // Cleanup logic
-    };
   }, [id]);
 
-
-  
-useEffect(()=>{
-  if(order){
-    window.print()
-  }
-},[order])
-
+  useEffect(() => {
+    if (order) {
+      // window.print();
+    }
+  }, [order]);
 
   if (loading) return <p>Loading...</p>; // Show loading state
   if (error) return <p>Error: {error}</p>;
-  document.title = "Invoice Detail ";
 
-//7401564
-
+  document.title = "Invoice Detail";
 
   // Print the Invoice
   const printInvoice = () => {
@@ -87,9 +78,14 @@ useEffect(()=>{
               display: none;
             }
           }
+
+          .text-black * {
+            color: black !important;
+            font-weight: 700;
+          }
         `}
       </style>
-      <div className="page-content">
+      <div className="page-content text-black">
         <Container fluid>
           {/* Render Breadcrumbs */}
           <Breadcrumbs title="Invoices" breadcrumbItem="Invoice Detail" />
@@ -100,7 +96,7 @@ useEffect(()=>{
                   <div className="invoice-title">
                     <h4 className="float-end font-size-16">
                       <Barcode
-                        className='w-44'
+                        className="w-44"
                         value={order.invoice}
                         displayValue={false}
                         lineColor="#00000"
@@ -131,7 +127,6 @@ useEffect(()=>{
                         <div>
                           <h5 className="font-size-16 mb-1">Invoice No:</h5>
                           <p>{order.invoice}</p>
-
                         </div>
                         <div className="mt-4">
                           <h5 className="font-size-16 mb-1">Invoice Date:</h5>
@@ -152,11 +147,14 @@ useEffect(()=>{
                           <tr>
                             <th style={{ width: "70px" }}>No.</th>
                             <th>Item</th>
-                            <th>Price</th>
+                            <th>Regular Price</th>
+                            <th>Discount</th>
+                            <th>Selling Price</th>
                             <th>Quantity</th>
                             <th className="text-end" style={{ width: "120px" }}>Total</th>
                           </tr>
                         </thead>
+
                         <tbody>
                           {order.cartItems.map((item, key) => (
                             <tr key={key}>
@@ -164,49 +162,96 @@ useEffect(()=>{
                               <td>
                                 <h5 className="font-size-15 mb-1">{item.title}</h5>
                                 <h5 className="font-size-15 mb-1">{item.SKU}</h5>
-                                <h5 className="font-size-15 mb-1"></h5>
                                 <ul className="list-inline mb-0">
                                   <li className="list-inline-item">Size : {item.barcode} <span className="fw-medium">({item.size})</span></li>
                                 </ul>
                               </td>
                               <td>{item.price + item.discountAmount}</td>
+                              <td>{item.discountAmount}</td>
+                              <td>{item.price}</td>
                               <td>{item.quantity}</td>
-                              <td className="text-end">{(item.price + item.discountAmount )* item.quantity }</td>
+                              <td className="text-end">{(item.price) * item.quantity}</td>
                             </tr>
                           ))}
-                          <tr>
-                            <th colSpan="4" className="text-end">Sub Total</th>
-                            <td className="text-end">{order.totalAmount + order.discount}</td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">
-                              Discount :</th>
-                            <td className="border-0 text-end">- {order.discount + order.adminDiscount}</td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">
-                              Shipping Charge :</th>
-                            <td className="border-0 text-end">{order.deliveryCharge}</td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">
-                              Tax</th>
-                            <td className="border-0 text-end">00</td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">Total</th>
-                            <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal}</h4></td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">Advance</th>
-                            <td className="border-0 text-end"><h4 className="m-0">{order.advanced}</h4></td>
-                          </tr>
-                          <tr>
-                            <th colSpan="4" className="border-0 text-end">Due Amount</th>
-                            <td className="border-0 text-end"><h4 className="m-0">{order.grandTotal - order.advanced}</h4></td>
-                          </tr>
                         </tbody>
                       </Table>
+                      <div className="flex">
+                        <div className={order?.exchangeDetails?.items ? "w-1/2  mt-20 " : "hidden"}>
+                          {
+                            order.exchangeAmount ? <div className=' flex justify-between border-b'>
+                              <p className=" font-bold">Exchange (Back)</p>
+                              <p className=" ">{order.exchangeDetails.invoiceNo}</p>
+                            </div> : null
+                          }
+                          {
+                            order.exchangeAmount ? <table className="w-full mb-4 text-left text-xs border-collapse">
+                              <thead>
+                                <tr>
+                                  <th className="border-b py-1">Description</th>
+                                  <th className="border-b py-1">Qty</th>
+                                  <th className="border-b py-1">MRP</th>
+                                  <th className="border-b py-1">Dis</th>
+                                  <th className="border-b py-1">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {order?.exchangeDetails?.items?.map((item, index) => (
+                                  <tr key={index}>
+                                    <td className="py-1 font-bold">
+                                      {item.SKU} - {item.barcode} ({item.size})
+                                    </td>
+                                    <td className="py-1 font-bold">{item.quantity}</td>
+                                    <td className="py-1 font-bold">{(item.price + item.discountAmount)}</td>
+                                    <td className="py-1 font-bold">{item.discountAmount}</td>
+                                    <td className="py-1 font-bold">{item.price}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table> : null
+                          }
+                        </div>
+                        <div className={order?.exchangeDetails?.items ? "w-1/2" : "w-full"}><div className="flex justify-between border-t py-2  border-b">
+                          <div className="w-2/3 text-end">Sub Total</div>
+                          <div className="w-1/3 text-end">{order.totalAmount + order.discount}</div>
+                        </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Discount :</div>
+                            <div className="w-1/3 text-end">- {order.discount + order.adminDiscount}</div>
+                          </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Shipping Charge :</div>
+                            <div className="w-1/3 text-end">{order.deliveryCharge}</div>
+                          </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Tax</div>
+                            <div className="w-1/3 text-end">00</div>
+                          </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Total</div>
+                            <div className="w-1/3 text-end">
+                              <h4 className="m-0">{order.grandTotal}</h4>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Advance</div>
+                            <div className="w-1/3 text-end">
+                              <h4 className="m-0">{order.advanced}</h4>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between py-2 border-b">
+                            <div className="w-2/3 text-end">Due Amount</div>
+                            <div className="w-1/3 text-end">
+                              <h4 className="m-0">{order.grandTotal - order.advanced}</h4>
+                            </div>
+                          </div></div>
+                      </div>
+
                     </div>
                     <div className="d-print-none mt-4">
                       <div className="float-end">
