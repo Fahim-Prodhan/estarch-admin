@@ -253,7 +253,7 @@ const SidebarContent = props => {
             </li>
 
             {/* Expense */}
-            {/* <li>
+            <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Expense")}</span>
@@ -269,7 +269,7 @@ const SidebarContent = props => {
                   <Link to="/expense-list">{props.t("Expense List")} </Link>
                 </li>
               </ul>
-            </li> */}
+            </li>
 
 
             <li className="menu-title">{props.t("Product")}</li>
