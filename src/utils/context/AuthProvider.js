@@ -14,7 +14,7 @@ export const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUserData = async (userId) => {
-            console.log('Fetching user data for userId:', userId);
+     
             setLoadingUser(true);
             try {
                 const response = await fetch(`${baseUrl}/api/auth/user/${userId}`);
@@ -35,7 +35,6 @@ export const AuthContextProvider = ({ children }) => {
             const userIdString = localStorage.getItem('userId');
             if (userIdString) {
                 const userId = JSON.parse(userIdString);
-                console.log('Parsed userId:', userId);
                 if (userId) {
                     fetchUserData(userId);
                 } else {

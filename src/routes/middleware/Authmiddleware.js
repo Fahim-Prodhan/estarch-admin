@@ -20,7 +20,7 @@ const Authmiddleware = (props) => {
     return <Navigate to="/login" />;
   }
 
-  if (authUser.role !== 'admin') {
+  if (authUser.role !== 'admin' && authUser.role !== 'accountant' && authUser.role !== 'investor' ) {
     return <Navigate to="/login" />;
   }
 

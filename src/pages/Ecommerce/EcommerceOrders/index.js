@@ -8,10 +8,10 @@ import ViewOrderProduct from './ViewOrderProduct';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import NoteModal from './NoteModal';
 import TrackingModal from './TrackingModal';
-import { MDBDataTable } from 'mdbreact';
 import { CgProfile } from "react-icons/cg";
 import { FaPhoneAlt } from "react-icons/fa";
 import altImg from '../../../assets/avater.jpg'
+import { Link } from 'react-router-dom';
 
 
 const Orders = () => {
@@ -33,6 +33,31 @@ const Orders = () => {
     const [orderObject, setOrderObject] = useState(null)
     const [loading, setLoading] = useState(true)
     const [searchOrderNo, setSearchOrderNo] = useState('')
+    const [courier, setCourier] = useState(null);
+    const [apiKey, setApiKey] = useState("");
+    const [secretKey, setSecretKey] = useState("");
+    const [sentToCourierOrders, setSentToCourierOrders] = useState([])
+    const [courierProcessingOrders, setCourierProcessingOrders] = useState([])
+
+    const url = 'https://portal.packzy.com/api/v1'; // Replace with your API URL
+
+
+    // 
+
+    useEffect(() => {
+        // Fetch the courier data by ID
+        axios.get(`${baseUrl}/api/courier`)
+            .then((res) => {
+                const data = res.data.data[0];
+                setCourier(data);
+                setApiKey(data.apiKey);  // Set default API key to input
+                setSecretKey(data.secretKey);  // Set default Secret key to input
+            })
+            .catch((err) => {
+                console.error("Error fetching courier data", err);
+            });
+
+    }, []);
 
     const pageRange = 2;
 
@@ -108,6 +133,27 @@ const Orders = () => {
                 console.error('There was a problem with the fetch operation:', error);
                 setLoading(false)
             });
+
+        try {
+            axios.get(`${baseUrl}/api/orders/get-sent-courier-orders`)
+                .then(res => {
+                    setSentToCourierOrders(res.data)
+                })
+
+        } catch (error) {
+            console.error('Error fetching courier orders or statuses:', error);
+        }
+
+        // courier Processing orders
+        try {
+            axios.get(`${baseUrl}/api/orders/get-courier-processing-orders`)
+                .then(res => {
+                    setCourierProcessingOrders(res.data)
+                })
+
+        } catch (error) {
+            console.error('Error fetching courier orders or statuses:', error);
+        }
     };
 
     const fetchCount = () => {
@@ -117,13 +163,62 @@ const Orders = () => {
             })
     }
 
+
+
+
+
     useEffect(() => {
         fetchCount()
         fetchData();
-    }, [limit, search, currentPage, dateFilter, statusFilter,searchOrderNo]);
+    }, [limit, search, currentPage, dateFilter, statusFilter, searchOrderNo]);
 
 
-    const handleStatusChange = async (orderId, newStatus) => {
+    const sentToCourierFun = async () => {
+        for (let order of sentToCourierOrders) {
+            const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
+                headers: {
+                    'Api-Key': apiKey,
+                    'Secret-Key': secretKey,
+                    'Content-Type': 'application/json', // Optional: specify content type
+                },
+            })
+            if (status.delivery_status === "pending") {
+                handleStatusChangeForCourier(order._id, "courierProcessing")
+                // fetchCount()
+                // fetchData();
+                console.log(status.delivery_status);
+                console.log("inside send to courier");
+
+
+            }
+        }
+        console.log("Sent to courier calling");
+    }
+
+    const courierProcessingFun = async () => {
+        for (let order of courierProcessingOrders) {
+            const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
+                headers: {
+                    'Api-Key': apiKey,
+                    'Secret-Key': secretKey,
+                    'Content-Type': 'application/json', // Optional: specify content type
+                },
+            })
+            if (status.delivery_status === "delivered") {
+                handleStatusChangeForCourier(order._id, "delivered")
+                console.log("inside courier processing", status.delivery_status);
+            }
+        }
+        console.log(" courier calling");
+
+
+    }
+
+    sentToCourierFun();
+    courierProcessingFun();
+
+
+    const handleStatusChange = async (orderId, newStatus, item) => {
         // Optimistically update the UI
         const previousOrders = [...orders];
         setOrders((prevOrders) =>
@@ -151,11 +246,36 @@ const Orders = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to update order status');
+                return; // Add this to ensure the function stops after throwing the error
             }
 
             // Update the state with the confirmed data from the server
             const updatedOrder = await response.json();
 
+            if (newStatus === "sendToCourier") {
+                const data = {
+                    // Your request payload
+                    invoice: item?.invoice,
+                    recipient_name: item?.name,
+                    recipient_phone: item?.phone,
+                    recipient_address: item.address,
+                    cod_amount: item.grandTotal,
+                };
+
+                axios.post(`${url}/create_order`, data, {
+                    headers: {
+                        'Api-Key': apiKey,
+                        'Secret-Key': secretKey,
+                        'Content-Type': 'application/json', // Optional: specify content type
+                    },
+                })
+                    .then((response) => {
+                        console.log('Success:', response.data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            }
 
             // Optionally, show a success message
             alert('Order status updated successfully');
@@ -170,22 +290,45 @@ const Orders = () => {
         }
     };
 
-
-
-
-    const handleCourierChange = async (orderId, newCourier) => {
-        const updatedOrders = orders.map(order => {
-            if (order._id === orderId) {
-                return { ...order, courier: newCourier };
-            }
-            return order;
-        });
+    const handleStatusChangeForCourier = async (orderId, newStatus) => {
+        // Optimistically update the UI
+        const previousOrders = [...orders];
+        setOrders((prevOrders) =>
+            prevOrders.map((order) => {
+                // Check if 'status' is defined and has elements
+                if (order?._id === orderId && Array.isArray(order.status)) {
+                    const updatedStatus = [...order.status, { name: newStatus }];
+                    return { ...order, status: updatedStatus };
+                }
+                return order;
+            })
+        );
 
         try {
-            await axios.patch(`${baseUrl}/api/orders/${orderId}/courier`, { courier: newCourier });
-            setOrders(updatedOrders);
+            const userId = JSON.parse(localStorage.getItem('userId'));
+            const data = { status: newStatus, userId };
+
+            // Send a PATCH request to the server to update the status
+            const response = await fetch(`${baseUrl}/api/orders/status/${orderId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update order status');
+                return; // Add this to ensure the function stops after throwing the error
+            }
+
+            // Update the state with the confirmed data from the server
+            const updatedOrder = await response.json();
+
         } catch (error) {
-            console.error('Error updating courier:', error);
+            // Rollback the UI if there's an error
+            setOrders(previousOrders);
+            console.error(error);
+            alert(error.message || 'An error occurred while updating the order status');
         }
     };
 
@@ -215,8 +358,25 @@ const Orders = () => {
 
 
 
+
+
     return (
         <React.Fragment>
+            <style>
+                {
+                    `
+                    .deliver{
+                        background-color: #6EC207 !important;
+                        color: white !important;
+                    }
+                    .sent-to-courier{
+                        background-color: #4F75FF !important;
+                        color: white !important;
+
+                    }
+                    `
+                }
+            </style>
             <div className="mt-20 mb-20">
                 <Container>
                     {/* Status Summary Cards */}
@@ -327,10 +487,8 @@ const Orders = () => {
                                     value={courierFilter}
                                     onChange={(e) => handleFilterByCourier(e.target.value)}
                                 >
-                                    <option value="">Filter By Courier</option>
-                                    <option value="courier">Courier</option>
-                                    <option value="user1">User1</option>
-                                    <option value="user2">User2</option>
+                                    <option disabled value="">Filter By Courier</option>
+                                    <option value="user1">Stead Fast</option>
                                 </select>
 
                                 <input
@@ -355,15 +513,15 @@ const Orders = () => {
                                 onChange={(e) => { setSearchOrderNo(e.target.value); setCurrentPage(1) }}
                             />
 
-                         
+
 
                             <div className="flex gap-6 md:mr-4">
-                                <button className="btn btn-sm bg-error text-white border-none">
+                                <Link to={'/ecommerce-pos-orders'} className="btn btn-sm bg-error text-white border-none">
                                     <span>
                                         <IoIosAddCircle className="text-xl" />
                                     </span>
                                     Pos Order
-                                </button>
+                                </Link>
                                 <button className="btn btn-sm bg-success text-white border-none">
                                     My Orders
                                 </button>
@@ -405,7 +563,6 @@ const Orders = () => {
                                                                 <th className="border-2 border-gray-100">Product</th>
                                                                 <th className="border-2 border-gray-100">Status</th>
                                                                 <th className="border-2 border-gray-100">Create</th>
-                                                                <th className="border-2 border-gray-100">Action</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -420,7 +577,7 @@ const Orders = () => {
                                                                             <p className="font-bold text-error">{item.serialId}</p>
                                                                             <p className="font-bold text-success">Order No: {item?.orderNo}</p>
                                                                             <p>{item.invoice}</p>
-                                                                            
+
                                                                             <p className="flex items-center gap-1">
                                                                                 <span><CgProfile /></span>
                                                                                 <span className="font-semibold">{item.name}</span>
@@ -453,7 +610,7 @@ const Orders = () => {
                                                                                 <div key={c?._id} className="shadow-md cursor-pointer rounded-md w-40 ">
                                                                                     <div className="px-2">
                                                                                         <div className="relative">
-                                                                                            <img className="w-[140px] mx-auto shadow-lg" src={c?.productId?.images[0] ? `${baseUrl}/${c?.productId?.images[0]}`: altImg } alt={c?.productId?.productName} />
+                                                                                            <img className="w-[140px] mx-auto shadow-lg" src={c?.productId?.images[0] ? `${baseUrl}/${c?.productId?.images[0]}` : altImg} alt={c?.productId?.productName} />
                                                                                             <p className="absolute bottom-2 left-2 bg-error text-white px-1 rounded-md">{c?.productId?.salePrice} Taka</p>
                                                                                         </div>
                                                                                         <p className="font-semibold pb-2 text-center">{c?.productId?.productName}</p>
@@ -491,22 +648,28 @@ const Orders = () => {
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
                                                                         <div className="space-y-2">
-                                                                            <div>
+                                                                            <div className='flex'>
                                                                                 <select
-                                                                                    className={`select select-bordered w-28 ${item?.status[item?.status?.length - 1]?.name === 'confirm'
+                                                                                    disabled={
+                                                                                        ['sendToCourier', 'courierProcessing', 'delivered', 'partialReturn', 'returnWithDeliveryCharge', 'return', 'exchange'].includes(
+                                                                                            item?.status[item?.status?.length - 1]?.name
+                                                                                        )
+                                                                                    }
+                                                                                    className={`select select-bordered w-36 justify-center ${item?.status[item?.status?.length - 1]?.name === 'confirm'
                                                                                         ? 'bg-green-100 text-green-700'
-                                                                                        : item?.status[item?.status?.length - 1]?.name === 'cancel'
+                                                                                        : item?.status[item?.status?.length - 1]?.name === 'cancel' ||
+                                                                                            item?.status[item?.status?.length - 1]?.name === 'doubleOrderCancel'
                                                                                             ? 'bg-red-100 text-red-700'
-                                                                                            : item?.status[item?.status?.length - 1]?.name === 'doubleOrderCancel'
-                                                                                                ? 'bg-red-100 text-red-700'
-                                                                                                : item?.status[item?.status?.length - 1]?.name === 'processing'
-                                                                                                    ? 'bg-yellow-100 text-yellow-700'
-                                                                                                    : item?.status[item?.status.length - 1]?.name === 'sendToCourier'
-                                                                                                        ? 'bg-sky-100 text-sky-700'
+                                                                                            : item?.status[item?.status?.length - 1]?.name === 'processing'
+                                                                                                ? 'bg-yellow-100 text-yellow-700'
+                                                                                                : item?.status[item?.status?.length - 1]?.name === 'sendToCourier'
+                                                                                                    ? 'sent-to-courier'
+                                                                                                    : item?.status[item?.status?.length - 1]?.name === 'delivered'
+                                                                                                        ? 'deliver' // Green background for delivered status
                                                                                                         : ''
                                                                                         }`}
                                                                                     value={item?.status[item?.status?.length - 1]?.name || 'new'}
-                                                                                    onChange={(e) => handleStatusChange(item?._id, e.target.value)}
+                                                                                    onChange={(e) => handleStatusChange(item?._id, e.target.value, item)}
                                                                                 >
                                                                                     <option value="new">New</option>
                                                                                     <option value="pending">Pending</option>
@@ -517,8 +680,9 @@ const Orders = () => {
                                                                                     <option value="sendToCourier">Sent to Courier</option>
                                                                                     <option value="courierProcessing">Courier Processing</option>
                                                                                     <option value="delivered">Delivered</option>
-                                                                                    <option value="return">Return</option>
+                                                                                    <option value="partialReturn">Partial Return</option>
                                                                                     <option value="returnWithDeliveryCharge">Return with Delivery Charge</option>
+                                                                                    <option value="return">Return</option>
                                                                                     <option value="exchange">Exchange</option>
                                                                                     <option value="cancel">Cancel</option>
                                                                                     <option value="doubleOrderCancel">Double Order Cancel</option>
@@ -526,15 +690,18 @@ const Orders = () => {
                                                                             </div>
 
                                                                             <div>
-                                                                                <select
-                                                                                    className="select select-bordered w-28"
-                                                                                    value={item.courier}
-                                                                                    onChange={(e) => handleCourierChange(item._id, e.target.value)}
-                                                                                >
-                                                                                    <option value="courier">Courier</option>
-                                                                                    <option value="user1">User1</option>
-                                                                                    <option value="user2">User2</option>
-                                                                                </select>
+                                                                                <div className="flex gap-2 ">
+                                                                                    <button
+                                                                                        className={`btn btn-sm ${["confirm", "hold", "processing"].includes(item?.status[item?.status.length - 1]?.name) ? 'bg-sky-500 text-white' : 'bg-gray-300 text-gray-500 disabled'}`}
+                                                                                        onClick={() => {
+                                                                                            handleStatusChange(item?._id, "sendToCourier", item);
+                                                                                        }}
+                                                                                    >
+                                                                                        Stead Fast
+                                                                                    </button>
+
+                                                                                </div>
+
                                                                             </div>
                                                                         </div>
                                                                     </td>
@@ -554,22 +721,15 @@ const Orders = () => {
                                                                                 <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs">
                                                                                     Add Note
                                                                                 </button>
+
+                                                                                <button href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl mt-2">
+                                                                                    <FaEdit />
+                                                                                </button>
                                                                                 <NoteModal />
                                                                             </div>
                                                                         </div>
                                                                     </td>
-                                                                    <td className="border-2 border-gray-100">
-                                                                        <div className="dropdown dropdown-top dropdown-end">
-                                                                            <div tabIndex={0} role="button" className="btn btn-sm m-1"><BsThreeDotsVertical /></div>
-                                                                            <ul tabIndex={0} className="dropdown-content space-y-3 menu bg-base-100 rounded-box z-[1] p-2 shadow">
-                                                                                <li>
-                                                                                    <a href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl">
-                                                                                        <FaEdit />
-                                                                                    </a>
-                                                                                </li>
-                                                                            </ul>
-                                                                        </div>
-                                                                    </td>
+
                                                                 </tr>
                                                             ))}
                                                         </tbody>
