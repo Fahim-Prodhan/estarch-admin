@@ -706,7 +706,7 @@ const Orders = () => {
                                                                         </div>
                                                                     </td>
                                                                     <td className="border-2 border-gray-100">
-                                                                        <div className="space-y-1">
+                                                                        <div className="space-y-3">
                                                                             <div className="text-center">
                                                                                 <a onClick={() => updatePrint(item._id)} target='_blank' href={`/invoice/${item._id}`} className={`btn btn-sm text-white bg-${item.isPrint ? 'red-500' : 'green-500'}`}>
                                                                                     Print
@@ -721,10 +721,10 @@ const Orders = () => {
                                                                                 <button onClick={() => openNoteModal(item._id)} className="text-blue-500 btn btn-xs">
                                                                                     Add Note
                                                                                 </button>
-
-                                                                                <button href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl mt-2">
+                                                                                <br />
+                                                                                <a target='_blank' href={`/manage-orders/${item._id}`} className="btn btn-sm text-success text-xl mt-2">
                                                                                     <FaEdit />
-                                                                                </button>
+                                                                                </a>
                                                                                 <NoteModal />
                                                                             </div>
                                                                         </div>

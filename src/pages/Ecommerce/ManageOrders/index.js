@@ -144,7 +144,7 @@ const ManageOrders = () => {
         const userIdString = localStorage.getItem('userId');
         const userId = JSON.parse(userIdString);
         console.log(updateDiscount);
-        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, {manager: userId, newPayments, payments, name, address, phone, orderNotes, deliveryCharge: delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(), adminDiscount: parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
+        axios.patch(`${baseUrl}/api/orders/manage-order/${id}`, { manager: userId, newPayments, payments, name, address, phone, orderNotes, deliveryCharge: delivery, cartItems: products, advanced: Advance, discount: calculateTotalDiscount(), adminDiscount: parseInt(adminDiscount), totalAmount: calculateTotalAmount(), grandTotal: totalAmount(), dueAmount: dueAmount() })
             .then(res => {
                 alert("ok")
                 console.log(res);
@@ -306,9 +306,10 @@ const ManageOrders = () => {
                                             {products.length > 0 ?
                                                 products.map((product, index) => (
                                                     <tr key={product.id}>
-                                                        <td className="border-b p-2">{product.productId.SKU}</td>
-                                                        <td className="border-b p-2">{product.title}<span>({product.size})</span> {product.productId.sizeDetails.map((p, index) => (
-                                                            p.size === product.size ? <span>({p.barcode}) </span> : null
+                                                        <td className="border-b p-2"><span>SKU: {product.productId.SKU}</span> {product.productId.sizeDetails.map((p, index) => (
+                                                            p.size === product.size ? <p> Barcode: {p.barcode}  </p> : null))}</td>
+                                                         <td className="border-b p-2">{product.title} <span>(Size: {product.size})</span> {product.productId.sizeDetails.map((p, index)=>(
+                                                            p.size === product.size ? <span className="text-red-500">Available: {p.openingStock} </span> : null
                                                         ))}</td>
 
                                                         <td className="border-b p-2 text-center">
