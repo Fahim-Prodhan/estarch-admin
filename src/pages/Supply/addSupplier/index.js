@@ -16,11 +16,14 @@ const AddSupplier = () => {
         area: "",
         address: "",
         purchaseTotal: "",
+        due: 0,
         date: "",
         note: "",
+        supplierType: "Product", // Default type
     });
     const [editingSupplier, setEditingSupplier] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -48,15 +51,20 @@ const AddSupplier = () => {
             area: "",
             address: "",
             purchaseTotal: "",
+            due: 0,
             date: "",
             note: "",
+            supplierType: "Product", // Reset to default
         });
         setModalOpen(true);
     };
 
     const handleEditSupplier = (supplier) => {
         setEditingSupplier(supplier);
-        setNewSupplier({ ...supplier });
+        setNewSupplier({ 
+            ...supplier, 
+            supplierType: supplier.supplierType || "Product", // Ensure supplierType is set
+        });
         setModalOpen(true);
     };
 
@@ -91,6 +99,7 @@ const AddSupplier = () => {
     if (isLoading) {
         return <div>Loading...</div>;
     }
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -134,11 +143,11 @@ const AddSupplier = () => {
                                         <td className="border border-gray-300 p-2">{supplier.area}</td>
                                         <td className="border border-gray-300 p-2">{supplier.purchaseTotal}</td>
                                         <td className="border border-gray-300 p-2">{supplier.purchasePay}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.returnTotal }</td>
+                                        <td className="border border-gray-300 p-2">{supplier.returnTotal}</td>
                                         <td className="border border-gray-300 p-2">{supplier.returnPay}</td>
                                         <td className="border border-gray-300 p-2">{supplier.advance}</td>
                                         <td className="border border-gray-300 p-2">{supplier.dueDismiss || 0}</td>
-                                        <td className="border border-gray-300 p-2">{supplier.purchaseTotal - supplier.purchasePay }</td>
+                                        <td className="border border-gray-300 p-2">{supplier.purchaseTotal - supplier.purchasePay}</td>
                                         <td className="border border-gray-300 p-2">
                                             <button
                                                 className="bg-blue-500 text-white p-2 rounded mr-2"
@@ -168,6 +177,7 @@ const AddSupplier = () => {
                             className="border border-gray-300 rounded p-2 w-full"
                             value={newSupplier.name}
                             onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                            required
                         />
                     </div>
                     <div>
@@ -195,6 +205,7 @@ const AddSupplier = () => {
                             className="border border-gray-300 rounded p-2 w-full"
                             value={newSupplier.mobile}
                             onChange={(e) => setNewSupplier({ ...newSupplier, mobile: e.target.value })}
+                            required
                         />
                     </div>
                     <div>
@@ -216,12 +227,21 @@ const AddSupplier = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium">Due</label>
+                        <label className="block text-sm font-medium">Purchase Total</label>
                         <input
                             type="number"
                             className="border border-gray-300 rounded p-2 w-full"
                             value={newSupplier.purchaseTotal}
                             onChange={(e) => setNewSupplier({ ...newSupplier, purchaseTotal: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium">Due</label>
+                        <input
+                            type="number"
+                            className="border border-gray-300 rounded p-2 w-full"
+                            value={newSupplier.due}
+                            onChange={(e) => setNewSupplier({ ...newSupplier, due: e.target.value })}
                         />
                     </div>
                     <div>
@@ -233,13 +253,24 @@ const AddSupplier = () => {
                             onChange={(e) => setNewSupplier({ ...newSupplier, date: e.target.value })}
                         />
                     </div>
-                    <div className="col-span-2">
+                    <div>
                         <label className="block text-sm font-medium">Note</label>
                         <textarea
                             className="border border-gray-300 rounded p-2 w-full"
                             value={newSupplier.note}
                             onChange={(e) => setNewSupplier({ ...newSupplier, note: e.target.value })}
                         />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium">Supplier Type</label>
+                        <select
+                            className="border border-gray-300 rounded p-2 w-full"
+                            value={newSupplier.supplierType}
+                            onChange={(e) => setNewSupplier({ ...newSupplier, supplierType: e.target.value })}
+                        >
+                            <option value="Product">Product</option>
+                            <option value="Product Asset">Product Asset</option>
+                        </select>
                     </div>
                 </div>
             </Modal>

@@ -167,7 +167,7 @@ const SidebarContent = props => {
                   <Link to="/ecommerce-home-view">{props.t("Home View")}</Link>
                 </li>
 
-               
+
                 <li>
                   <Link to="/ecommerce-orders">{props.t("Orders")}</Link>
                 </li>
@@ -213,18 +213,37 @@ const SidebarContent = props => {
                 <span>{props.t("Purchase")}</span>
               </Link>
               <ul className="sub-menu">
-               
+
                 <li>
-                  <Link to="/add-purchase">{props.t("Add Purchase")} </Link>
+                  <Link to="/add-purchase">{props.t("Add Product Purchase")} </Link>
+                </li>
+                <li>
+                  <Link to="/add-product-asset-purchase">{props.t("Add Asset Purchase")} </Link>
                 </li>
                 <li>
                   <Link to="/purchase-list">{props.t("Purchase List")} </Link>
                 </li>
               </ul>
             </li>
+
+
+            {/* Supply */}
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-envelope"></i>
+                <span>{props.t("Supply")}</span>
+              </Link>
+              <ul className="sub-menu">
+
+                <li>
+                  <Link to="/add-supplier">{props.t("Add Supplier")} </Link>
+                </li>
+              </ul>
+            </li>
+
             {/* Payment Option */}
             <li>
-              <Link  className="has-arrow waves-effect">
+              <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
                 <span>{props.t("Payment Option")}</span>
               </Link>
@@ -234,20 +253,6 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="/ecommerce-Payment-Option-view">{props.t("View Payment Option")} </Link>
-                </li>
-              </ul>
-            </li>
-
-            {/* Supply */}
-            <li>
-              <Link to="/#" className="has-arrow waves-effect">
-                <i className="uil-envelope"></i>
-                <span>{props.t("Supply")}</span>
-              </Link>
-              <ul className="sub-menu">
-             
-                <li>
-                  <Link to="/add-supplier">{props.t("Add Supplier")} </Link>
                 </li>
               </ul>
             </li>
@@ -305,6 +310,18 @@ const SidebarContent = props => {
             <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-envelope"></i>
+                <span>{props.t("Asset")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/add-product-asset">{props.t("Add Product Asset")}</Link>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-envelope"></i>
                 <span>{props.t("Category")}</span>
               </Link>
               <ul className="sub-menu">
@@ -332,7 +349,7 @@ const SidebarContent = props => {
                 <li>
                   <Link to="/main-attribute">{props.t("Main Attribute")}</Link>
                 </li>
-                
+
                 <li>
                   <Link to="/ecommerce-add-size-type">{props.t("Add Size Type")}</Link>
                 </li>
@@ -410,10 +427,10 @@ const SidebarContent = props => {
                 <li>
                   <Link to="/courier-api">{props.t("Courier API")}</Link>
                 </li>
-        
+
               </ul>
             </li>
-            
+
           </ul>
         </div>
       </SimpleBar>

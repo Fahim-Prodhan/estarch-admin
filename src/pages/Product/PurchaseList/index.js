@@ -16,6 +16,8 @@ const PurchaseList = () => {
     const [fromDateFilter, setFromDateFilter] = useState('');
     const [toDateFilter, setToDateFilter] = useState('');
 
+    console.log(selectedPurchase);
+    
     // Fetch purchase data
     useEffect(() => {
         const fetchData = async () => {
@@ -35,6 +37,7 @@ const PurchaseList = () => {
                     items: purchase.items, // Add items to display in the modal
                     purchaseDate: purchase.purchaseDate,
                     paymentTypes: purchase.paymentTypes,
+                    supplierType:purchase.supplier ? purchase.supplier.supplierType : 'Unknown',
                 }));
 
                 setInvoices(transformedData);
@@ -173,7 +176,7 @@ const PurchaseList = () => {
                                         <td className="px-6 py-2">{index + 1}</td>
                                         <td className="px-6 py-2">{invoice.date}</td>
                                         <td className="px-6 py-2">{invoice.invoiceNo}</td>
-                                        <td className="px-6 py-2">{invoice.supplier}</td>
+                                        <td className="px-6 py-2">{invoice.supplier} ({invoice.supplierType})</td>
                                         <td className="px-6 py-2">{invoice.totalAmount}</td>
                                         <td className="px-6 py-2">{invoice.totalPay}</td>
                                         <td className="px-6 py-2">{invoice.totalDue}</td>
@@ -254,7 +257,7 @@ const PurchaseList = () => {
                                 {selectedPurchase.items.map((item, idx) => (
                                     <tr key={idx} className="bg-gray-100">
                                         <td className="px-4 py-2 border text-center">{idx + 1}</td>
-                                        <td className="px-4 py-2 border text-center">{item.product.productName}</td>
+                                        <td className="px-4 py-2 border text-center">{item?.product?.productName || item?.asset?.assetName}</td>
                                         <td className="px-4 py-2 border text-center">{item.quantity} Pics</td>
                                         <td className="px-4 py-2 border text-center">{item.purchasePrice}</td>
                                         <td className="px-4 py-2 border text-center">{item.subtotal}</td>

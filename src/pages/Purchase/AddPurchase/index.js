@@ -63,7 +63,7 @@ const AddPurchase = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get(`${baseUrl}/api/suppliers`);
+                const response = await axios.get(`${baseUrl}/api/suppliers?type=Product`);
                 setSuppliers(response.data);
                 if (response.data.length > 0) {
                     setSelectedSupplier(response.data[0].name);
@@ -277,7 +277,7 @@ const AddPurchase = () => {
                                                 </option>
                                             ))}
                                         </select>
-                                        <button
+                                        {/* <button
                                             className="ml-2 p-2 bg-green-500 text-white rounded"
                                             onClick={() => setModalOpen(true)}
                                         >
@@ -295,7 +295,7 @@ const AddPurchase = () => {
                                                     d="M12 4.5v15m7.5-7.5h-15"
                                                 />
                                             </svg>
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                                 <div>
