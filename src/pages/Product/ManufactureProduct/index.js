@@ -20,9 +20,9 @@ const AddPurchase = () => {
     const [totalCost, setTotalCost] = useState(0);
     const [totalProduct, setTotalProduct] = useState('');
     const [otherCost, setOtherCost] = useState(0); // State for Other Cost
- 
 
-    
+
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -124,12 +124,12 @@ const AddPurchase = () => {
             return sum + (asset.perItemPrice * asset.usedQuantity);
         }, 0);
         // console.log("inside",otherCost);  
-        setTotalCost(assetTotal+parseInt(otherCost)); // Include Other Cost
+        setTotalCost(assetTotal + parseInt(otherCost)); // Include Other Cost
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         calculateTotalCost(selectedAssets);
-    },[otherCost])
+    }, [otherCost])
 
     const handleProductInputClick = () => {
         setShowProductSuggestions(true);
@@ -149,10 +149,10 @@ const AddPurchase = () => {
 
     const handleManufacture = () => {
         const manufactureData = {
-            productId:selectedProduct._id,
-            assets: selectedAssets.map(asset=>({
-                assetId:asset._id,
-                usedQuantity:parseInt(asset.usedQuantity)
+            productId: selectedProduct._id,
+            assets: selectedAssets.map(asset => ({
+                assetId: asset._id,
+                usedQuantity: parseInt(asset.usedQuantity)
             })),
             totalProduct,
             otherCost,
@@ -160,18 +160,18 @@ const AddPurchase = () => {
         }
 
         console.log(manufactureData);
-        
 
-        axios.post(`${baseUrl}/api/manufacture-product/create`,manufactureData)
-        .then(res=>{
-            alert("Product Manufactured")
-        })
-        
+
+        axios.post(`${baseUrl}/api/manufacture-product/create`, manufactureData)
+            .then(res => {
+                alert("Product Manufactured")
+            })
+
     };
 
     const calculateCostPerProduct = () => {
         const productCount = parseInt(totalProduct) || 0;
-        return productCount > 0 ? (totalCost / productCount).toFixed(2) : 0; 
+        return productCount > 0 ? (totalCost / productCount).toFixed(2) : 0;
     };
 
     const handleTotalProductChange = (e) => {
@@ -321,41 +321,44 @@ const AddPurchase = () => {
                                 </div>
 
                                 {selectedAssets.length > 0 && (
-                                    <div className="mt-4">
-                                        <label htmlFor="otherCost" className="block text-gray-700 font-semibold">Other Cost:</label>
-                                        <input
-                                            id="otherCost"
-                                            type="number"
-                                            value={otherCost}
-                                            onChange={(e)=>setOtherCost(parseInt(e.target.value))}
-                                            placeholder="Enter Other Cost"
-                                            className="w-full max-w-xs p-2 border-2 rounded mb-2"
-                                        />
-                                        <label htmlFor="otherCost" className="block text-gray-700 font-semibold">Total Product:</label>
+                                    <div className="mt-4   grid grid-cols-12 items-end">
+                                        <div className='col-span-5 bg-white p-10 shadow-md' >
+                                            <label htmlFor="otherCost" className="block text-gray-700 font-semibold">Other Cost:</label>
+                                            <input
+                                                id="otherCost"
+                                                type="number"
+                                                value={otherCost}
+                                                onChange={(e) => setOtherCost(parseInt(e.target.value))}
+                                                placeholder="Enter Other Cost"
+                                                className="w-full max-w-xs p-2 border-2 rounded mb-2"
+                                            />
+                                            <label htmlFor="otherCost" className="block text-gray-700 font-semibold">Total Product:</label>
 
-                                        <input
-                                            type="number"
-                                            value={totalProduct}
-                                            onChange={handleTotalProductChange}
-                                            className="w-full max-w-xs p-2 border-2 rounded mb-4"
-                                            placeholder="Enter total number of products "
-                                        />
-                                        <h3 className="text-lg font-semibold text-orange-500">Total Cost: {totalCost.toFixed(2)} Taka</h3>
+                                            <input
+                                                type="number"
+                                                value={totalProduct}
+                                                onChange={handleTotalProductChange}
+                                                className="w-full max-w-xs p-2 border-2 rounded mb-4"
+                                                placeholder="Enter total number of products "
+                                            />
+                                            <h3 className="text-lg font-semibold text-orange-500">Total Cost: {totalCost.toFixed(2)} Taka</h3>
 
-                                        <h3 className="text-lg font-semibold text-orange-500">Cost Per Product: {calculateCostPerProduct()} Taka</h3>
+                                            <h3 className="text-lg font-semibold text-orange-500">Cost Per Product: {calculateCostPerProduct()} Taka</h3>
+                                        </div>
+                                        <div className='col-span-6 place-self-end mr-12' >
+                                            <button
+                                                onClick={handleManufacture}
+                                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                            >
+                                                Manufacture
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        <div className="flex justify-end mt-4">
-                            <button
-                                onClick={handleManufacture}
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            >
-                                Manufacture
-                            </button>
-                        </div>
+
                     </div>
                 </Container>
             </div>
