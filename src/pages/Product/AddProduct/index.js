@@ -442,7 +442,7 @@ function AddProduct() {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Minible" breadcrumbItem="Add Product" />
+          <Breadcrumbs title="Estarch" breadcrumbItem="Add Product" />
           <div>
             <div className="p-6 bg-base-100 rounded-lg shadow-lg w-full">
               <div className="bg-neutral-focus p-4 rounded-lg ">

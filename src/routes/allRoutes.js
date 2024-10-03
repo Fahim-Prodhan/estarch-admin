@@ -35,6 +35,7 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 import ProductList from '../pages/Product/ProductList/index'
 import ProductStock from '../pages/Product/ProductStock/index'
 import AddProduct from "../pages/Product/AddProduct/index"
+import ManufactureProduct from "../pages/Product/ManufactureProduct/index.js"
 import ProductSerial from "../pages/Product/ProductSerial/index"
 import CategorySerial from "../pages/Product/CategorySerial/index"
 import SubcategorySerial from "../pages/Product/SubcategorySerial/index"
@@ -138,6 +139,7 @@ const userRoutes = [
   // Product Routes
   { path: "/product-list", component: <ProductList /> },
   { path: "/ecommerce-add-product", component: <AddProduct /> },
+  { path: "/ecommerce-manufacture-product", component: <ManufactureProduct /> },
   { path: "/ecommerce-edit-product/:id", component: <EditProduct /> },
   { path: "/ecommerce-product-serial", component: <ProductSerial /> },
   { path: "/ecommerce-category-serial", component: <CategorySerial /> },
