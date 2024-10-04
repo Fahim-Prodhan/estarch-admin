@@ -19,7 +19,9 @@ import EcommerceManageOrders from "../pages/Ecommerce/ManageOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
 
 // Purchase Pages
-
+import AddPurchase from "../pages/Purchase/AddPurchase"
+import PurchaseList from "../pages/Product/PurchaseList/index.js"
+import AddProductAssetPurchase from "../pages/Purchase/AddAssetPurchase/index.js"
 
 // supply pages
 
@@ -33,9 +35,14 @@ import ExpenseList from "../pages/Expense/ExpenseList/index"
 import ProductList from '../pages/Product/ProductList/index'
 import ProductStock from '../pages/Product/ProductStock/index'
 import AddProduct from "../pages/Product/AddProduct/index"
+import ManufactureProduct from "../pages/Product/ManufactureProduct/index.js"
 import ProductSerial from "../pages/Product/ProductSerial/index"
 import CategorySerial from "../pages/Product/CategorySerial/index"
 import SubcategorySerial from "../pages/Product/SubcategorySerial/index"
+
+// asset
+import AddProductAsset from "../pages/Asset/AddAsset/Index.js"
+
 
 
 // Category Pages
@@ -86,8 +93,6 @@ import HomeElement from "../pages/Ecommerce/HomeElement"
 import HomeView from "../pages/Ecommerce/HomeView"
 import EditProduct from "../pages/Product/EditProduct"
 import AddSupplier from "../pages/Supply/addSupplier"
-import AddPurchase from "../pages/Purchase/AddPurchase"
-import PurchaseList from "../pages/Product/PurchaseList"
 import PaymentOption from "../pages/PaymentOption/AddPayment"
 import ViewPaymentOption from "../pages/PaymentOption/ViewPaymentOption"
 import EditPayment from "../pages/PaymentOption/EditPayment"
@@ -114,7 +119,13 @@ const userRoutes = [
 
   // Purchase Routes
   { path: "/add-purchase", component: <AddPurchase /> },
+  { path: "/add-product-asset-purchase", component: <AddProductAssetPurchase /> },
   { path: "/purchase-list", component: <PurchaseList /> },
+
+  // payment Routes
+  { path: "/ecommerce-Payment-Option", component: <PaymentOption /> },
+  { path: "/ecommerce-Payment-Option/:id", component: <EditPayment /> },
+  { path: "/ecommerce-Payment-Option-view", component: <ViewPaymentOption /> },
 
   // supply Routes
 
@@ -126,49 +137,50 @@ const userRoutes = [
   { path: "/expense-list", component: <ExpenseList /> },
 
   // Product Routes
-  { path: "/product-list", component: <ProductList/> },
-  { path: "/ecommerce-add-product", component: <AddProduct/> },
-  { path: "/ecommerce-edit-product/:id", component: <EditProduct/> },
-  { path: "/ecommerce-product-serial", component: <ProductSerial/> },
-  { path: "/ecommerce-category-serial", component: <CategorySerial/> },
-  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial/> },
-  { path: "/ecommerce-product-stock", component: <ProductStock/> },
+  { path: "/product-list", component: <ProductList /> },
+  { path: "/ecommerce-add-product", component: <AddProduct /> },
+  { path: "/ecommerce-manufacture-product", component: <ManufactureProduct /> },
+  { path: "/ecommerce-edit-product/:id", component: <EditProduct /> },
+  { path: "/ecommerce-product-serial", component: <ProductSerial /> },
+  { path: "/ecommerce-category-serial", component: <CategorySerial /> },
+  { path: "/ecommerce-subcategory-serial", component: <SubcategorySerial /> },
+  { path: "/ecommerce-product-stock", component: <ProductStock /> },
+
+  // add asset
+  { path: "/add-product-asset", component: <AddProductAsset /> },
 
 
-  
-  
+
+
   // Category Routes
-  { path: "/create-category", component: <CreateCategory/> },
-  { path: "/category-list", component: <CategoryList/> },
-  
-  // payment Routes
-  { path: "/ecommerce-Payment-Option", component: <PaymentOption/> },
-  { path: "/ecommerce-Payment-Option/:id", component: <EditPayment/>},
-  { path: "/ecommerce-Payment-Option-view", component: <ViewPaymentOption/> },
-  
+  { path: "/create-category", component: <CreateCategory /> },
+  { path: "/category-list", component: <CategoryList /> },
+
+
+
 
 
   // Attribute Routes
-  { path: "/main-attribute", component: <AddSizeChart/> },
-  { path: "/attribute-values", component: <AttributeValue/> },
-  
+  { path: "/main-attribute", component: <AddSizeChart /> },
+  { path: "/attribute-values", component: <AttributeValue /> },
+
   // brand routes
-  { path: "/brand", component: <Brand/> },
-  
+  { path: "/brand", component: <Brand /> },
+
   // Accounts
-  { path: "/accounts/main-accounts", component: <MainAccounts/> },
-  { path: "/accounts/investor-accounts", component: <InvestorAccount/> },
-  { path: "/accounts/my-investor-accounts", component: <MyInvestorAccount/> },
+  { path: "/accounts/main-accounts", component: <MainAccounts /> },
+  { path: "/accounts/investor-accounts", component: <InvestorAccount /> },
+  { path: "/accounts/my-investor-accounts", component: <MyInvestorAccount /> },
 
   // Courier
-  { path: "/courier-api", component: <CourierApi/> },
+  { path: "/courier-api", component: <CourierApi /> },
 
-  
+
   // authentication
-  { path: "/pages-register", component: <Register1/> },
-  { path: "/invoice/:id", component: <InvoicesDetail/> },
+  { path: "/pages-register", component: <Register1 /> },
+  { path: "/invoice/:id", component: <InvoicesDetail /> },
 
-  
+
 
 
   //Utility
