@@ -133,6 +133,7 @@ function EditPayment() {
                             <option value="showroom">Showroom</option>
                             <option value="online">Online</option>
                             <option value="wholesale">Whole Sale</option>
+                            <option value="main">Main</option>
                         </select>
                     </div>
 

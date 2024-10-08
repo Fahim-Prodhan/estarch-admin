@@ -1,16 +1,88 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import baseUrl from "../../../helpers/baseUrl";
+import { PiPlus } from "react-icons/pi";
+import { TbTrash } from "react-icons/tb";
 
-const InvestModal = ({ show, handleClose,allFetchingFun }) => {
+const InvestModal = ({ show, handleClose, allFetchingFun }) => {
   const [amount, setAmount] = useState(""); // State for amount
   const [paymentType, setPaymentType] = useState("cash"); // State for payment type
+  const [payments, setPayments] = useState([
+    { id: 1, accountType: 'Cash', paymentOption: '', accountNumber: '', amount: '' },
+  ]);
+  const [accounts, setAccounts] = useState([]); // Store the accounts data
 
+  // Fetch accounts data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/payment/showroom-accounts`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setAccounts(data[0].accounts); // Assuming "accounts" is inside the first object
+        }
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  // Handle the account type selection
+  const handleAccountTypeChange = (id, value) => {
+    // Find payment options for the selected account type
+    const selectedAccount = accounts.find((acc) => acc.accountType === value);
+    const paymentOptions = selectedAccount ? selectedAccount.payments : [];
+
+    setPayments((prevPayments) =>
+      prevPayments.map((payment) =>
+        payment.id === id
+          ? { ...payment, accountType: value, paymentOption: '', accountNumber: '', paymentOptions } // Reset paymentOption and set new options
+          : payment
+      )
+    );
+  };
+
+  const addPaymentRow = () => {
+    const newPayment = { id: Date.now(), accountType: '', paymentOption: '', amount: '', paymentOptions: [] };
+    setPayments([...payments, newPayment]);
+  };
+
+  const removePaymentRow = (id) => {
+    setPayments(payments.filter((payment) => payment.id !== id));
+  };
+
+  const handleInputChange = (id, field, value) => {
+    setPayments((prevPayments) =>
+      prevPayments.map((payment) => {
+        if (payment.id === id) {
+          if (field === 'paymentOption') {
+            // Find the selected account and payment option details
+            const selectedAccount = accounts.find((acc) => acc.accountType === payment.accountType);
+            const selectedPaymentOption = selectedAccount?.payments.find((opt) => opt.paymentOption === value);
+            const accountNumber = selectedPaymentOption?.accountNumber || '';
+
+            // Update payment option and set the corresponding account number
+            return { ...payment, paymentOption: value, accountNumber };
+          }
+          // For other fields, simply update the value
+          return { ...payment, [field]: value };
+        }
+        return payment;
+      })
+    );
+  };
+
+
+  const totalAmount = payments.reduce(
+    (acc, payment) => acc + Number(payment.amount || 0),
+    0
+  );
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Parse amount as a float
-    const floatAmount = parseFloat(amount);
+    const floatAmount = parseFloat(totalAmount);
 
     if (isNaN(floatAmount)) {
       alert("Please enter a valid amount");
@@ -18,29 +90,30 @@ const InvestModal = ({ show, handleClose,allFetchingFun }) => {
     }
 
     const senderId = JSON.parse(localStorage.getItem('userId'));
-    const {data:mainAccount} = await axios.get(`${baseUrl}/api/account/main-account`)
+    const { data: mainAccount } = await axios.get(`${baseUrl}/api/account/main-account`)
     console.log(mainAccount);
-    
+
     // Form data
     const formData = {
       amount: floatAmount,
-      accountType:paymentType,
+      accountType: paymentType,
       senderId,
-      receiverId:mainAccount.userId,
-      type:"invest",
+      receiverId:'6702bc527a0dfff18feaba4f',
+      type: "invest",
+      payments
     };
 
-    axios.post(`${baseUrl}/api/transaction/create`,formData)
-    .then(res=>{
-      alert("Transaction Successful")
-      allFetchingFun()
-    })
+    axios.post(`${baseUrl}/api/transaction/create`, formData)
+      .then(res => {
+        alert("Transaction Successful")
+        allFetchingFun()
+      })
     // You can now use formData to send it to the backend or handle it as needed
     console.log(formData);
 
-    setAmount(""); 
+    setAmount("");
     setPaymentType("cash");
- 
+
     handleClose();
   };
 
@@ -48,7 +121,7 @@ const InvestModal = ({ show, handleClose,allFetchingFun }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
-      <div className="bg-white w-96 p-5 rounded-lg shadow-lg">
+      <div className="bg-white ml-24  p-5 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Invest</h2>
           <button
@@ -60,7 +133,80 @@ const InvestModal = ({ show, handleClose,allFetchingFun }) => {
         </div>
 
         {/* Form starts here */}
-        <form onSubmit={handleSubmit}>
+        <div >
+          <div className='max-h-40 overflow-y-scroll mt-5 w-full'>
+            {payments?.map((payment) => (
+              <div className="grid grid-cols-5 gap-4 mb-2" key={payment.id}>
+                {/* Payment Type */}
+                <div className="col-span-1">
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={payment.accountType}
+                    onChange={(e) => handleAccountTypeChange(payment.id, e.target.value)}
+                  >
+                    <option value="">Select Account Type</option>
+                    {accounts.map((account) => (
+                      <option key={account._id} value={account.accountType}>
+                        {account.accountType.charAt(0).toUpperCase() + account.accountType.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Payment Option */}
+                <div className="col-span-1">
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={payment.paymentOption}
+                    onChange={(e) => handleInputChange(payment.id, 'paymentOption', e.target.value)}
+                  >
+                    <option value="">Account option</option>
+                    {payment?.paymentOptions?.map(option => (
+                      <option key={option._id} value={option.paymentOption}>
+                        {option.paymentOption}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Amount */}
+                <div className="col-span-1">
+                  <input
+                    type="text"
+                    disabled
+                    placeholder="accountNumber"
+                    value={payment.accountNumber}
+                    onChange={(e) => handleInputChange(payment.id, 'accountNumber', e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={payment.amount}
+                    onChange={(e) => handleInputChange(payment.id, 'amount', e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="col-span-1 flex items-center space-x-2">
+                  <button className="text-blue-500 p-2" onClick={addPaymentRow}>
+                    <PiPlus />
+                  </button>
+                  {payments.length > 1 && (
+                    <button
+                      className="text-red-500 p-2"
+                      onClick={() => removePaymentRow(payment.id)}
+                    >
+                      <TbTrash />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
               Amount to Invest
@@ -68,26 +214,13 @@ const InvestModal = ({ show, handleClose,allFetchingFun }) => {
             <input
               type="number"
               id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)} // Update state
+              value={totalAmount}
+              disabled
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter Amount"
               step="0.01" // Allows float values
               required
             />
-
-            <label htmlFor="paymentType" className="block text-sm font-medium text-gray-700 mt-4">
-              Payment Type
-            </label>
-            <select
-              id="paymentType"
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value)} // Update state
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="cash">Cash</option>
-              {/* Add more payment options if needed */}
-            </select>
           </div>
 
           <div className="mt-6 flex justify-end">
@@ -99,13 +232,13 @@ const InvestModal = ({ show, handleClose,allFetchingFun }) => {
               Cancel
             </button>
             <button
-              type="submit" // Change to submit
+              onClick={handleSubmit}
               className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Invest
             </button>
           </div>
-        </form>
+        </div>
         {/* Form ends here */}
       </div>
     </div>

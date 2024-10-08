@@ -18,7 +18,7 @@ const ProductList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
-  
+  const [account, setAccount] = useState({})
   const [showModal, setShowModal] = useState(false);
   const [showInvestorModal, setShowInvestorModal] = useState(false);
   const [showMyRequestModal, setShowMyRequestModal] = useState(false);
@@ -40,8 +40,19 @@ const ProductList = () => {
   const [accountInfo, setAccountInfo] = useState(null)
   const [moneyRequests, setMoneyRequests] = useState([])
   const [myRequests, setRequests] = useState([])
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-
+  // Handle card click event
+  const handleCardClick = (account) => {
+    setSelectedAccount(account); // Set the selected account details
+    setIsModalOpen(true); // Open the modal
+  };
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedAccount(null);
+  };
   const fetchMyRequest = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
@@ -74,7 +85,39 @@ const ProductList = () => {
       }
     }
   };
+  const fetchAccount = async () => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('userId'));
 
+      // Check if userId exists and is valid
+      if (!userId) {
+        throw new Error("Invalid or missing userId.");
+      }
+
+      // Try to fetch notifications
+      const response = await axios.get(`${baseUrl}/api/payment/user-payment-options/${userId}`);
+
+      // Set the response data in state
+      setAccount(response.data);
+      console.log(response.data);
+
+    } catch (error) {
+      // Handle errors here
+      if (error.response) {
+        // If the server responded with a status other than 2xx
+        console.error("Server Error:", error.response.data);
+      } else if (error.request) {
+        // If the request was made but no response was received
+        console.error("Network Error: No response received.");
+      } else if (error.message === "Invalid or missing userId.") {
+        // If userId is invalid or missing in localStorage
+        console.error("Error:", error.message);
+      } else {
+        // Other unknown errors
+        console.error("Error:", error.message);
+      }
+    }
+  };
   const fetchIncomingRequest = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
@@ -120,7 +163,7 @@ const ProductList = () => {
     }
   }
 
-  
+
   const fetchMyAllTransaction = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
@@ -157,25 +200,26 @@ const ProductList = () => {
     }
   };
 
-  const fetchInvestingCalculation = ()=>{
+  const fetchInvestingCalculation = () => {
     try {
-        axios.get(`${baseUrl}/api/account/calculate-invested-balance`)
+      axios.get(`${baseUrl}/api/account/calculate-invested-balance`)
         .then(res => {
-            setInvestingCalculation(res.data)
+          setInvestingCalculation(res.data)
         })
     } catch (error) {
-        console.log(error);
-        
+      console.log(error);
+
     }
-}
+  }
 
   useEffect(() => {
     fetchIncomingRequest();
     fetchMyRequest();
+    fetchAccount()
     fetchAccountInfo()
     fetchMyAllTransaction()
     fetchInvestingCalculation();
-  }, [currentPage,limit])
+  }, [currentPage, limit])
 
 
   const pageRange = 2;
@@ -212,6 +256,15 @@ const ProductList = () => {
 
 
 
+  function transformPayments(payments) {
+    return payments.map(payment => {
+      return {
+        paymentOption: payment.paymentOption || payment.accountType,
+        amount: payment.amount
+      };
+    });
+  }
+
 
 
   return (
@@ -225,10 +278,48 @@ const ProductList = () => {
             <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-5 gap-6 my-8">
               <div className="shadow-md cursor-pointer text-center py-2 bg-[#40a57821] col-span-5">
                 <p className="font-bold  text-[#40A578] text-2xl m-0">Total Amount</p>
-                <p className="text-2xl font-bold text-[#40A578]">  {accountInfo?.earnAmount - accountInfo?.spendAmount} ৳ </p>
+                <p className="text-2xl font-bold text-[#40A578]">  {account.totalAmount} ৳ </p>
               </div>
+              <div className="grid grid-cols-3 gap-4 w-full col-span-5">
+                {account?.accountDetails?.map((account, index) => {
+                  let bgColor, textColor;
+                  // Set background and text colors based on accountType
+                  switch (account.accountType.toLowerCase()) {
+                    case 'ecommerce':
+                      bgColor = 'bg-[#af47d223]';
+                      textColor = 'text-[#AF47D2]';
+                      break;
+                    case 'cash':
+                      bgColor = 'bg-[#1b424225]';
+                      textColor = 'text-[#1B4242]';
+                      break;
+                    case 'mobilebank':
+                      bgColor = 'bg-[#ff204d2a]';
+                      textColor = 'text-[#FF204E]';
+                      break;
+                    case 'bank':
+                      bgColor = 'bg-[#620c9f21]';
+                      textColor = 'text-[#610C9F]';
+                      break;
+                    default:
+                      bgColor = 'bg-gray-200'; // Default background color if no match
+                      textColor = 'text-gray-600'; // Default text color if no match
+                      break;
+                  }
 
-              <div className="shadow-md cursor-pointer text-center py-2 bg-[#476ed22a]">
+                  return (
+                    <div onClick={() => handleCardClick(account)} key={index} className={`shadow-md cursor-pointer text-center py-2 ${bgColor}`}>
+                      <p className={`font-semibold ${textColor} m-0`}>
+                        {account.accountType.charAt(0).toUpperCase() + account.accountType.slice(1)} Amount
+                      </p>
+                      <p className={`text-2xl font-bold ${textColor}`}>
+                        ৳ {account.totalAmount.toLocaleString()} {/* Format number with commas */}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* <div className="shadow-md cursor-pointer text-center py-2 bg-[#476ed22a]">
                 <p className="font-semibold text-[#476ed2] m-0">Invested Amount</p>
                 <p className="text-2xl font-bold text-[#476ed2]">{investingCalculation?.balance}  ৳</p>
               </div>
@@ -251,7 +342,7 @@ const ProductList = () => {
               <div className="shadow-md cursor-pointer text-center py-2 bg-[#620c9f21] ">
                 <p className="font-semibold text-[#610C9F] m-0">Courier Amount</p>
                 <p className="text-2xl font-bold text-[#610C9F]"> ৳</p>
-              </div>
+              </div> */}
             </div>
             <div className="shadow-md flex justify-center bg-white p-3 mb-4 rounded-md">
               <div className="flex gap-4">
@@ -303,52 +394,59 @@ const ProductList = () => {
 
                     {
                       <div className="overflow-x-auto overflow-y-hidden">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th className="border-2 border-gray-200">Serial</th>
-                            <th className="border-2 border-gray-200">Transaction ID</th>
-                            <th className="border-2 border-gray-200">Type</th>
-                            <th className="border-2 border-gray-200">Account Type</th>
-                            <th className="border-2 border-gray-200">Payment Option</th>
-                            <th className="border-2 border-gray-200">Sender</th>
-                            <th className="border-2 border-gray-200">Receiver</th>
-                            <th className="border-2 border-gray-200">Amount</th>
-                            <th className="border-2 border-gray-200">Date</th>
-                            <th className="border-2 border-gray-200">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {
-                            myTransaction.map((t, index) =>
-                              <tr>
-                                <td className="border-2 border-gray-200">{index + 1}</td>
-                                <td className="border-2 border-gray-200">{t.tId}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.type}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.accountType}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.paymentOption}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.senderId.fullName}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.receiverId.fullName}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.amount} ৳</td>
-                                <td className="border-2 border-gray-200 text-center">
-                                  <p className="font-bold">
-                                    {`${('0' + new Date(t.createdAt).getDate()).slice(-2)}-${('0' + (new Date(t.createdAt).getMonth() + 1)).slice(-2)}-${new Date(t.createdAt).getFullYear().toString().slice(-2)}, ${new Date(t.createdAt).getHours() % 12 || 12}:${('0' + new Date(t.createdAt).getMinutes()).slice(-2)} ${new Date(t.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
-                                  </p>
-                                </td>
-                                <td className="border-2 border-gray-200 text-center">
-                                  <p className={`px-2 py-1 rounded-md text-sm ${t.isDecline ? 'text-red-500' :
-                                    t.isApprove ? 'text-green-500' :
-                                      'text-orange-500 bg-orange-100'
-                                    }`}>
-                                    {t.isApprove ? "Accepted" : t.isDecline ? "Declined" : "Pending"}
-                                  </p>
-                                </td>
-                              </tr>
-                            )
-                          }
-                        </tbody>
-                      </table>
-                    </div>
+                        <table className="table">
+                          <thead>
+                            <tr>
+                              <th className="border-2 border-gray-200">Serial</th>
+                              <th className="border-2 border-gray-200">Transaction ID</th>
+                              <th className="border-2 border-gray-200">Type</th>
+                              <th className="border-2 border-gray-200">Account Type</th>
+                              <th className="border-2 border-gray-200">Payment Option</th>
+                              <th className="border-2 border-gray-200">Sender</th>
+                              <th className="border-2 border-gray-200">Receiver</th>
+                              <th className="border-2 border-gray-200">Amount</th>
+                              <th className="border-2 border-gray-200">Date</th>
+                              <th className="border-2 border-gray-200">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {
+                              myTransaction.map((t, index) =>
+                                <tr>
+                                  <td className="border-2 border-gray-200">{index + 1}</td>
+                                  <td className="border-2 border-gray-200">{t.tId}</td>
+                                  <td className="border-2 border-gray-200 text-center">{t.type}</td>
+                                  <td className="border-2 border-gray-200 text-center">{t.accountType}</td>
+                                  {
+                                    t.payments.length > 0 ? <td className="border-2 border-gray-200 ">{transformPayments(t?.payments).map((payment, index) => (
+                                      <p key={index} className="border-b">
+                                        {payment.paymentOption}{"......."}
+                                         {payment.amount} tk
+                                      </p>
+                                    ))}</td> : <td className="border-2 border-gray-200 text-center">{t.paymentOption}</td>
+                                  }
+                                  <td className="border-2 border-gray-200 text-center">{t.senderId.fullName}</td>
+                                  <td className="border-2 border-gray-200 text-center">{t.receiverId.fullName}</td>
+                                  <td className="border-2 border-gray-200 text-center">{t.amount} ৳</td>
+                                  <td className="border-2 border-gray-200 text-center">
+                                    <p className="font-bold">
+                                      {`${('0' + new Date(t.createdAt).getDate()).slice(-2)}-${('0' + (new Date(t.createdAt).getMonth() + 1)).slice(-2)}-${new Date(t.createdAt).getFullYear().toString().slice(-2)}, ${new Date(t.createdAt).getHours() % 12 || 12}:${('0' + new Date(t.createdAt).getMinutes()).slice(-2)} ${new Date(t.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}
+                                    </p>
+                                  </td>
+                                  <td className="border-2 border-gray-200 text-center">
+                                    <p className={`px-2 py-1 rounded-md text-sm ${t.isDecline ? 'text-red-500' :
+                                      t.isApprove ? 'text-green-500' :
+                                        'text-orange-500 bg-orange-100'
+                                      }`}>
+                                      {t.isApprove ? "Accepted" : t.isDecline ? "Declined" : "Pending"}
+                                    </p>
+                                  </td>
+                                </tr>
+                              )
+                            }
+                          </tbody>
+                        </table>
+                      </div>
                     }
 
                     <div className="flex justify-center mt-4">
@@ -397,6 +495,31 @@ const ProductList = () => {
       <RequestModal fetchAccountInfo={fetchAccountInfo} fetchIncomingRequest={fetchIncomingRequest} show={showModal} handleClose={handleModalClose} moneyRequests={moneyRequests} />
       <MyRequestsModal show={showMyRequestModal} myRequests={myRequests} handleClose={handleMyRequestModalClose} />
       <InvestorWithdrawModal fetchIncomingRequest={fetchIncomingRequest} fetchMyRequest={fetchMyRequest} show={showInvestorModal} handleClose={handleInvestorModalClose} />
+      {isModalOpen && selectedAccount && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">
+              {selectedAccount?.accountType?.charAt(0)?.toUpperCase() + selectedAccount?.accountType?.slice(1)} Details
+            </h2>
+            <ul>
+              {selectedAccount?.payments?.map((payment, index) => (
+                <li key={index} className="flex justify-between my-2">
+                  <span>{payment.paymentOption}</span>
+                  <span>৳ {payment.amount.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleCloseModal}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </React.Fragment>
   );
 };

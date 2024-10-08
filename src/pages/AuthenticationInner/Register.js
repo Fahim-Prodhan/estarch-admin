@@ -139,6 +139,7 @@ const Register = (props) => {
                           <option value="admin">Admin</option>
                           <option value="showroom_manager">Showroom</option>
                           <option value="wholesale">Whole Sale</option>
+                          <option value="main">Main</option>
                         </Input>
                       </div>
 
