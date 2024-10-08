@@ -337,12 +337,11 @@ const ProductList = () => {
                                         <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[10000]  p-2 shadow space-y-2">
                                           <li>
                                             <button
-                                              className="btn btn-xs btn-accent text-white"
-                                              onClick={() => {
-                                                setSelectedProduct(item);
-                                                toggleModal();
-                                              }}
-                                            >
+                                            onClick={() => {
+                                              setSelectedProduct(item);
+                                              toggleModal();
+                                            }}
+                                            className="text-xs text-primary">
                                               Details
                                             </button>
                                           </li>
@@ -351,7 +350,7 @@ const ProductList = () => {
                                           <li><button onClick={() => {
                                             setSelectedProduct(item);
                                             toggleBarcodeModal();
-                                          }} className="btn btn-xs text-white btn-primary">Print</button></li>
+                                          }} className="bg-primary text-white">Print</button></li>
                                         </ul>
                                       </div>
                                     </td>

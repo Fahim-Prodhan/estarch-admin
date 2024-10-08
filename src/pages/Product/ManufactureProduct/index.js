@@ -147,7 +147,12 @@ const AddPurchase = () => {
         setShowAssetSuggestions(false);
     };
 
-    const handleManufacture = () => {
+    const handleManufacture = async () => {
+        if (!selectedProduct || selectedAssets.length === 0 || totalProduct <= 0) {
+            alert("Please ensure you have selected a product, added assets, and specified total product.");
+            return;
+        }
+
         const manufactureData = {
             productId: selectedProduct._id,
             assets: selectedAssets.map(asset => ({
@@ -156,17 +161,18 @@ const AddPurchase = () => {
             })),
             totalProduct,
             otherCost,
-            costPerProduct: parseInt(calculateCostPerProduct())
+            costPerProduct: parseFloat(calculateCostPerProduct())
         }
 
         console.log(manufactureData);
 
-
-        axios.post(`${baseUrl}/api/manufacture-product/create`, manufactureData)
-            .then(res => {
-                alert("Product Manufactured")
-            })
-
+        try {
+            const res = await axios.post(`${baseUrl}/api/manufacture-product/create`, manufactureData);
+            alert("Product Manufactured Successfully");
+        } catch (error) {
+            console.error('Error manufacturing product:', error);
+            alert("Failed to manufacture product. Please try again.");
+        }
     };
 
     const calculateCostPerProduct = () => {
@@ -302,7 +308,8 @@ const AddPurchase = () => {
                                                             min="1"
                                                             value={asset.usedQuantity}
                                                             onChange={(e) => handleQuantityChange(index, e.target.value)}
-                                                            className="border-2 rounded px-2 py-1"
+                                                            className="border-2 border-red-400 rounded px-2 py-1"
+                                                            required
                                                         />
                                                     </td>
                                                     <td className="border px-4 py-2">{(asset.perItemPrice * asset.usedQuantity).toFixed(2)}</td>
@@ -340,6 +347,7 @@ const AddPurchase = () => {
                                                 onChange={handleTotalProductChange}
                                                 className="w-full max-w-xs p-2 border-2 rounded mb-4"
                                                 placeholder="Enter total number of products "
+                                                required
                                             />
                                             <h3 className="text-lg font-semibold text-orange-500">Total Cost: {totalCost.toFixed(2)} Taka</h3>
 
