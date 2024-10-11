@@ -39,6 +39,7 @@ const Orders = () => {
     const [sentToCourierOrders, setSentToCourierOrders] = useState([])
     const [courierProcessingOrders, setCourierProcessingOrders] = useState([])
 
+
     const url = 'https://portal.packzy.com/api/v1'; // Replace with your API URL
 
 
@@ -164,7 +165,17 @@ const Orders = () => {
     }
 
 
-
+    useEffect(() => {
+        // Check if courierProcessingOrders or sentToCourierOrders have values before calling the functions
+        if (courierProcessingOrders.length > 0) {
+            courierProcessingFun();
+        }
+    
+        if (sentToCourierOrders.length > 0) {
+            sentToCourierFun();
+        }
+    }, [courierProcessingOrders, sentToCourierOrders]); // Trigger useEffect when either of these dependencies change
+    
 
 
     useEffect(() => {
@@ -172,54 +183,77 @@ const Orders = () => {
         fetchData();
     }, [limit, search, currentPage, dateFilter, statusFilter, searchOrderNo]);
 
+    
 
     const sentToCourierFun = async () => {
         for (let order of sentToCourierOrders) {
-            const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
-                headers: {
-                    'Api-Key': apiKey,
-                    'Secret-Key': secretKey,
-                    'Content-Type': 'application/json', // Optional: specify content type
-                },
-            })
-            if (status.delivery_status === "pending") {
-                handleStatusChangeForCourier(order._id, "courierProcessing")
-                // fetchCount()
-                // fetchData();
-                console.log(status.delivery_status);
-                console.log("inside send to courier");
+            try {
+                
+                const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
+                    headers: {
+                        'Api-Key': apiKey,
+                        'Secret-Key': secretKey,
+                        'Content-Type': 'application/json', // Optional: specify content type
+                    },
+                });
 
+                if (status.delivery_status === "pending") {
+                    handleStatusChangeForCourier(order._id, "courierProcessing");
+                    console.log(status.delivery_status);
+                    console.log("inside send to courier");
 
+                } else if (status.delivery_status === "cancelled") {
+                    handleStatusChangeForCourier(order._id, "courierReturn");
+                    console.log("inside courier processing", status.delivery_status);
+                }
+
+            } catch (error) {
+                console.error(`Error processing order with invoice ${order.invoice}:`, error);
             }
         }
         console.log("Sent to courier calling");
-    }
+    };
 
     const courierProcessingFun = async () => {
         for (let order of courierProcessingOrders) {
-            const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
-                headers: {
-                    'Api-Key': apiKey,
-                    'Secret-Key': secretKey,
-                    'Content-Type': 'application/json', // Optional: specify content type
-                },
-            })
-            if (status.delivery_status === "delivered") {
-                handleStatusChangeForCourier(order._id, "delivered")
-                console.log("inside courier processing", status.delivery_status);
+            try {
+                const { data: status } = await axios.get(`${url}/status_by_invoice/${order.invoice}`, {
+                    headers: {
+                        'Api-Key': apiKey,
+                        'Secret-Key': secretKey,
+                        'Content-Type': 'application/json', // Optional: specify content type
+                    },
+                });
+
+                if (status.delivery_status === "delivered") {
+                    handleStatusChangeForCourier(order._id, "delivered");
+                    console.log("inside courier processing", status.delivery_status);
+
+                } else if (status.delivery_status === "cancelled") {
+                    handleStatusChangeForCourier(order._id, "courierReturn");
+                    console.log("inside courier processing", status.delivery_status);
+                }
+
+            } catch (error) {
+                console.error(`Error processing order with invoice ${order.invoice}:`, error);
             }
         }
-        console.log(" courier calling");
-
-
-    }
-
-    sentToCourierFun();
-    courierProcessingFun();
+        console.log("courier process calling");
+    };
 
 
     const handleStatusChange = async (orderId, newStatus, item) => {
         // Optimistically update the UI
+        if (newStatus === "sendToCourier") {
+            return alert("Please click SteadFast Button")
+        }
+        // else if(newStatus === "courierProcessing"){
+        //     return alert("Status Will change automatically")
+        // }
+        // else if(newStatus === "delivered"){
+        //     return alert("Can't Change the status")
+        // }
+
         const previousOrders = [...orders];
         setOrders((prevOrders) =>
             prevOrders.map((order) => {
@@ -290,7 +324,8 @@ const Orders = () => {
         }
     };
 
-    const handleStatusChangeForCourier = async (orderId, newStatus) => {
+
+    const handleStatusChangeForCourier = async (orderId, newStatus, item) => {
         // Optimistically update the UI
         const previousOrders = [...orders];
         setOrders((prevOrders) =>
@@ -320,9 +355,35 @@ const Orders = () => {
                 throw new Error(errorData.error || 'Failed to update order status');
                 return; // Add this to ensure the function stops after throwing the error
             }
+            if (newStatus === "sendToCourier") {
+                const data = {
+                    // Your request payload
+                    invoice: item?.invoice,
+                    recipient_name: item?.name,
+                    recipient_phone: item?.phone,
+                    recipient_address: item.address,
+                    cod_amount: item.grandTotal,
+                };
+
+                axios.post(`${url}/create_order`, data, {
+                    headers: {
+                        'Api-Key': apiKey,
+                        'Secret-Key': secretKey,
+                        'Content-Type': 'application/json', // Optional: specify content type
+                    },
+                })
+                    .then((response) => {
+                        console.log('Success:', response.data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            }
 
             // Update the state with the confirmed data from the server
             const updatedOrder = await response.json();
+            fetchCount()
+            fetchData();
 
         } catch (error) {
             // Rollback the UI if there's an error
@@ -455,6 +516,10 @@ const Orders = () => {
                             <p className="text-2xl font-bold text-[#46829a]">{orderObject?.doubleOrderCancel}</p>
                             <p className="font-semibold text-[#46829a]">Double Order Cancel</p>
                         </div>
+                        <div className="shadow-md cursor-pointer text-center py-2 bg-[#9a466920]" onClick={() => handleFilterByStatus('courierReturn')}>
+                            <p className="text-2xl font-bold text-[#9a4669]">{orderObject?.courierReturn}</p>
+                            <p className="font-semibold text-[#9a4669]">Courier Return</p>
+                        </div>
                     </div>
 
 
@@ -480,6 +545,7 @@ const Orders = () => {
                                     <option value="exchange">Exchange</option>
                                     <option value="cancel">Cancel</option>
                                     <option value="doubleOrderCancel">Double Order Cancel</option>
+                                    <option value="courierReturn">Courier Return</option>
                                 </select>
 
                                 <select
@@ -650,11 +716,11 @@ const Orders = () => {
                                                                         <div className="space-y-2">
                                                                             <div className='flex'>
                                                                                 <select
-                                                                                    disabled={
-                                                                                        ['sendToCourier', 'courierProcessing', 'delivered', 'partialReturn', 'returnWithDeliveryCharge', 'return', 'exchange'].includes(
-                                                                                            item?.status[item?.status?.length - 1]?.name
-                                                                                        )
-                                                                                    }
+                                                                                    // disabled={
+                                                                                    //     ['sendToCourier', 'courierProcessing', 'delivered', 'partialReturn', 'returnWithDeliveryCharge', 'return', 'exchange'].includes(
+                                                                                    //         item?.status[item?.status?.length - 1]?.name
+                                                                                    //     )
+                                                                                    // }
                                                                                     className={`select select-bordered w-36 justify-center ${item?.status[item?.status?.length - 1]?.name === 'confirm'
                                                                                         ? 'bg-green-100 text-green-700'
                                                                                         : item?.status[item?.status?.length - 1]?.name === 'cancel' ||
@@ -686,6 +752,7 @@ const Orders = () => {
                                                                                     <option value="exchange">Exchange</option>
                                                                                     <option value="cancel">Cancel</option>
                                                                                     <option value="doubleOrderCancel">Double Order Cancel</option>
+                                                                                    <option value="courierReturn">Courier Return</option>
                                                                                 </select>
                                                                             </div>
 
@@ -694,7 +761,7 @@ const Orders = () => {
                                                                                     <button
                                                                                         className={`btn btn-sm ${["confirm", "hold", "processing"].includes(item?.status[item?.status.length - 1]?.name) ? 'bg-sky-500 text-white' : 'bg-gray-300 text-gray-500 disabled'}`}
                                                                                         onClick={() => {
-                                                                                            handleStatusChange(item?._id, "sendToCourier", item);
+                                                                                            handleStatusChangeForCourier(item?._id, "sendToCourier", item);
                                                                                         }}
                                                                                     >
                                                                                         Stead Fast
