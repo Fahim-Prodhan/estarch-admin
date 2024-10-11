@@ -8,10 +8,9 @@ import baseUrl from "../../../helpers/baseUrl";
 import { TiTick } from "react-icons/ti";
 import { FaEye } from "react-icons/fa";
 import axios from "axios";
-
 const ExpenseList = () => {
   const [data, setData] = useState({ columns: [], rows: [] });
-  const [selectedItem, setSelectedItem] = useState(null); // State for selected item
+  const [selectedItem, setSelectedItem] = useState(null); 
   const [refresh, setRefresh] = useState(false)
   function formatDateTime(isoString) {
     const date = new Date(isoString);
@@ -22,42 +21,35 @@ const ExpenseList = () => {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: true, // Use 12-hour format (AM/PM)
+      hour12: true, 
     };
-    // Format date and time
     return date.toLocaleString('en-US', options);
   }
-
   const handleApprove = async (expenseId) => {
     try {
       const response = await axios.put(`${baseUrl}/api/expenses/expenses/approve/${expenseId}`);
       alert(response.data.message);
       setRefresh(!refresh)
-      // Optionally, refresh the expense data or navigate elsewhere
     } catch (err) {
       alert('Failed to approve the expense');
     }
   };
 
   const handleViewDetails = (item) => {
-    setSelectedItem(item); // Set the selected item
-    document.getElementById('my_modal_2').showModal(); // Show the modal
+    setSelectedItem(item); 
+    document.getElementById('my_modal_2').showModal();
   };
   const handleDelete = async (rowId) => {
     try {
-      // Send a DELETE request to your API
       const response = await axios.delete(`${baseUrl}/api/expenses/expenses/${rowId}`);
-
-      alert(response.data.message); // Show success message
+      alert(response.data.message); 
       setRefresh(!refresh)
     } catch (err) {
       console.error("Failed to delete the expense:", err);
       alert("Failed to delete the expense. Please try again.");
     }
   };
-
   useEffect(() => {
-    // Simulate fetching data from an API or static JSON file
     fetch(`${baseUrl}/api/expenses/expenses`)
       .then(response => response.json())
       .then(data => {
@@ -105,8 +97,6 @@ const ExpenseList = () => {
         setData(formattedData);
       });
   }, [refresh]);
-
-
   return (
     <React.Fragment>
       <div className="page-content">
@@ -126,7 +116,6 @@ const ExpenseList = () => {
               </Col>
             </Row>
           </div>
-          {/* Modal for displaying details */}
           <dialog id="my_modal_2" className="modal ">
             <div className="modal-box">
               {selectedItem && <p className="py-4">{selectedItem.details}</p>}
