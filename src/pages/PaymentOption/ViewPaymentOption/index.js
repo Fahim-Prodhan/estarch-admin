@@ -10,7 +10,7 @@ const ViewPaymentOption = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/payment/payment-options');
+                const response = await fetch(`${baseUrl}/api/payment/payment-options`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

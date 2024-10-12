@@ -8,6 +8,7 @@ import baseUrl from "../../../helpers/baseUrl"
 const Refund = () => {
   document.title = "Estarch | Return & Refund"
   const [invoiceNo, setInvoiceNo] = useState('');
+  const [amount, setAmount] = useState(0);
   const [exchangeDetails, setExchangeDetails] = useState({
     exchangeProduct: 0,
     exchangeTotal: 0,
@@ -85,13 +86,30 @@ const Refund = () => {
     setData(null)
   };
 
-  const continueExchange = () => {
-    // setExchangeAmount(exchangeDetails.cartTotal)
-    // setExchangeDetail({
-    //   invoiceNo: data.invoice,
-    //   items: products
-    // })
-    document.getElementById('my_modal_3').close()
+  const continueExchange = async () => {
+    try {
+      
+      const payload = {
+        products,
+        orderId: data._id,
+        amount:parseInt(amount, 10),
+        returnDeliveryCharge,
+        partialReturn,
+      };
+  
+      // Make the API call to process the exchange
+      const response = await axios.post(`${baseUrl}/api/orders/orders/returns`, payload);
+  
+      // Handle success response
+      if (response.status === 200) {
+        alert('Exchange processed successfully')
+        console.log('Exchange processed successfully:', response.data);
+        // Optionally, you could update the UI or reset forms here
+      }
+    } catch (error) {
+      console.error('Error processing exchange:', error);
+      // Optionally, display an error message to the user
+    }
   };
 
   return (
@@ -141,7 +159,7 @@ const Refund = () => {
                           returnDeliveryCharge || partialReturn ? <tr>
                           <td className="border px-4 py-2">Collected Amount</td>
                           <td className="border px-4 py-2"><input
-                          type="text"
+                          type="number" onChange={(e)=> setAmount(e.target.value)}
                         /></td>
                         </tr> : null
                         }
@@ -206,7 +224,7 @@ const Refund = () => {
                                   className="w-16 p-1 border border-gray-300 rounded"
                                 />
                               ) : (
-                                <span>{product.quantity}</span> // Display quantity as plain text when partialReturn is false
+                                <span>{product.quantity}</span> 
                               )}
                             </td>
                             <td className="border px-4 py-2">${product.price}</td>

@@ -98,6 +98,7 @@ import AddSupplier from "../pages/Supply/addSupplier"
 import PaymentOption from "../pages/PaymentOption/AddPayment"
 import ViewPaymentOption from "../pages/PaymentOption/ViewPaymentOption"
 import EditPayment from "../pages/PaymentOption/EditPayment"
+import CourierAccount from "../pages/Courier/CourierAccount/index.js"
 
 
 
@@ -173,6 +174,7 @@ const userRoutes = [
 
   // Courier
   { path: "/courier-api", component: <CourierApi /> },
+  { path: "/courier-account", component: <CourierAccount/>  },
 
 
   // authentication

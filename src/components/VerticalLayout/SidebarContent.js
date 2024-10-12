@@ -440,6 +440,9 @@ const SidebarContent = props => {
                 <li>
                   <Link to="/courier-api">{props.t("Courier API")}</Link>
                 </li>
+                <li>
+                  <Link to="/courier-account">{props.t("Courier Account")}</Link>
+                </li>
 
               </ul>
             </li>

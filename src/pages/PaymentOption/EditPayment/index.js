@@ -180,6 +180,7 @@ function EditPayment() {
                                             type="text"
                                             name="paymentOption"
                                             value={payment.paymentOption}
+                                            disabled={payment.paymentOption === ''}
                                             onChange={(e) => handleChange(accountIndex, paymentIndex, e)}
                                             placeholder="Enter Payment Option"
                                             className="block w-full mt-2 p-2 border border-black rounded"
@@ -191,6 +192,7 @@ function EditPayment() {
                                             type="text"
                                             name="accountNumber"
                                             value={payment.accountNumber}
+                                            disabled={payment.accountNumber === ''}
                                             onChange={(e) => handleChange(accountIndex, paymentIndex, e)}
                                             placeholder="Enter Account Number"
                                             className="block w-full mt-2 p-2 border border-black rounded"
