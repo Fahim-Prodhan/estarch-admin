@@ -17,6 +17,7 @@ import Pages500 from "../pages/Utility/pages-500"
 import EcommerceOrders from "../pages/Ecommerce/EcommerceOrders/index"
 import EcommerceManageOrders from "../pages/Ecommerce/ManageOrders/index"
 import EcommerceReturn from "../pages/Ecommerce/EcommerceReturn/index"
+import ShowroomProfit from "../pages/Ecommerce/ShowroomProfit/ShowroomProfit.js"
 
 // Purchase Pages
 import AddPurchase from "../pages/Purchase/AddPurchase"
@@ -109,6 +110,7 @@ const userRoutes = [
   { path: "/ecommerce-home-element", component: <HomeElement /> },
   { path: "/ecommerce-home-view", component: <HomeView /> },
   { path: "/ecommerce-orders", component: <EcommerceOrders /> },
+  { path: "/showroom-profit", component: <ShowroomProfit /> },
   { path: "/manage-orders/:id", component: <EcommerceManageOrders /> },
   { path: "/ecommerce-return", component: <EcommerceReturn /> },
   { path: "/ecommerce-add-category", component: <AddCategory /> },

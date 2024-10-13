@@ -24,7 +24,7 @@ const AddPurchase = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch(`${baseUrl}/api/products/navbar-search`);
+                const response = await fetch(`${baseUrl}/api/products/status-on-products`);
                 const data = await response.json();
                 setSkuProduct(data);
 

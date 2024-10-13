@@ -3,8 +3,6 @@ import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import baseUrl from "../../../helpers/baseUrl";
 import axios from "axios";
-import altImg from '../../../assets/avater.jpg'
-import { useId } from "react";
 import RequestModal from "./RequestModal";
 import { IoNotificationsCircle } from "react-icons/io5";
 import InvestorWithdrawModal from "./InvestorWithdrawModal";
@@ -53,6 +51,7 @@ const ProductList = () => {
     setIsModalOpen(false);
     setSelectedAccount(null);
   };
+
   const fetchMyRequest = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('userId'));
@@ -151,17 +150,17 @@ const ProductList = () => {
     }
   };
 
-  const fetchAccountInfo = () => {
-    try {
-      axios.get(`${baseUrl}/api/account/main-account`)
-        .then(res => {
-          setAccountInfo(res.data)
-        })
-    } catch (error) {
-      console.log(error);
+  // const fetchAccountInfo = () => {
+  //   try {
+  //     axios.get(`${baseUrl}/api/account/main-account`)
+  //       .then(res => {
+  //         setAccountInfo(res.data)
+  //       })
+  //   } catch (error) {
+  //     console.log(error);
 
-    }
-  }
+  //   }
+  // }
 
 
   const fetchMyAllTransaction = async () => {
@@ -216,7 +215,7 @@ const ProductList = () => {
     fetchIncomingRequest();
     fetchMyRequest();
     fetchAccount()
-    fetchAccountInfo()
+    // fetchAccountInfo()
     fetchMyAllTransaction()
     fetchInvestingCalculation();
   }, [currentPage, limit])
@@ -492,7 +491,7 @@ const ProductList = () => {
           </div>
         </Container>
       </div>
-      <RequestModal fetchAccountInfo={fetchAccountInfo} fetchIncomingRequest={fetchIncomingRequest} show={showModal} handleClose={handleModalClose} moneyRequests={moneyRequests} />
+      <RequestModal  fetchIncomingRequest={fetchIncomingRequest} show={showModal} handleClose={handleModalClose} moneyRequests={moneyRequests} />
       <MyRequestsModal show={showMyRequestModal} myRequests={myRequests} handleClose={handleMyRequestModalClose} />
       <InvestorWithdrawModal fetchIncomingRequest={fetchIncomingRequest} fetchMyRequest={fetchMyRequest} show={showInvestorModal} handleClose={handleInvestorModalClose} />
       {isModalOpen && selectedAccount && (

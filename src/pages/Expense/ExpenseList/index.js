@@ -63,7 +63,7 @@ const ExpenseList = () => {
             { label: "Status", field: "status", sort: "asc", width: 100 },
             { label: "Action", field: "action", sort: "asc", width: 200, default: "", },
           ],
-          rows: data.map(item => ({
+          rows: data.reverse().map(item => ({
             date: formatDateTime(item.createdAt),
             expenseType: (
               <p className="p-1 bg-blue-500 text-white rounded-md text-center w-20">

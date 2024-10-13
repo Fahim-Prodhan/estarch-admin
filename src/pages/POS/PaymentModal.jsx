@@ -6,7 +6,7 @@ import baseUrl from '../../helpers/baseUrl';
 const PaymentModal = ({ setPaymentModalVisible, finalAmount, userInfo, orderItems, discount, exchangeDetails, exchangeAmount }) => {
   const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState([
-    { id: 1, accountType: 'Cash', paymentOption: '', accountNumber: '', amount: '' },
+    { id: 1, accountType: 'mobilebank', paymentOption: '', accountNumber: '', amount: 0 },
   ]);
   const [accounts, setAccounts] = useState([]); // Store the accounts data
   const [deliveryLocation, setDeliveryLocation] = useState('inside');
@@ -159,7 +159,7 @@ const PaymentModal = ({ setPaymentModalVisible, finalAmount, userInfo, orderItem
     console.log(orderData);
     
     try {
-      const response = await fetch(`${baseUrl}/api/orders/pos-order`, {
+      const response = await fetch(`${baseUrl}/api/orders/online-pos-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,8 +169,7 @@ const PaymentModal = ({ setPaymentModalVisible, finalAmount, userInfo, orderItem
       if (response.ok) {
         const responseData = await response.json();
         alert('Order placed successfully!');
-        window.location.href = `/invoice/${responseData.order._id}`;
-        console.log(responseData);
+        window.location.href = `/ecommerce-orders`;
       } else {
         console.error('There was an error placing the order:', response);
       }

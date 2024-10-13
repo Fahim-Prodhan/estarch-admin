@@ -280,13 +280,13 @@ const MyInvestorAccount = () => {
                             myTransaction.map((t, index) =>
                               <tr>
                                 <td className="border-2 border-gray-200">{index + 1}</td>
-                                <td className="border-2 border-gray-200">{t.tId}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.type}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.accountType}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.paymentOption}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.senderId.fullName}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.receiverId.fullName}</td>
-                                <td className="border-2 border-gray-200 text-center">{t.amount} ৳</td>
+                                <td className="border-2 border-gray-200">{t?.tId}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.type}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.accountType}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.paymentOption}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.senderId?.fullName}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.receiverId?.fullName}</td>
+                                <td className="border-2 border-gray-200 text-center">{t?.amount} ৳</td>
                                 <td className="border-2 border-gray-200 text-center">
                                   <p className="font-bold">
                                     {`${('0' + new Date(t.createdAt).getDate()).slice(-2)}-${('0' + (new Date(t.createdAt).getMonth() + 1)).slice(-2)}-${new Date(t.createdAt).getFullYear().toString().slice(-2)}, ${new Date(t.createdAt).getHours() % 12 || 12}:${('0' + new Date(t.createdAt).getMinutes()).slice(-2)} ${new Date(t.createdAt).getHours() >= 12 ? 'PM' : 'AM'}`}

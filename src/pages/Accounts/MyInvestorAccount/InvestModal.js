@@ -88,17 +88,14 @@ const InvestModal = ({ show, handleClose, allFetchingFun }) => {
       alert("Please enter a valid amount");
       return;
     }
-
+    const response = await axios.get(`${baseUrl}/api/auth/users/accountant`);
     const senderId = JSON.parse(localStorage.getItem('userId'));
-    const { data: mainAccount } = await axios.get(`${baseUrl}/api/account/main-account`)
-    console.log(mainAccount);
-
     // Form data
     const formData = {
       amount: floatAmount,
       accountType: paymentType,
       senderId,
-      receiverId:'6702bc527a0dfff18feaba4f',
+      receiverId:response.data._id,
       type: "invest",
       payments
     };

@@ -1,6 +1,5 @@
-import axios from "axios";
-import React, { useState } from "react";
-import baseUrl from "../../../helpers/baseUrl";
+
+import React from "react";
 
 const MyRequestsModal = ({ show, handleClose, myRequests }) => {
 

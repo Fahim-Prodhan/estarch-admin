@@ -1,17 +1,16 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React  from "react";
 import baseUrl from "../../../helpers/baseUrl";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
 
-const RequestModal = ({ show, handleClose,moneyRequests,fetchIncomingRequest,fetchAccountInfo }) => {
+const RequestModal = ({ show, handleClose,moneyRequests,fetchIncomingRequest }) => {
    
     const handleAcceptTransaction = (tId) => {    
         try {
             axios.patch(`${baseUrl}/api/transaction/approve/${tId}`)
             .then(res=>{
                 fetchIncomingRequest();
-                fetchAccountInfo()
                 alert("Transaction Complete")
             })
         } catch (error) {
@@ -26,7 +25,6 @@ const RequestModal = ({ show, handleClose,moneyRequests,fetchIncomingRequest,fet
             .then(res=>{
                 alert("Transaction Decline")
                 fetchIncomingRequest();
-                fetchAccountInfo()
             })
         } catch (error) {
             console.log(error);

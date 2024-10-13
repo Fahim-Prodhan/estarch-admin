@@ -87,6 +87,7 @@ const Refund = () => {
   };
 
   const continueExchange = async () => {
+    const userId = JSON.parse(localStorage.getItem('userId'));
     try {
       
       const payload = {
@@ -95,6 +96,7 @@ const Refund = () => {
         amount:parseInt(amount, 10),
         returnDeliveryCharge,
         partialReturn,
+        userId
       };
   
       // Make the API call to process the exchange

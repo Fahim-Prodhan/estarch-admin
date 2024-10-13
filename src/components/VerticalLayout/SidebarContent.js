@@ -157,7 +157,7 @@ const SidebarContent = props => {
             <li>
               <Link to="/#" className="has-arrow waves-effect">
                 <i className="uil-store"></i>
-                <span>{props.t("Ecommerce")}</span>
+                <span>{props.t("Home Things")}</span>
               </Link>
               <ul className="sub-menu">
                 <li>
@@ -165,9 +165,16 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="/ecommerce-home-view">{props.t("Home View")}</Link>
-                </li>
-
-
+                </li> 
+              </ul>
+            </li>
+            <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="uil-store"></i>
+                <span>{props.t("Ecommerce")}</span>
+              </Link>
+              <ul className="sub-menu">
+                
                 <li>
                   <Link to="/ecommerce-orders">{props.t("Orders")}</Link>
                 </li>
@@ -393,6 +400,9 @@ const SidebarContent = props => {
                 </li>
                 <li>
                   <Link to="/accounts/my-investor-accounts">{props.t("My Investor Account")}</Link>
+                </li>
+                <li>
+                  <Link to="/showroom-profit">{props.t("Showroom Profit")}</Link>
                 </li>
                 {/* <li>
                   <Link to="/pages-login">{props.t("Login")}</Link>

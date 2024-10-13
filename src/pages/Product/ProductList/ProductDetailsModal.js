@@ -133,6 +133,7 @@ const ProductDetailsModal = ({ isOpen, toggle, product }) => {
                       <p><span className='font-bold'>Discount Percentage: </span><span className='text-gray-500'>{s.discountPercent || 0} %</span></p>
                       <p><span className='font-bold'>Discount Flat: </span><span className='text-gray-500'>{s.discountAmount || 0} TK.</span></p>
                       <p><span className='font-bold'>Whole Sale: </span><span className='text-gray-500'>{s.wholesalePrice || 0} TK.</span></p>
+                      <p><span className='font-bold'>OSP Price: </span><span className='text-gray-500'>{s.ospPrice || 0} TK.</span></p>
                     </div>
                   )}
                 </div>

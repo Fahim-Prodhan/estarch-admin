@@ -26,7 +26,7 @@ const AddPurchase = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch(`${baseUrl}/api/products/navbar-search`);
+                const response = await fetch(`${baseUrl}/api/products/status-on-products`);
                 const data = await response.json();
                 setSkuProduct(data);
             } catch (error) {
@@ -153,6 +153,8 @@ const AddPurchase = () => {
             return;
         }
 
+        const costPerProduct = Math.ceil(parseFloat(calculateCostPerProduct()))
+
         const manufactureData = {
             productId: selectedProduct._id,
             assets: selectedAssets.map(asset => ({
@@ -161,10 +163,10 @@ const AddPurchase = () => {
             })),
             totalProduct,
             otherCost,
-            costPerProduct: parseFloat(calculateCostPerProduct())
+            costPerProduct
         }
 
-        console.log(manufactureData);
+      console.log(manufactureData);
 
         try {
             const res = await axios.post(`${baseUrl}/api/manufacture-product/create`, manufactureData);
